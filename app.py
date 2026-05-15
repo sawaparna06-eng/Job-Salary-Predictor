@@ -14,7 +14,120 @@ st.set_page_config(
     page_icon="💼",
     layout="wide"
 )
+# =========================
+# CUSTOM DESIGN / CSS
+# =========================
+st.markdown("""
+<style>
 
+/* Main Background */
+.stApp {
+    background: linear-gradient(to right, #141e30, #243b55);
+    color: white;
+}
+
+/* Title */
+h1, h2, h3 {
+    color: #ffffff;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* Sidebar */
+section[data-testid="stSidebar"] {
+    background-color: #0f172a;
+}
+
+/* Sidebar Text */
+section[data-testid="stSidebar"] .css-1d391kg {
+    color: white;
+}
+
+/* Buttons */
+.stButton > button {
+    background: linear-gradient(90deg, #00c6ff, #0072ff);
+    color: white;
+    border-radius: 10px;
+    height: 50px;
+    width: 100%;
+    border: none;
+    font-size: 18px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+/* Button Hover */
+.stButton > button:hover {
+    background: linear-gradient(90deg, #fc466b, #3f5efb);
+    transform: scale(1.03);
+}
+
+/* Input Boxes */
+.stTextInput > div > div > input,
+.stNumberInput input,
+.stSelectbox div[data-baseweb="select"] {
+    border-radius: 10px;
+    border: 2px solid #00c6ff;
+    background-color: #f8fafc;
+    color: black;
+}
+
+/* Metrics */
+[data-testid="metric-container"] {
+    background-color: #1e293b;
+    border: 1px solid #00c6ff;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0px 4px 15px rgba(0,0,0,0.4);
+}
+
+/* Table */
+table {
+    background-color: white;
+    color: black;
+    border-radius: 10px;
+}
+
+/* Success Message */
+.stSuccess {
+    background-color: #16a34a;
+    color: white;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+/* Info Box */
+.stInfo {
+    background-color: #0284c7;
+    color: white;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+/* Warning Box */
+.stWarning {
+    border-radius: 10px;
+}
+
+/* Card Style */
+.custom-card {
+    background-color: #1e293b;
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0px 5px 20px rgba(0,0,0,0.5);
+    margin-top: 20px;
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    color: white;
+    padding: 20px;
+    font-size: 16px;
+}
+
+</style>
+""", unsafe_allow_html=True)
 # =========================
 # SIMPLE USER DATABASE
 # =========================
