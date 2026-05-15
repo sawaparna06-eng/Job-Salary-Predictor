@@ -216,3 +216,69 @@ else:
         )
 
         st.balloons()
+        # =========================
+# PREDICTION + RECEIPT
+# =========================
+if st.button("Predict Salary"):
+
+    prediction = model.predict(input_df)
+
+    predicted_salary = int(prediction[0])
+
+    st.success(
+        f"💰 Predicted Salary: ₹ {predicted_salary:,}"
+    )
+
+    st.balloons()
+
+    # =========================
+    # RECEIPT SECTION
+    # =========================
+    st.markdown("---")
+    st.subheader("🧾 Prediction Receipt")
+
+    receipt_data = {
+        "Field": [
+            "Username",
+            "Experience",
+            "Skills Count",
+            "Certifications",
+            "Job Role",
+            "Education",
+            "Location",
+            "Industry",
+            "Company Size",
+            "Remote Work",
+            "Predicted Salary"
+        ],
+
+        "Value": [
+            st.session_state.username,
+            f"{exp} Years",
+            skills,
+            cert,
+            job,
+            edu,
+            loc,
+            ind,
+            company,
+            remote,
+            f"₹ {predicted_salary:,}"
+        ]
+    }
+
+    receipt_df = pd.DataFrame(receipt_data)
+
+    st.table(receipt_df)
+
+    # =========================
+    # DOWNLOAD RECEIPT
+    # =========================
+    csv = receipt_df.to_csv(index=False).encode('utf-8')
+
+    st.download_button(
+        label="⬇ Download Receipt",
+        data=csv,
+        file_name="salary_prediction_receipt.csv",
+        mime="text/csv"
+    )
