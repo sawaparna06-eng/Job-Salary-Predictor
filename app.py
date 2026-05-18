@@ -687,13 +687,14 @@ else:
             insights_df.set_index("Role")
         )
 
-    # =====================================================
-    # ABOUT PAGE
-    # =====================================================
-    elif page == "ℹ About":
+  # =====================================================
+# ABOUT PAGE
+# =====================================================
+elif page == "ℹ About":
 
-     st.markdown("""
+    st.markdown("""
     <style>
+
     .main-title{
         font-size:38px;
         font-weight:bold;
@@ -750,6 +751,7 @@ else:
         color:#00ff99;
         font-size:14px;
     }
+
     </style>
     """, unsafe_allow_html=True)
 
@@ -759,10 +761,12 @@ else:
         unsafe_allow_html=True
     )
 
-    # ================= PROJECT CARD =================
+    # ================= PROJECT OVERVIEW =================
     st.markdown("""
     <div class="card">
+
         <h3>📌 Project Overview</h3>
+
         <p>
         This project predicts employee salaries using 
         Machine Learning algorithms based on different 
@@ -775,6 +779,7 @@ else:
         data visualization, authentication, prediction reports, 
         and downloadable insights.
         </p>
+
     </div>
     """, unsafe_allow_html=True)
 
@@ -830,7 +835,7 @@ else:
         </div>
         """, unsafe_allow_html=True)
 
-    # ================= TOOLS & TECHNOLOGIES =================
+    # ================= TOOLS =================
     st.subheader("🛠 Tools & Technologies")
 
     t1, t2, t3 = st.columns(3)
@@ -839,11 +844,16 @@ else:
         st.markdown("""
         <div class="tool-card">
             <div class="tool-logo">🐍</div>
+
             <h4>Python</h4>
-            <p class="version">Version: 3.11</p>
+
+            <p class="version">
+            Version: 3.11
+            </p>
+
             <p>
-            Main programming language used for 
-            backend development and machine learning.
+            Main programming language used for backend
+            development and Machine Learning.
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -851,26 +861,40 @@ else:
     with t2:
         st.markdown("""
         <div class="tool-card">
+
             <div class="tool-logo">🎈</div>
+
             <h4>Streamlit</h4>
-            <p class="version">Version: 1.32</p>
-            <p>
-            Used for building interactive web applications 
-            and dashboards.
+
+            <p class="version">
+            Version: 1.32
             </p>
+
+            <p>
+            Used for building interactive dashboards
+            and web applications.
+            </p>
+
         </div>
         """, unsafe_allow_html=True)
 
     with t3:
         st.markdown("""
         <div class="tool-card">
+
             <div class="tool-logo">🐼</div>
+
             <h4>Pandas</h4>
-            <p class="version">Version: 2.2</p>
-            <p>
-            Used for data cleaning, processing, 
-            and analysis.
+
+            <p class="version">
+            Version: 2.2
             </p>
+
+            <p>
+            Used for data cleaning,
+            preprocessing and analysis.
+            </p>
+
         </div>
         """, unsafe_allow_html=True)
 
@@ -879,62 +903,88 @@ else:
     with t4:
         st.markdown("""
         <div class="tool-card">
+
             <div class="tool-logo">🔢</div>
+
             <h4>NumPy</h4>
-            <p class="version">Version: 1.26</p>
+
+            <p class="version">
+            Version: 1.26
+            </p>
+
             <p>
-            Used for numerical computations 
+            Used for numerical computation
             and array operations.
             </p>
+
         </div>
         """, unsafe_allow_html=True)
 
     with t5:
         st.markdown("""
         <div class="tool-card">
+
             <div class="tool-logo">🤖</div>
+
             <h4>Scikit-Learn</h4>
-            <p class="version">Version: 1.4</p>
+
+            <p class="version">
+            Version: 1.4
+            </p>
+
             <p>
-            Machine Learning library used 
+            Machine Learning library used
             for model training and prediction.
             </p>
+
         </div>
         """, unsafe_allow_html=True)
 
     with t6:
         st.markdown("""
         <div class="tool-card">
+
             <div class="tool-logo">📊</div>
+
             <h4>Machine Learning</h4>
-            <p class="version">AI Technology</p>
+
+            <p class="version">
+            AI Technology
+            </p>
+
             <p>
-            Used to analyze employee data 
+            Used to analyze employee data
             and predict salary accurately.
             </p>
+
         </div>
         """, unsafe_allow_html=True)
 
     # ================= FOOTER =================
     st.markdown("""
     <br>
+
     <div class="card" style="text-align:center;">
+
         <h3>✨ Developed with Passion</h3>
+
         <p>
-        Salary Prediction System using Machine Learning 
-        and Data Science technologies.
+        Salary Prediction System using
+        Machine Learning and Data Science.
         </p>
+
     </div>
     """, unsafe_allow_html=True)
 
-    # =====================================================
-    # FOOTER
-    # =====================================================
+    # ================= FINAL FOOTER =================
     st.markdown("""
     <hr>
+
     <div style='text-align:center;
     color:white;
     padding:15px;'>
+
     Made with ❤️ using Streamlit
+
     </div>
     """, unsafe_allow_html=True)
