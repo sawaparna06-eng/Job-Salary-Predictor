@@ -245,287 +245,34 @@ else:
     scaler = pickle.load(open("scaler.pkl", "rb"))
     columns = pickle.load(open("columns.pkl", "rb"))
 
-       # =========================
-# HOME PAGE DESIGN
-# =========================
-
-if page == "🏠 Home":
-
     # =========================
-    # CUSTOM CSS
+    # HOME PAGE
     # =========================
-    st.markdown("""
-    <style>
+    if page == "🏠 Home":
 
-    .hero-container{
-        background: linear-gradient(135deg,#071c39,#0f274d,#0b1120);
-        padding:40px;
-        border-radius:25px;
-        margin-top:20px;
-        box-shadow:0px 8px 25px rgba(0,0,0,0.5);
-    }
-
-    .hero-title{
-        font-size:65px;
-        font-weight:800;
-        color:white;
-        line-height:1.1;
-    }
-
-    .hero-sub{
-        font-size:22px;
-        color:#cbd5e1;
-        margin-top:15px;
-    }
-
-    .feature-box{
-        background:rgba(255,255,255,0.05);
-        padding:20px;
-        border-radius:20px;
-        text-align:center;
-        backdrop-filter: blur(10px);
-        border:1px solid rgba(255,255,255,0.1);
-    }
-
-    .feature-title{
-        color:white;
-        font-size:20px;
-        font-weight:700;
-    }
-
-    .feature-text{
-        color:#cbd5e1;
-    }
-
-    .prediction-box{
-        background:rgba(255,255,255,0.06);
-        padding:30px;
-        border-radius:25px;
-        border:1px solid rgba(255,255,255,0.1);
-        box-shadow:0px 5px 20px rgba(0,0,0,0.3);
-    }
-
-    .predict-btn{
-        background:linear-gradient(90deg,#2563eb,#06b6d4);
-        padding:12px;
-        border-radius:12px;
-        color:white;
-        text-align:center;
-        font-weight:bold;
-        font-size:18px;
-    }
-
-    .stats-box{
-        background:rgba(255,255,255,0.05);
-        padding:25px;
-        border-radius:20px;
-        text-align:center;
-        margin-top:20px;
-    }
-
-    .stats-number{
-        font-size:40px;
-        font-weight:bold;
-        color:#38bdf8;
-    }
-
-    .stats-text{
-        color:white;
-        font-size:18px;
-    }
-
-    </style>
-    """, unsafe_allow_html=True)
-
-    # =========================
-    # HERO SECTION
-    # =========================
-    col1, col2, col3 = st.columns([2.2,1.4,1])
-
-    # =========================
-    # IMAGE
-    # =========================
-    with col1:
+        st.title("Welcome to Salary Prediction App")
 
         st.image(
-            "https://images.unsplash.com/photo-1566073771259-6a8506099945",
+            "https://images.unsplash.com/photo-1520607162513-77705c0f0d4a",
             use_container_width=True
         )
 
-    # =========================
-    # TEXT SECTION
-    # =========================
-    with col2:
-
         st.markdown("""
-        <div class="hero-container">
+        ### 🚀 Features
 
-        <div style="color:#38bdf8;
-        font-size:20px;
-        font-weight:bold;">
-        WELCOME TO
-        </div>
+        ✔ Salary Prediction  
+        ✔ Interactive Dashboard  
+        ✔ Salary Insights  
+        ✔ Download Prediction Receipt  
+        ✔ Login & Signup System  
+        """)
 
-        <div class="hero-title">
-        Salary Prediction <br>
-        System
-        </div>
+        st.info("Use sidebar navigation to explore pages.")
 
-        <div class="hero-sub">
-        Predict your expected salary based on
-        experience, skills, education, and more.
-        Our AI powered system provides accurate
-        salary estimation instantly.
-        </div>
-
-        </div>
-        """, unsafe_allow_html=True)
-
-        st.markdown("<br>", unsafe_allow_html=True)
-
-        # FEATURES
-        c1,c2,c3 = st.columns(3)
-
-        with c1:
-            st.markdown("""
-            <div class="feature-box">
-            <div class="feature-title">🎯</div>
-            <div class="feature-text">
-            Accurate Prediction
-            </div>
-            </div>
-            """, unsafe_allow_html=True)
-
-        with c2:
-            st.markdown("""
-            <div class="feature-box">
-            <div class="feature-title">⚡</div>
-            <div class="feature-text">
-            Fast & Reliable
-            </div>
-            </div>
-            """, unsafe_allow_html=True)
-
-        with c3:
-            st.markdown("""
-            <div class="feature-box">
-            <div class="feature-title">🔒</div>
-            <div class="feature-text">
-            Secure Data
-            </div>
-            </div>
-            """, unsafe_allow_html=True)
-
-    # =========================
-    # QUICK PREDICTION BOX
-    # =========================
-    with col3:
-
-        st.markdown("""
-        <div class="prediction-box">
-        <h2 style='text-align:center;
-        color:white;'>
-        Quick Prediction
-        </h2>
-        """, unsafe_allow_html=True)
-
-        exp = st.number_input(
-            "Experience",
-            0,
-            30,
-            1
-        )
-
-        skills = st.number_input(
-            "Skills",
-            0,
-            50,
-            5
-        )
-
-        education = st.selectbox(
-            "Education",
-            [
-                "Bachelor",
-                "Master",
-                "PhD"
-            ]
-        )
-
-        job = st.selectbox(
-            "Job Role",
-            [
-                "Data Analyst",
-                "Software Engineer",
-                "Data Scientist",
-                "ML Engineer"
-            ]
-        )
-
-        st.button("🚀 Predict Now")
-
-        st.markdown("</div>",
-        unsafe_allow_html=True)
-
-    # =========================
-    # STATS SECTION
-    # =========================
-    st.markdown("<br><br>",
-    unsafe_allow_html=True)
-
-    s1,s2,s3,s4 = st.columns(4)
-
-    with s1:
-        st.markdown("""
-        <div class="stats-box">
-        <div class="stats-number">
-        1000+
-        </div>
-        <div class="stats-text">
-        Happy Users
-        </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with s2:
-        st.markdown("""
-        <div class="stats-box">
-        <div class="stats-number">
-        5000+
-        </div>
-        <div class="stats-text">
-        Predictions
-        </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with s3:
-        st.markdown("""
-        <div class="stats-box">
-        <div class="stats-number">
-        90%
-        </div>
-        <div class="stats-text">
-        Accuracy
-        </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with s4:
-        st.markdown("""
-        <div class="stats-box">
-        <div class="stats-number">
-        100%
-        </div>
-        <div class="stats-text">
-        Secure Data
-        </div>
-        </div>
-        """, unsafe_allow_html=True)
     # =========================
     # SALARY PREDICTION
     # =========================
-   if page == "💰 Salary Prediction":
+    elif page == "💰 Salary Prediction":
 
         st.title("💰 Predict Salary")
 
