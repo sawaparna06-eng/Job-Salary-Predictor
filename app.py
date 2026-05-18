@@ -626,7 +626,7 @@ else:
     # =========================
     # ABOUT PAGE
     # =========================
-    elif page == "ℹ About":
+     elif page == "ℹ About":
 
     st.markdown("""
     <style>
