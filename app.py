@@ -646,7 +646,7 @@ else:
         padding:20px;
         border-radius:15px;
         box-shadow:0px 4px 15px rgba(0,0,0,0.3);
-        color:white;
+        color:black;
         margin-bottom:20px;
         transition:0.3s;
     }
@@ -692,11 +692,6 @@ else:
     </style>
     """, unsafe_allow_html=True)
 
-    # ================= TITLE =================
-    st.markdown(
-        '<div class="main-title">💼 Salary Prediction System</div>',
-        unsafe_allow_html=True
-    )
 
     # ================= PROJECT CARD =================
     st.markdown("""
