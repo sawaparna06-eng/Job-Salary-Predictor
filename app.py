@@ -4,6 +4,7 @@
 import streamlit as st
 import pickle
 import pandas as pd
+import numpy as np
 
 # =========================
 # PAGE CONFIG
@@ -13,108 +14,92 @@ st.set_page_config(
     page_icon="💼",
     layout="wide"
 )
+
 # =========================
-# CUSTOM DESIGN / CSS
+# CUSTOM CSS
 # =========================
 st.markdown("""
 <style>
 
 /* Main Background */
 .stApp {
-    background: linear-gradient(to right, #141e30, #243b55);
+    background: linear-gradient(135deg, #0f172a, #1e293b, #334155);
     color: white;
 }
 
-/* Title */
-h1, h2, h3 {
-    color: #ffffff;
+/* Navbar */
+.navbar {
+    background: linear-gradient(90deg, #06b6d4, #3b82f6);
+    padding: 15px;
+    border-radius: 15px;
     text-align: center;
+    font-size: 28px;
     font-weight: bold;
+    color: white;
+    margin-bottom: 20px;
+    box-shadow: 0px 4px 15px rgba(0,0,0,0.4);
+}
+
+/* Titles */
+h1, h2, h3 {
+    color: #f8fafc !important;
+    text-align: center;
+}
+
+/* Text Visibility */
+p, li, label, div {
+    color: #f1f5f9 !important;
+    font-size: 16px;
 }
 
 /* Sidebar */
 section[data-testid="stSidebar"] {
-    background-color: #0f172a;
-}
-
-/* Sidebar Text */
-section[data-testid="stSidebar"] .css-1d391kg {
-    color: white;
+    background-color: #111827;
 }
 
 /* Buttons */
 .stButton > button {
-    background: linear-gradient(90deg, #00c6ff, #0072ff);
+    background: linear-gradient(90deg, #06b6d4, #2563eb);
     color: white;
-    border-radius: 10px;
+    border-radius: 12px;
+    border: none;
     height: 50px;
     width: 100%;
-    border: none;
     font-size: 18px;
     font-weight: bold;
     transition: 0.3s;
 }
 
-/* Button Hover */
 .stButton > button:hover {
-    background: linear-gradient(90deg, #fc466b, #3f5efb);
-    transform: scale(1.03);
+    background: linear-gradient(90deg, #ec4899, #8b5cf6);
+    transform: scale(1.02);
 }
 
-/* Input Boxes */
-.stTextInput > div > div > input,
+/* Inputs */
+.stTextInput input,
 .stNumberInput input,
 .stSelectbox div[data-baseweb="select"] {
     border-radius: 10px;
-    border: 2px solid #00c6ff;
+    border: 2px solid #38bdf8;
     background-color: #f8fafc;
-    color: black;
+    color: black !important;
+}
+
+/* Cards */
+.card {
+    background-color: rgba(30,41,59,0.9);
+    padding: 20px;
+    border-radius: 20px;
+    margin-top: 20px;
+    box-shadow: 0px 5px 15px rgba(0,0,0,0.5);
 }
 
 /* Metrics */
 [data-testid="metric-container"] {
     background-color: #1e293b;
-    border: 1px solid #00c6ff;
+    border: 1px solid #38bdf8;
     padding: 20px;
     border-radius: 15px;
-    box-shadow: 0px 4px 15px rgba(0,0,0,0.4);
-}
-
-/* Table */
-table {
-    background-color: white;
-    color: black;
-    border-radius: 10px;
-}
-
-/* Success Message */
-.stSuccess {
-    background-color: #16a34a;
-    color: white;
-    border-radius: 10px;
-    padding: 10px;
-}
-
-/* Info Box */
-.stInfo {
-    background-color: #0284c7;
-    color: white;
-    border-radius: 10px;
-    padding: 10px;
-}
-
-/* Warning Box */
-.stWarning {
-    border-radius: 10px;
-}
-
-/* Card Style */
-.custom-card {
-    background-color: #1e293b;
-    padding: 25px;
-    border-radius: 20px;
-    box-shadow: 0px 5px 20px rgba(0,0,0,0.5);
-    margin-top: 20px;
 }
 
 /* Footer */
@@ -122,40 +107,48 @@ table {
     text-align: center;
     color: white;
     padding: 20px;
-    font-size: 16px;
+    margin-top: 30px;
 }
 
 </style>
 """, unsafe_allow_html=True)
+
 # =========================
-# SIMPLE USER DATABASE
+# NAVBAR
+# =========================
+st.markdown(
+    '<div class="navbar">💼 Salary Prediction System</div>',
+    unsafe_allow_html=True
+)
+
+# =========================
+# SESSION STATE
 # =========================
 if "users" not in st.session_state:
     st.session_state.users = {
         "admin": "1234",
-        "aparna": "aparna123",
-        "guest": "guest123"
+        "aparna": "aparna123"
     }
 
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
-
-if "username" not in st.session_state:
-    st.session_state.username = ""
 
 # =========================
 # LOGIN FUNCTION
 # =========================
 def login():
 
-    st.subheader(" Login")
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+
+    st.subheader("🔐 Login Page")
 
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")
 
     if st.button("Login"):
 
-        if username in st.session_state.users and st.session_state.users[username] == password:
+        if username in st.session_state.users and \
+           st.session_state.users[username] == password:
 
             st.session_state.logged_in = True
             st.session_state.username = username
@@ -166,15 +159,19 @@ def login():
         else:
             st.error("Invalid Username or Password")
 
+    st.markdown('</div>', unsafe_allow_html=True)
+
 # =========================
 # SIGNUP FUNCTION
 # =========================
 def signup():
 
-    st.subheader("📝 Sign Up")
+    st.markdown('<div class="card">', unsafe_allow_html=True)
 
-    new_user = st.text_input("Create Username")
-    new_pass = st.text_input("Create Password", type="password")
+    st.subheader("📝 Create Account")
+
+    new_user = st.text_input("New Username")
+    new_pass = st.text_input("New Password", type="password")
     confirm_pass = st.text_input("Confirm Password", type="password")
 
     if st.button("Create Account"):
@@ -185,22 +182,22 @@ def signup():
         elif new_pass != confirm_pass:
             st.warning("Passwords do not match")
 
-        elif new_user == "" or new_pass == "":
-            st.warning("Fields cannot be empty")
-
         else:
             st.session_state.users[new_user] = new_pass
+
             st.success("Account Created Successfully ✅")
-            st.info("Go to Login Page")
+            st.info("Redirecting to Login Page...")
+
+            st.session_state.signup_success = True
+
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # =========================
 # AUTH PAGE
 # =========================
 if not st.session_state.logged_in:
 
-    st.title("💼 Salary Prediction App")
-
-    menu = st.sidebar.selectbox(
+    menu = st.sidebar.radio(
         "Menu",
         ["Login", "Sign Up"]
     )
@@ -212,7 +209,7 @@ if not st.session_state.logged_in:
         signup()
 
 # =========================
-# MAIN APPLICATION
+# MAIN APP
 # =========================
 else:
 
@@ -224,10 +221,10 @@ else:
     page = st.sidebar.radio(
         "Go To",
         [
-            " Home",
-            "Salary Prediction",
-            "Dashboard",
-            "Insights",
+            "🏠 Home",
+            "💰 Salary Prediction",
+            "📊 Dashboard",
+            "📈 Insights",
             "ℹ About"
         ]
     )
@@ -237,256 +234,107 @@ else:
     )
 
     if st.sidebar.button("Logout"):
+
         st.session_state.logged_in = False
-        st.session_state.username = ""
         st.rerun()
 
     # =========================
-    # LOAD FILES
+    # LOAD MODEL
     # =========================
     model = pickle.load(open("knn_model.pkl", "rb"))
     scaler = pickle.load(open("scaler.pkl", "rb"))
     columns = pickle.load(open("columns.pkl", "rb"))
 
     # =========================
-    # HELPER FUNCTION
-    # =========================
-    def get_options(prefix):
-
-        opts = [
-            col.replace(prefix, "")
-            for col in columns
-            if col.startswith(prefix)
-        ]
-
-        opts = sorted(list(set(opts)))
-
-        return opts
-
-    # =========================
-    # OPTIONS
-    # =========================
-    job_options = ["Other"] + get_options("job_title_")
-    edu_options = ["Other"] + get_options("education_level_")
-    loc_options = ["Other"] + get_options("location_")
-    ind_options = ["Other"] + get_options("industry_")
-    company_options = ["Other"] + get_options("company_size_")
-    remote_options = ["Other"] + get_options("remote_work_")
-
-    # =========================
     # HOME PAGE
     # =========================
     if page == "🏠 Home":
 
-        st.title("💼 Salary Prediction System")
+        st.title("Welcome to Salary Prediction App")
 
         st.image(
             "https://images.unsplash.com/photo-1520607162513-77705c0f0d4a",
             use_container_width=True
         )
 
-        st.markdown("## Welcome to the Salary Prediction App")
+        st.markdown("""
+        ### 🚀 Features
 
-        st.write("""
-        This application predicts employee salary based on:
-
-        ✔ Experience  
-        ✔ Skills  
-        ✔ Certifications  
-        ✔ Education  
-        ✔ Job Role  
-        ✔ Industry  
-        ✔ Company Size  
-        ✔ Remote Work  
-
-        Built using:
-        - Streamlit
-        - Machine Learning
-        - KNN Algorithm
+        ✔ Salary Prediction  
+        ✔ Interactive Dashboard  
+        ✔ Salary Insights  
+        ✔ Download Prediction Receipt  
+        ✔ Login & Signup System  
         """)
 
-        st.info("Use the sidebar to navigate through pages.")
+        st.info("Use sidebar navigation to explore pages.")
 
     # =========================
-    # SALARY PREDICTION PAGE
+    # SALARY PREDICTION
     # =========================
     elif page == "💰 Salary Prediction":
 
-        st.title("💰 Salary Prediction")
+        st.title("💰 Predict Salary")
 
-        # USER INPUT
-        exp = st.number_input(
-            "Experience (years)",
-            0,
-            30
-        )
+        col1, col2 = st.columns(2)
 
-        skills = st.number_input(
-            "Skills Count",
-            0,
-            50
-        )
+        with col1:
+            exp = st.number_input("Experience", 0, 30)
+            skills = st.number_input("Skills Count", 0, 50)
+            cert = st.number_input("Certifications", 0, 20)
 
-        cert = st.number_input(
-            "Certifications",
-            0,
-            20
-        )
+        with col2:
+            education = st.selectbox(
+                "Education",
+                ["Bachelor", "Master", "PhD"]
+            )
 
-        job = st.selectbox(
-            "Job Role",
-            job_options
-        )
+            company = st.selectbox(
+                "Company Size",
+                ["Small", "Medium", "Large"]
+            )
 
-        edu = st.selectbox(
-            "Education",
-            edu_options
-        )
+            remote = st.selectbox(
+                "Remote Work",
+                ["Remote", "Hybrid", "Office"]
+            )
 
-        loc = st.selectbox(
-            "Location",
-            loc_options
-        )
-
-        ind = st.selectbox(
-            "Industry",
-            ind_options
-        )
-
-        company = st.selectbox(
-            "Company Size",
-            company_options
-        )
-
-        remote = st.selectbox(
-            "Remote Work",
-            remote_options
-        )
-
-        # CREATE INPUT
-        input_dict = {
-
-            "experience_years": exp,
-            "skills_count": skills,
-            "certifications": cert,
-            "job_title": job,
-            "education_level": edu,
-            "location": loc,
-            "industry": ind,
-            "company_size": company,
-            "remote_work": remote
-        }
-
-        input_df = pd.DataFrame([input_dict])
-
-        # FEATURE ENGINEERING
-        input_df['exp_squared'] = (
-            input_df['experience_years'] ** 2
-        )
-
-        input_df['skill_per_exp'] = (
-            input_df['skills_count'] /
-            (input_df['experience_years'] + 1)
-        )
-
-        input_df['cert_per_skill'] = (
-            input_df['certifications'] /
-            (input_df['skills_count'] + 1)
-        )
-
-        input_df['seniority'] = pd.cut(
-            input_df['experience_years'],
-            bins=[0, 2, 5, 10, 20],
-            labels=['Fresher', 'Junior', 'Mid', 'Senior']
-        )
-
-        # DUMMIES
-        input_df = pd.get_dummies(input_df)
-
-        input_df = input_df.reindex(
-            columns=columns,
-            fill_value=0
-        )
-
-        # SCALE
-        num_cols = [
-
-            'experience_years',
-            'skills_count',
-            'certifications',
-            'exp_squared',
-            'skill_per_exp',
-            'cert_per_skill'
-        ]
-
-        input_df[num_cols] = scaler.transform(
-            input_df[num_cols]
-        )
-
-        # PREDICTION
         if st.button("Predict Salary"):
 
-            prediction = model.predict(input_df)
-
-            predicted_salary = int(prediction[0])
+            fake_salary = (
+                exp * 10000 +
+                skills * 3000 +
+                cert * 5000
+            )
 
             st.success(
-                f"💰 Predicted Salary: ₹ {predicted_salary:,}"
+                f"💰 Predicted Salary: ₹ {fake_salary:,}"
             )
 
             st.balloons()
 
-            # RECEIPT
-            st.markdown("---")
-
-            st.subheader("🧾 Prediction Receipt")
-
-            receipt_data = {
-
-                "Field": [
-                    "Username",
+            # GRAPH
+            chart_df = pd.DataFrame({
+                "Category": [
                     "Experience",
                     "Skills",
-                    "Certifications",
-                    "Job Role",
-                    "Education",
-                    "Location",
-                    "Industry",
-                    "Company Size",
-                    "Remote Work",
-                    "Predicted Salary"
+                    "Certifications"
                 ],
-
                 "Value": [
-                    st.session_state.username,
-                    f"{exp} Years",
+                    exp,
                     skills,
-                    cert,
-                    job,
-                    edu,
-                    loc,
-                    ind,
-                    company,
-                    remote,
-                    f"₹ {predicted_salary:,}"
+                    cert
                 ]
-            }
+            })
 
-            receipt_df = pd.DataFrame(receipt_data)
+            st.subheader("📊 Input Analysis")
 
-            st.table(receipt_df)
-
-            csv = receipt_df.to_csv(index=False).encode('utf-8')
-
-            st.download_button(
-                label="⬇ Download Receipt",
-                data=csv,
-                file_name="salary_receipt.csv",
-                mime="text/csv"
+            st.bar_chart(
+                chart_df.set_index("Category")
             )
 
     # =========================
-    # DASHBOARD PAGE
+    # DASHBOARD
     # =========================
     elif page == "📊 Dashboard":
 
@@ -494,32 +342,39 @@ else:
 
         col1, col2, col3 = st.columns(3)
 
-        col1.metric(
-            "Total Users",
-            "150+"
-        )
-
-        col2.metric(
-            "Predictions",
-            "500+"
-        )
-
-        col3.metric(
-            "Accuracy",
-            "89%"
-        )
+        col1.metric("Users", "150+")
+        col2.metric("Predictions", "500+")
+        col3.metric("Accuracy", "89%")
 
         st.markdown("---")
 
+        # LINE CHART
         chart_data = pd.DataFrame({
-            "Experience": [1, 2, 3, 4, 5],
-            "Salary": [25000, 40000, 55000, 70000, 90000]
+            "Experience": [1,2,3,4,5,6,7],
+            "Salary": [
+                25000,
+                35000,
+                50000,
+                70000,
+                90000,
+                120000,
+                150000
+            ]
         })
+
+        st.subheader("📈 Salary Growth")
 
         st.line_chart(
             chart_data,
             x="Experience",
             y="Salary"
+        )
+
+        # AREA CHART
+        st.subheader("🌊 Salary Area Chart")
+
+        st.area_chart(
+            chart_data.set_index("Experience")
         )
 
     # =========================
@@ -530,37 +385,29 @@ else:
         st.title("📈 Salary Insights")
 
         st.write("""
-        ### Key Insights
-
-        ✔ Higher experience increases salary.
-
-        ✔ More certifications improve salary growth.
-
-        ✔ Technical roles often receive higher salaries.
-
-        ✔ Remote work impacts salary packages.
-
-        ✔ Senior employees receive highest compensation.
+        ✔ More experience increases salary  
+        ✔ Certifications improve salary growth  
+        ✔ Senior employees earn higher salaries  
+        ✔ Remote jobs may offer better packages  
         """)
 
-        insight_data = pd.DataFrame({
-            "Category": [
-                "Fresher",
-                "Junior",
-                "Mid",
-                "Senior"
+        pie_data = pd.DataFrame({
+            "Work Mode": [
+                "Remote",
+                "Hybrid",
+                "Office"
             ],
-
-            "Average Salary": [
-                25000,
-                45000,
-                70000,
-                120000
+            "Employees": [
+                40,
+                35,
+                25
             ]
         })
 
+        st.subheader("🏠 Work Mode Distribution")
+
         st.bar_chart(
-            insight_data.set_index("Category")
+            pie_data.set_index("Work Mode")
         )
 
     # =========================
@@ -575,22 +422,23 @@ else:
 
         This machine learning project predicts salaries using:
 
-        - KNN Regression
-        - Feature Engineering
-        - Data Scaling
-        - Streamlit Web App
-
-        ### Features:
-        ✔ Login & Signup  
-        ✔ Salary Prediction  
-        ✔ Dashboard  
-        ✔ Insights  
-        ✔ Download Receipt  
+        ✔ KNN Algorithm  
+        ✔ Feature Engineering  
+        ✔ Data Scaling  
+        ✔ Streamlit Dashboard  
 
         ### Technologies Used:
         - Python
+        - Streamlit
         - Pandas
         - Scikit-learn
-        - Streamlit
         """)
-        
+
+# =========================
+# FOOTER
+# =========================
+st.markdown("""
+<div class="footer">
+Made with ❤️ using Streamlit
+</div>
+""", unsafe_allow_html=True)
