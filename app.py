@@ -704,11 +704,6 @@ else:
         job role, and working hours.
         </p>
 
-       <p style="color:#d1d5db; font-size:17px; line-height:1.8;">
-The system provides an interactive dashboard with 
-data visualization, authentication, prediction reports, 
-and downloadable insights.
-</p>
     </div>
     """, unsafe_allow_html=True)
 
