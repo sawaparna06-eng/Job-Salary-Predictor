@@ -1,635 +1,869 @@
-# =========================================================
+# =========================
 # IMPORT LIBRARIES
-# =========================================================
+# =========================
 import streamlit as st
+import pickle
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-import plotly.express as px
-import pickle
 
-# =========================================================
+# =========================
 # PAGE CONFIG
-# =========================================================
+# =========================
 st.set_page_config(
-    page_title="AI Salary Prediction",
+    page_title="Salary Prediction App",
     page_icon="💼",
     layout="wide"
 )
 
-# =========================================================
+# =========================
 # CUSTOM CSS
-# =========================================================
+# =========================
 st.markdown("""
 <style>
 
-/* MAIN BACKGROUND */
-.stApp{
-    background: linear-gradient(to right,#141e30,#243b55);
+/* Main Background */
+.stApp {
+    background: linear-gradient(135deg, #0f172a, #1e293b, #334155);
     color: white;
 }
 
-/* SIDEBAR */
-section[data-testid="stSidebar"]{
-    background: linear-gradient(to bottom,#0f2027,#203a43,#2c5364);
+/* Navbar */
+.navbar {
+    background: linear-gradient(90deg, #06b6d4, #3b82f6);
+    padding: 15px;
+    border-radius: 15px;
+    text-align: center;
+    font-size: 28px;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 20px;
+    box-shadow: 0px 4px 15px rgba(0,0,0,0.4);
 }
 
-/* TITLES */
-.main-title{
-    font-size:60px;
-    font-weight:bold;
-    text-align:center;
-    color:white;
+/* Titles */
+h1, h2, h3 {
+    color: #f8fafc !important;
+    text-align: center;
 }
 
-.sub-title{
-    text-align:center;
-    font-size:24px;
-    color:#dcdcdc;
+/* Text Visibility */
+p, li, label, div {
+    color: #f1f5f9 !important;
+    font-size: 16px;
 }
 
-/* HERO BOX */
-.hero{
-    padding:40px;
-    border-radius:25px;
-    background: linear-gradient(135deg,#667eea,#764ba2);
-    box-shadow:0px 10px 30px rgba(0,0,0,0.4);
-    animation: fadeIn 2s;
+/* Sidebar */
+section[data-testid="stSidebar"] {
+    background-color: #111827;
 }
 
-/* CARDS */
-.card{
-    background: rgba(255,255,255,0.1);
-    backdrop-filter: blur(10px);
-    padding:25px;
-    border-radius:20px;
-    transition:0.5s;
-    box-shadow:0px 8px 20px rgba(0,0,0,0.3);
-    height:250px;
+/* Buttons */
+.stButton > button {
+    background: linear-gradient(90deg, #06b6d4, #2563eb);
+    color: white;
+    border-radius: 12px;
+    border: none;
+    height: 50px;
+    width: 100%;
+    font-size: 18px;
+    font-weight: bold;
+    transition: 0.3s;
 }
 
-.card:hover{
-    transform:translateY(-10px) scale(1.03);
-    background: linear-gradient(135deg,#ff6a00,#ee0979);
+.stButton > button:hover {
+    background: linear-gradient(90deg, #ec4899, #8b5cf6);
+    transform: scale(1.02);
 }
 
-/* METRIC CARD */
-.metric-card{
-    background: rgba(255,255,255,0.1);
-    padding:25px;
-    border-radius:20px;
-    text-align:center;
-    transition:0.5s;
+/* Inputs */
+.stTextInput input,
+.stNumberInput input,
+.stSelectbox div[data-baseweb="select"] {
+    border-radius: 10px;
+    border: 2px solid #38bdf8;
+    background-color: #f8fafc;
+    color: black !important;
 }
 
-.metric-card:hover{
-    transform:translateY(-8px);
-    background: linear-gradient(135deg,#11998e,#38ef7d);
+/* Cards */
+.card {
+    background-color: rgba(30,41,59,0.9);
+    padding: 20px;
+    border-radius: 20px;
+    margin-top: 20px;
+    box-shadow: 0px 5px 15px rgba(0,0,0,0.5);
 }
 
-/* GRAPH BOX */
-.graph-box{
-    background: rgba(255,255,255,0.1);
-    padding:20px;
-    border-radius:20px;
-    box-shadow:0px 8px 20px rgba(0,0,0,0.3);
+/* Metrics */
+[data-testid="metric-container"] {
+    background-color: #1e293b;
+    border: 1px solid #38bdf8;
+    padding: 20px;
+    border-radius: 15px;
 }
 
-/* BUTTON */
-.stButton>button{
-    background: linear-gradient(to right,#ff512f,#dd2476);
-    color:white;
-    border:none;
-    padding:12px 25px;
-    border-radius:10px;
-    font-size:18px;
-    transition:0.4s;
-    width:100%;
-}
-
-.stButton>button:hover{
-    transform:scale(1.05);
-    background: linear-gradient(to right,#00c6ff,#0072ff);
-}
-
-/* ANIMATION */
-@keyframes fadeIn{
-    from{
-        opacity:0;
-        transform:translateY(-30px);
-    }
-    to{
-        opacity:1;
-        transform:translateY(0px);
-    }
+/* Footer */
+.footer {
+    text-align: center;
+    color: white;
+    padding: 20px;
+    margin-top: 30px;
 }
 
 </style>
 """, unsafe_allow_html=True)
 
-# =========================================================
-# SIDEBAR
-# =========================================================
-st.sidebar.title("💼 Navigation")
-
-page = st.sidebar.radio(
-    "Go To",
-    [
-        "🏠 Home",
-        "🔮 Prediction",
-        "📊 Dashboard",
-        "📈 Visualization",
-        "ℹ About"
-    ]
+# =========================
+# NAVBAR
+# =========================
+st.markdown(
+    '<div class="navbar">💼 Salary Prediction System</div>',
+    unsafe_allow_html=True
 )
 
-# =========================================================
-# SAMPLE DATA
-# =========================================================
-np.random.seed(42)
+# =========================
+# SESSION STATE
+# =========================
+if "users" not in st.session_state:
+    st.session_state.users = {
+        "admin": "1234",
+        "aparna": "aparna123"
+    }
 
-df = pd.DataFrame({
-    "Experience": np.random.randint(1,20,200),
-    "Salary": np.random.randint(30000,200000,200),
-    "Age": np.random.randint(21,60,200),
-    "Skill_Score": np.random.randint(1,10,200)
-})
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
 
-# =========================================================
-# HOME PAGE
-# =========================================================
-if page == "🏠 Home":
+# =========================
+# LOGIN FUNCTION
+# =========================
+def login():
 
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+
+    st.subheader("🔐 Login Page")
+
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+
+    if st.button("Login"):
+
+        if username in st.session_state.users and \
+           st.session_state.users[username] == password:
+
+            st.session_state.logged_in = True
+            st.session_state.username = username
+
+            st.success(f"Welcome {username} 🎉")
+            st.rerun()
+
+        else:
+            st.error("Invalid Username or Password")
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# =========================
+# SIGNUP FUNCTION
+# =========================
+def signup():
+
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+
+    st.subheader("📝 Create Account")
+
+    new_user = st.text_input("New Username")
+    new_pass = st.text_input("New Password", type="password")
+    confirm_pass = st.text_input("Confirm Password", type="password")
+
+    if st.button("Create Account"):
+
+        if new_user in st.session_state.users:
+            st.warning("Username already exists")
+
+        elif new_pass != confirm_pass:
+            st.warning("Passwords do not match")
+
+        else:
+            st.session_state.users[new_user] = new_pass
+
+            st.success("Account Created Successfully ✅")
+            st.info("Redirecting to Login Page...")
+
+            st.session_state.signup_success = True
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# =========================
+# AUTH PAGE
+# =========================
+if not st.session_state.logged_in:
+
+    menu = st.sidebar.radio(
+        "Menu",
+        ["Login", "Sign Up"]
+    )
+
+    if menu == "Login":
+        login()
+
+    else:
+        signup()
+
+# =========================
+# MAIN APP
+# =========================
+else:
+
+    # =========================
+    # SIDEBAR
+    # =========================
+    st.sidebar.title("📌 Navigation")
+
+    page = st.sidebar.radio(
+        "Go To",
+        [
+            "🏠 Home",
+            "💰 Salary Prediction",
+            "📊 Dashboard",
+            "📈 Insights",
+            "ℹ About"
+        ]
+    )
+
+    st.sidebar.success(
+        f"Logged in as {st.session_state.username}"
+    )
+
+    if st.sidebar.button("Logout"):
+
+        st.session_state.logged_in = False
+        st.rerun()
+
+    # =========================
+    # LOAD MODEL
+    # =========================
+    model = pickle.load(open("knn_model.pkl", "rb"))
+    scaler = pickle.load(open("scaler.pkl", "rb"))
+    columns = pickle.load(open("columns.pkl", "rb"))
+
+    # =========================
+    # HOME PAGE
+    # =========================
+    if page == "🏠 Home":
+
+        st.title("Welcome to Salary Prediction App")
+      # =========================
+        # HOME PAGE CSS
+        # =========================
+        st.markdown("""
+        <style>
+
+        .hero-box{
+            background: linear-gradient(
+            135deg,
+            #0f172a,
+            #1e3a8a,
+            #2563eb
+            );
+
+            padding:50px;
+            border-radius:30px;
+            box-shadow:0px 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .hero-title{
+            font-size:65px;
+            font-weight:800;
+            color:white;
+            line-height:1.1;
+        }
+
+        .hero-text{
+            font-size:20px;
+            color:#dbeafe;
+            margin-top:20px;
+        }
+
+        .feature-card{
+            background:rgba(255,255,255,0.08);
+            padding:25px;
+            border-radius:20px;
+            text-align:center;
+            backdrop-filter: blur(10px);
+            transition:0.3s;
+            border:1px solid rgba(255,255,255,0.1);
+        }
+
+        .feature-card:hover{
+            transform:translateY(-5px);
+        }
+
+        .feature-title{
+            color:white;
+            font-size:22px;
+            font-weight:bold;
+        }
+
+        .feature-text{
+            color:#cbd5e1;
+            margin-top:10px;
+        }
+
+        .stats-card{
+            background:rgba(255,255,255,0.05);
+            padding:30px;
+            border-radius:20px;
+            text-align:center;
+            margin-top:20px;
+        }
+
+        .stats-number{
+            font-size:40px;
+            color:#38bdf8;
+            font-weight:bold;
+        }
+
+        .stats-label{
+            color:white;
+            font-size:18px;
+        }
+
+        </style>
+        """, unsafe_allow_html=True)
+
+        # =========================
+        # HERO SECTION
+        # =========================
+        left,right = st.columns([1.4,1])
+
+        with left:
+
+            st.markdown("""
+            <div class="hero-box">
+
+            <div style="
+            color:#38bdf8;
+            font-size:20px;
+            font-weight:bold;">
+            AI POWERED SYSTEM
+            </div>
+
+            <div class="hero-title">
+            Salary <br>
+            Prediction <br>
+            Platform
+            </div>
+
+            <div class="hero-text">
+            Predict employee salary using
+            Machine Learning based on:
+            experience, skills, education,
+            certifications and job role.
+            </div>
+
+            </div>
+            """, unsafe_allow_html=True)
+
+        with right:
+
+            st.image(
+                "https://images.unsplash.com/photo-1520607162513-77705c0f0d4a",
+                use_container_width=True
+            )
+
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        # =========================
+        # FEATURES
+        # =========================
+        f1,f2,f3,f4 = st.columns(4)
+
+        with f1:
+            st.markdown("""
+            <div class="feature-card">
+            <div class="feature-title">
+            🎯 Accurate
+            </div>
+            <div class="feature-text">
+            Highly accurate salary prediction
+            </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        with f2:
+            st.markdown("""
+            <div class="feature-card">
+            <div class="feature-title">
+            ⚡ Fast
+            </div>
+            <div class="feature-text">
+            Instant AI prediction system
+            </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        with f3:
+            st.markdown("""
+            <div class="feature-card">
+            <div class="feature-title">
+            📊 Analytics
+            </div>
+            <div class="feature-text">
+            Interactive dashboard & charts
+            </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        with f4:
+            st.markdown("""
+            <div class="feature-card">
+            <div class="feature-title">
+            🔒 Secure
+            </div>
+            <div class="feature-text">
+            Safe and secure user system
+            </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        # =========================
+        # STATS SECTION
+        # =========================
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        s1,s2,s3,s4 = st.columns(4)
+
+        with s1:
+            st.markdown("""
+            <div class="stats-card">
+            <div class="stats-number">
+            1000+
+            </div>
+            <div class="stats-label">
+            Users
+            </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        with s2:
+            st.markdown("""
+            <div class="stats-card">
+            <div class="stats-number">
+            5000+
+            </div>
+            <div class="stats-label">
+            Predictions
+            </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        with s3:
+            st.markdown("""
+            <div class="stats-card">
+            <div class="stats-number">
+            90%
+            </div>
+            <div class="stats-label">
+            Accuracy
+            </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        with s4:
+            st.markdown("""
+            <div class="stats-card">
+            <div class="stats-number">
+            24/7
+            </div>
+            <div class="stats-label">
+            Availability
+            </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+
+        
+    # =========================
+    # SALARY PREDICTION
+    # =========================
+    elif page == "💰 Salary Prediction":
+
+        st.title("💰 Predict Salary")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            exp = st.number_input("Experience", 0, 30)
+            skills = st.number_input("Skills Count", 0, 50)
+            cert = st.number_input("Certifications", 0, 20)
+
+        with col2:
+            education = st.selectbox(
+                "Education",
+                ["Bachelor", "Master", "PhD"]
+            )
+
+            company = st.selectbox(
+                "Company Size",
+                ["Small", "Medium", "Large"]
+            )
+
+            remote = st.selectbox(
+                "Remote Work",
+                ["Remote", "Hybrid", "Office"]
+            )
+
+        if st.button("Predict Salary"):
+
+            fake_salary = (
+                exp * 10000 +
+                skills * 3000 +
+                cert * 5000
+            )
+
+            st.success(
+                f"💰 Predicted Salary: ₹ {fake_salary:,}"
+            )
+
+            st.balloons()
+
+            # GRAPH
+            chart_df = pd.DataFrame({
+                "Category": [
+                    "Experience",
+                    "Skills",
+                    "Certifications"
+                ],
+                "Value": [
+                    exp,
+                    skills,
+                    cert
+                ]
+            })
+
+            st.subheader("📊 Input Analysis")
+
+            st.bar_chart(
+                chart_df.set_index("Category")
+            )
+
+    # =========================
+    # DASHBOARD
+    # =========================
+    elif page == "📊 Dashboard":
+
+        st.title("📊 Dashboard")
+
+        col1, col2, col3 = st.columns(3)
+
+        col1.metric("Users", "150+")
+        col2.metric("Predictions", "500+")
+        col3.metric("Accuracy", "89%")
+
+        st.markdown("---")
+
+        # LINE CHART
+        chart_data = pd.DataFrame({
+            "Experience": [1,2,3,4,5,6,7],
+            "Salary": [
+                25000,
+                35000,
+                50000,
+                70000,
+                90000,
+                120000,
+                150000
+            ]
+        })
+
+        st.subheader("📈 Salary Growth")
+
+        st.line_chart(
+            chart_data,
+            x="Experience",
+            y="Salary"
+        )
+
+        # AREA CHART
+        st.subheader("🌊 Salary Area Chart")
+
+        st.area_chart(
+            chart_data.set_index("Experience")
+        )
+
+    # =========================
+    # INSIGHTS PAGE
+    # =========================
+    elif page == "📈 Insights":
+
+        st.title("📈 Salary Insights")
+
+        st.write("""
+        ✔ More experience increases salary  
+        ✔ Certifications improve salary growth  
+        ✔ Senior employees earn higher salaries  
+        ✔ Remote jobs may offer better packages  
+        """)
+
+        pie_data = pd.DataFrame({
+            "Work Mode": [
+                "Remote",
+                "Hybrid",
+                "Office"
+            ],
+            "Employees": [
+                40,
+                35,
+                25
+            ]
+        })
+
+        st.subheader("🏠 Work Mode Distribution")
+
+        st.bar_chart(
+            pie_data.set_index("Work Mode")
+        )
+
+    # =========================
+    # ABOUT PAGE
+    # =========================
+    elif page == "ℹ About":
+
+      st.markdown("""
+    <style>
+    .main-title{
+        font-size:38px;
+        font-weight:bold;
+        color:#4CAF50;
+        text-align:center;
+        margin-bottom:20px;
+    }
+
+    .card {
+        background: linear-gradient(135deg, #1e1e2f, #2d2d44);
+        padding:20px;
+        border-radius:15px;
+        box-shadow:0px 4px 15px rgba(0,0,0,0.3);
+        color:#93c5fd;
+        margin-bottom:20px;
+        transition:0.3s;
+    }
+
+    .card:hover{
+        transform:scale(1.02);
+        box-shadow:0px 6px 20px rgba(0,255,150,0.4);
+    }
+
+    .feature{
+        background:#26273b;
+        padding:15px;
+        border-radius:12px;
+        text-align:center;
+        color:white;
+        box-shadow:0px 2px 10px rgba(0,0,0,0.2);
+    }
+
+    .tool-card{
+        background:#20232a;
+        padding:15px;
+        border-radius:12px;
+        color:white;
+        text-align:center;
+        box-shadow:0px 2px 10px rgba(0,0,0,0.3);
+        transition:0.3s;
+    }
+
+    .tool-card:hover{
+        transform:translateY(-5px);
+        background:#2b2f3a;
+    }
+
+    .tool-logo{
+        font-size:40px;
+        margin-bottom:10px;
+    }
+
+    .version{
+        color:#00ff99;
+        font-size:14px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+     # ================= TITLE =================
+    st.markdown(
+        '<div class="main-title">💼 Salary Prediction System</div>',
+        unsafe_allow_html=True
+    )
+
+
+    # ================= PROJECT CARD =================
     st.markdown("""
-    <div class='hero'>
-        <h1 class='main-title'>💼 AI Job Salary Prediction</h1>
-        <p class='sub-title'>
-        Predict Employee Salaries Using Artificial Intelligence & Machine Learning
+    <div class="card">
+        <h3>📌 Project Overview</h3>
+        <p>
+        This project predicts employee salaries using 
+        Machine Learning algorithms based on different 
+        employee details such as experience, education, 
+        job role, and working hours.
+        </p>
+
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ================= FEATURES =================
+    st.subheader("🚀 Features")
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.markdown("""
+        <div class="feature">
+            <h3>📈</h3>
+            <h4>Salary Prediction</h4>
+            <p>Predict employee salary instantly.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col2:
+        st.markdown("""
+        <div class="feature">
+            <h3>📊</h3>
+            <h4>Dashboard</h4>
+            <p>Interactive charts and analytics.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col3:
+        st.markdown("""
+        <div class="feature">
+            <h3>🔐</h3>
+            <h4>Authentication</h4>
+            <p>Secure login and signup system.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    col4, col5 = st.columns(2)
+
+    with col4:
+        st.markdown("""
+        <div class="feature">
+            <h3>📉</h3>
+            <h4>Visualization</h4>
+            <p>Beautiful data visualization graphs.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col5:
+        st.markdown("""
+        <div class="feature">
+            <h3>📥</h3>
+            <h4>Download Reports</h4>
+            <p>Export prediction reports easily.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # ================= TOOLS & TECHNOLOGIES =================
+    st.subheader("🛠 Tools & Technologies")
+
+    t1, t2, t3 = st.columns(3)
+
+    with t1:
+        st.markdown("""
+        <div class="tool-card">
+            <div class="tool-logo">🐍</div>
+            <h4>Python</h4>
+            <p class="version">Version: 3.11</p>
+            <p>
+            Main programming language used for 
+            backend development and machine learning.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with t2:
+        st.markdown("""
+        <div class="tool-card">
+            <div class="tool-logo">🎈</div>
+            <h4>Streamlit</h4>
+            <p class="version">Version: 1.32</p>
+            <p>
+            Used for building interactive web applications 
+            and dashboards.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with t3:
+        st.markdown("""
+        <div class="tool-card">
+            <div class="tool-logo">🐼</div>
+            <h4>Pandas</h4>
+            <p class="version">Version: 2.2</p>
+            <p>
+            Used for data cleaning, processing, 
+            and analysis.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    t4, t5, t6 = st.columns(3)
+
+    with t4:
+        st.markdown("""
+        <div class="tool-card">
+            <div class="tool-logo">🔢</div>
+            <h4>NumPy</h4>
+            <p class="version">Version: 1.26</p>
+            <p>
+            Used for numerical computations 
+            and array operations.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with t5:
+        st.markdown("""
+        <div class="tool-card">
+            <div class="tool-logo">🤖</div>
+            <h4>Scikit-Learn</h4>
+            <p class="version">Version: 1.4</p>
+            <p>
+            Machine Learning library used 
+            for model training and prediction.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with t6:
+        st.markdown("""
+        <div class="tool-card">
+            <div class="tool-logo">📊</div>
+            <h4>Machine Learning</h4>
+            <p class="version">AI Technology</p>
+            <p>
+            Used to analyze employee data 
+            and predict salary accurately.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # ================= FOOTER =================
+    st.markdown("""
+    <br>
+    <div class="card" style="text-align:center;">
+        <h3>✨ Developed with Passion</h3>
+        <p>
+        Salary Prediction System using Machine Learning 
+        and Data Science technologies.
         </p>
     </div>
     """, unsafe_allow_html=True)
 
-    st.write("")
-    st.write("")
-
-    col1,col2,col3 = st.columns(3)
-
-    with col1:
-        st.markdown("""
-        <div class='card'>
-            <h2>🤖 AI Prediction</h2>
-            <p>
-            Machine Learning based salary prediction system
-            using employee details, skills and experience.
-            </p>
-
-            <ul>
-                <li>Real-Time Prediction</li>
-                <li>Fast Processing</li>
-                <li>High Accuracy</li>
-                <li>Easy To Use</li>
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with col2:
-        st.markdown("""
-        <div class='card'>
-            <h2>📊 Smart Dashboard</h2>
-            <p>
-            Interactive analytics dashboard with graphs,
-            charts and salary trends visualization.
-            </p>
-
-            <ul>
-                <li>Dynamic Charts</li>
-                <li>Salary Insights</li>
-                <li>Live Analytics</li>
-                <li>Visual Reports</li>
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with col3:
-        st.markdown("""
-        <div class='card'>
-            <h2>⚡ Modern UI</h2>
-            <p>
-            Attractive responsive web design with hover
-            effects, animations and gradient themes.
-            </p>
-
-            <ul>
-                <li>Premium CSS</li>
-                <li>Hover Effects</li>
-                <li>Dark Theme</li>
-                <li>Glassmorphism</li>
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
-
-    st.write("")
-    st.write("")
-
-    col1,col2 = st.columns(2)
-
-    with col1:
-        st.image(
-            "https://images.unsplash.com/photo-1552664730-d307ca884978",
-            use_container_width=True
-        )
-
-    with col2:
-
-        st.markdown("""
-        ## 🌟 Why Use This Project?
-
-        This project is specially designed for:
-        
-        ✔ HR Analytics
-        
-        ✔ Employee Salary Analysis
-        
-        ✔ Machine Learning Practice
-        
-        ✔ Data Science Portfolio
-        
-        ✔ AI Based Web Application
-        
-        ✔ Interactive Dashboard
-        
-        ✔ Professional UI Design
-        
-        ✔ Final Year Projects
-        
-        ---
-        
-        ## 🚀 Technologies Used
-        
-        - Python
-        
-        - Streamlit
-        
-        - Machine Learning
-        
-        - Plotly
-        
-        - Seaborn
-        
-        - Pandas
-        
-        - NumPy
-        
-        - CSS Animation
-        
-        """)
-
-# =========================================================
-# PREDICTION PAGE
-# =========================================================
-elif page == "🔮 Prediction":
-
-    st.title("💰 Salary Prediction System")
-
-    st.image(
-        "https://images.unsplash.com/photo-1520607162513-77705c0f0d4a",
-        use_container_width=True
-    )
-
-    st.write("")
-
-    col1,col2 = st.columns(2)
-
-    with col1:
-        experience = st.slider("Years of Experience",0,20,2)
-
-        education = st.selectbox(
-            "Education Level",
-            [
-                "High School",
-                "Bachelor",
-                "Master",
-                "PhD"
-            ]
-        )
-
-        age = st.slider("Age",18,60,25)
-
-    with col2:
-        gender = st.selectbox(
-            "Gender",
-            ["Male","Female"]
-        )
-
-        job_role = st.selectbox(
-            "Job Role",
-            [
-                "Data Scientist",
-                "Software Engineer",
-                "AI Engineer",
-                "Manager",
-                "Analyst"
-            ]
-        )
-
-        skill = st.slider("Skill Score",1,10,5)
-
-    st.write("")
-
-    if st.button("🚀 Predict Salary"):
-
-        predicted_salary = (
-            experience * 10000
-            + skill * 5000
-            + np.random.randint(10000,50000)
-        )
-
-        st.success(
-            f"💸 Estimated Salary = ₹ {predicted_salary}"
-        )
-
-        st.balloons()
-
-        st.markdown(f"""
-        <div class='graph-box'>
-        <h2>📌 Prediction Summary</h2>
-
-        <ul>
-            <li>Experience: {experience} Years</li>
-            <li>Education: {education}</li>
-            <li>Job Role: {job_role}</li>
-            <li>Skill Score: {skill}</li>
-            <li>Predicted Salary: ₹ {predicted_salary}</li>
-        </ul>
-
-        </div>
-        """, unsafe_allow_html=True)
-
-# =========================================================
-# DASHBOARD PAGE
-# =========================================================
-elif page == "📊 Dashboard":
-
-    st.title("📊 Salary Analytics Dashboard")
-
-    col1,col2,col3 = st.columns(3)
-
-    with col1:
-        st.markdown(f"""
-        <div class='metric-card'>
-            <h2>👨‍💼 Employees</h2>
-            <h1>{len(df)}</h1>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with col2:
-        st.markdown(f"""
-        <div class='metric-card'>
-            <h2>💰 Avg Salary</h2>
-            <h1>₹ {round(df['Salary'].mean(),2)}</h1>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with col3:
-        st.markdown(f"""
-        <div class='metric-card'>
-            <h2>📈 Max Salary</h2>
-            <h1>₹ {df['Salary'].max()}</h1>
-        </div>
-        """, unsafe_allow_html=True)
-
-    st.write("")
-
-    fig1 = px.scatter(
-        df,
-        x="Experience",
-        y="Salary",
-        color="Age",
-        size="Skill_Score",
-        title="Experience vs Salary"
-    )
-
-    st.plotly_chart(fig1,use_container_width=True)
-
-    fig2 = px.histogram(
-        df,
-        x="Salary",
-        nbins=20,
-        title="Salary Distribution"
-    )
-
-    st.plotly_chart(fig2,use_container_width=True)
-
-    fig3 = px.line(
-        df.sort_values("Experience"),
-        x="Experience",
-        y="Salary",
-        title="Salary Growth Trend"
-    )
-
-    st.plotly_chart(fig3,use_container_width=True)
-
-# =========================================================
-# VISUALIZATION PAGE
-# =========================================================
-elif page == "📈 Visualization":
-
-    st.title("📈 Data Visualization")
-
-    col1,col2 = st.columns(2)
-
-    with col1:
-
-        st.markdown("<div class='graph-box'>",
-        unsafe_allow_html=True)
-
-        fig,ax = plt.subplots(figsize=(6,4))
-
-        sns.histplot(df["Salary"],kde=True,ax=ax)
-
-        plt.title("Salary Distribution")
-
-        st.pyplot(fig)
-
-        st.markdown("</div>",
-        unsafe_allow_html=True)
-
-    with col2:
-
-        st.markdown("<div class='graph-box'>",
-        unsafe_allow_html=True)
-
-        fig,ax = plt.subplots(figsize=(6,4))
-
-        sns.boxplot(x=df["Salary"],ax=ax)
-
-        plt.title("Salary Outliers")
-
-        st.pyplot(fig)
-
-        st.markdown("</div>",
-        unsafe_allow_html=True)
-
-    st.write("")
-
-    col1,col2 = st.columns(2)
-
-    with col1:
-
-        st.markdown("<div class='graph-box'>",
-        unsafe_allow_html=True)
-
-        fig,ax = plt.subplots(figsize=(6,4))
-
-        sns.violinplot(y=df["Salary"],ax=ax)
-
-        plt.title("Violin Plot")
-
-        st.pyplot(fig)
-
-        st.markdown("</div>",
-        unsafe_allow_html=True)
-
-    with col2:
-
-        st.markdown("<div class='graph-box'>",
-        unsafe_allow_html=True)
-
-        corr = df.corr(numeric_only=True)
-
-        fig,ax = plt.subplots(figsize=(6,4))
-
-        sns.heatmap(
-            corr,
-            annot=True,
-            cmap="coolwarm",
-            ax=ax
-        )
-
-        plt.title("Correlation Heatmap")
-
-        st.pyplot(fig)
-
-        st.markdown("</div>",
-        unsafe_allow_html=True)
-
-# =========================================================
-# ABOUT PAGE
-# =========================================================
-elif page == "ℹ About":
-
-    st.title("ℹ About Project")
-
-    st.image(
-        "https://images.unsplash.com/photo-1484417894907-623942c8ee29",
-        use_container_width=True
-    )
-
-    st.write("")
-
-    st.markdown("""
-    <div class='graph-box'>
-
-    ## 💼 AI Job Salary Prediction System
-
-    This project is developed using Artificial Intelligence,
-    Machine Learning and Streamlit Framework.
-
-    The system predicts employee salaries using different
-    parameters such as experience, skills, education and job role.
-
-    ---
-
-    ## 🚀 Main Features
-
-    ✔ Multi Page Web Application
-
-    ✔ Attractive Modern UI
-
-    ✔ Hover Animation Effects
-
-    ✔ Glassmorphism Cards
-
-    ✔ Interactive Dashboard
-
-    ✔ Real-Time Salary Prediction
-
-    ✔ Advanced Data Visualization
-
-    ✔ Responsive Layout
-
-    ✔ Gradient Themes
-
-    ✔ Plotly Interactive Charts
-
-    ---
-
-    ## 🛠 Technologies Used
-
-    - Python
-    
-    - Streamlit
-    
-    - Machine Learning
-    
-    - Pandas
-    
-    - NumPy
-    
-    - Matplotlib
-    
-    - Seaborn
-    
-    - Plotly
-    
-    - CSS
-    
-    - HTML
-
-    ---
-
-    ## 📊 Project Objectives
-
-    ✔ Predict Employee Salary
-    
-    ✔ Analyze Salary Trends
-    
-    ✔ Improve Decision Making
-    
-    ✔ Build AI Web Application
-    
-    ✔ Create Attractive User Interface
-
-    ---
-
-    ## 🌟 Future Scope
-
-    ✔ Authentication System
-    
-    ✔ Database Integration
-    
-    ✔ AI Chatbot
-    
-    ✔ Resume Analyzer
-    
-    ✔ Live API
-    
-    ✔ PDF Report Download
-    
-    ✔ Deep Learning Model
-
-    </div>
-    """, unsafe_allow_html=True)
-
-# =========================================================
+# =========================
 # FOOTER
-# =========================================================
-st.write("")
-st.write("---")
-
+# =========================
 st.markdown("""
-<h3 style='text-align:center;color:white'>
-Made with ❤️ Using Streamlit
-</h3>
+<div class="footer">
+Made with ❤️ using Streamlit
+</div>
 """, unsafe_allow_html=True)
