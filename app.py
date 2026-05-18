@@ -644,48 +644,6 @@ else:
         st.area_chart(
             dashboard_df.set_index("Experience")
         )
-
-  # =====================================================
-  # INSIGHTS PAGE
-  # =====================================================
-  elif page == "📈 Insights":
-    st.title("📈 Insights")
-
-    st.info("""
-    ✔ More experience increases salary
-    
-    ✔ More certifications improve salary
-    
-    ✔ Senior roles get higher packages
-    
-    ✔ Remote jobs may offer better salary
-    
-    ✔ Technical roles earn more
-    """)
-
-    insights_df = pd.DataFrame({
-
-        "Role":[
-            "Fresher",
-            "Junior",
-            "Mid",
-            "Senior"
-        ],
-
-        "Salary":[
-            25000,
-            50000,
-            90000,
-            150000
-        ]
-    })
-
-    st.subheader("📊 Salary By Level")
-
-    st.bar_chart(
-        insights_df.set_index("Role")
-    )
-
 # =====================================================
 # ABOUT PAGE
 # =====================================================
