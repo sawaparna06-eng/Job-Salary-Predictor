@@ -630,22 +630,241 @@ else:
 
         st.title("ℹ About Project")
 
-        st.write("""
-        ## Salary Prediction System
+   
+    st.markdown("""
+    <style>
+    .main-title{
+        font-size:38px;
+        font-weight:bold;
+        color:#4CAF50;
+        text-align:center;
+        margin-bottom:20px;
+    }
 
-        This machine learning project predicts salaries using:
+    .card {
+        background: linear-gradient(135deg, #1e1e2f, #2d2d44);
+        padding:20px;
+        border-radius:15px;
+        box-shadow:0px 4px 15px rgba(0,0,0,0.3);
+        color:white;
+        margin-bottom:20px;
+        transition:0.3s;
+    }
 
-        ✔ KNN Algorithm  
-        ✔ Feature Engineering  
-        ✔ Data Scaling  
-        ✔ Streamlit Dashboard  
+    .card:hover{
+        transform:scale(1.02);
+        box-shadow:0px 6px 20px rgba(0,255,150,0.4);
+    }
 
-        ### Technologies Used:
-        - Python
-        - Streamlit
-        - Pandas
-        - Scikit-learn
-        """)
+    .feature{
+        background:#26273b;
+        padding:15px;
+        border-radius:12px;
+        text-align:center;
+        color:white;
+        box-shadow:0px 2px 10px rgba(0,0,0,0.2);
+    }
+
+    .tool-card{
+        background:#20232a;
+        padding:15px;
+        border-radius:12px;
+        color:white;
+        text-align:center;
+        box-shadow:0px 2px 10px rgba(0,0,0,0.3);
+        transition:0.3s;
+    }
+
+    .tool-card:hover{
+        transform:translateY(-5px);
+        background:#2b2f3a;
+    }
+
+    .tool-logo{
+        font-size:40px;
+        margin-bottom:10px;
+    }
+
+    .version{
+        color:#00ff99;
+        font-size:14px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    # ================= TITLE =================
+    st.markdown(
+        '<div class="main-title">💼 Salary Prediction System</div>',
+        unsafe_allow_html=True
+    )
+
+    # ================= PROJECT CARD =================
+    st.markdown("""
+    <div class="card">
+        <h3>📌 Project Overview</h3>
+        <p>
+        This project predicts employee salaries using 
+        Machine Learning algorithms based on different 
+        employee details such as experience, education, 
+        job role, and working hours.
+        </p>
+
+        <p>
+        The system provides an interactive dashboard with 
+        data visualization, authentication, prediction reports, 
+        and downloadable insights.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ================= FEATURES =================
+    st.subheader("🚀 Features")
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.markdown("""
+        <div class="feature">
+            <h3>📈</h3>
+            <h4>Salary Prediction</h4>
+            <p>Predict employee salary instantly.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col2:
+        st.markdown("""
+        <div class="feature">
+            <h3>📊</h3>
+            <h4>Dashboard</h4>
+            <p>Interactive charts and analytics.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col3:
+        st.markdown("""
+        <div class="feature">
+            <h3>🔐</h3>
+            <h4>Authentication</h4>
+            <p>Secure login and signup system.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    col4, col5 = st.columns(2)
+
+    with col4:
+        st.markdown("""
+        <div class="feature">
+            <h3>📉</h3>
+            <h4>Visualization</h4>
+            <p>Beautiful data visualization graphs.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col5:
+        st.markdown("""
+        <div class="feature">
+            <h3>📥</h3>
+            <h4>Download Reports</h4>
+            <p>Export prediction reports easily.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # ================= TOOLS & TECHNOLOGIES =================
+    st.subheader("🛠 Tools & Technologies")
+
+    t1, t2, t3 = st.columns(3)
+
+    with t1:
+        st.markdown("""
+        <div class="tool-card">
+            <div class="tool-logo">🐍</div>
+            <h4>Python</h4>
+            <p class="version">Version: 3.11</p>
+            <p>
+            Main programming language used for 
+            backend development and machine learning.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with t2:
+        st.markdown("""
+        <div class="tool-card">
+            <div class="tool-logo">🎈</div>
+            <h4>Streamlit</h4>
+            <p class="version">Version: 1.32</p>
+            <p>
+            Used for building interactive web applications 
+            and dashboards.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with t3:
+        st.markdown("""
+        <div class="tool-card">
+            <div class="tool-logo">🐼</div>
+            <h4>Pandas</h4>
+            <p class="version">Version: 2.2</p>
+            <p>
+            Used for data cleaning, processing, 
+            and analysis.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    t4, t5, t6 = st.columns(3)
+
+    with t4:
+        st.markdown("""
+        <div class="tool-card">
+            <div class="tool-logo">🔢</div>
+            <h4>NumPy</h4>
+            <p class="version">Version: 1.26</p>
+            <p>
+            Used for numerical computations 
+            and array operations.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with t5:
+        st.markdown("""
+        <div class="tool-card">
+            <div class="tool-logo">🤖</div>
+            <h4>Scikit-Learn</h4>
+            <p class="version">Version: 1.4</p>
+            <p>
+            Machine Learning library used 
+            for model training and prediction.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with t6:
+        st.markdown("""
+        <div class="tool-card">
+            <div class="tool-logo">📊</div>
+            <h4>Machine Learning</h4>
+            <p class="version">AI Technology</p>
+            <p>
+            Used to analyze employee data 
+            and predict salary accurately.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # ================= FOOTER =================
+    st.markdown("""
+    <br>
+    <div class="card" style="text-align:center;">
+        <h3>✨ Developed with Passion</h3>
+        <p>
+        Salary Prediction System using Machine Learning 
+        and Data Science technologies.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
 
 # =========================
 # FOOTER
