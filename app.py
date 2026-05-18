@@ -35,7 +35,8 @@ h1, h2, h3 {
 
 /* Sidebar */
 section[data-testid="stSidebar"] {
-    background-color: white;
+    background-color:#ffffff;
+    ;
 }
 
 /* Sidebar Text */
