@@ -149,7 +149,7 @@ if "username" not in st.session_state:
 # =========================
 def login():
 
-    st.subheader("🔐 Login")
+    st.subheader(" Login")
 
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")
@@ -199,7 +199,7 @@ def signup():
 # =========================
 if not st.session_state.logged_in:
 
-    st.title("💼 Salary Prediction App")
+    st.title(" Salary Prediction App")
 
     menu = st.sidebar.selectbox(
         "Menu",
@@ -220,15 +220,15 @@ else:
     # =========================
     # SIDEBAR
     # =========================
-    st.sidebar.title("📌 Navigation")
+    st.sidebar.title(" Navigation")
 
     page = st.sidebar.radio(
         "Go To",
         [
-            "🏠 Home",
-            "💰 Salary Prediction",
-            "📊 Dashboard",
-            "📈 Insights",
+            " Home",
+            "Salary Prediction",
+            "Dashboard",
+            "Insights",
             "ℹ About"
         ]
     )
@@ -279,7 +279,7 @@ else:
     # =========================
     if page == "🏠 Home":
 
-        st.title("💼 Salary Prediction System")
+        st.title(" Salary Prediction System")
 
         st.image(
             "https://images.unsplash.com/photo-1520607162513-77705c0f0d4a",
@@ -311,9 +311,9 @@ else:
     # =========================
     # SALARY PREDICTION PAGE
     # =========================
-    elif page == "💰 Salary Prediction":
+    elif page == " Salary Prediction":
 
-        st.title("💰 Salary Prediction")
+        st.title(" Salary Prediction")
 
         # USER INPUT
         exp = st.number_input(
@@ -432,7 +432,7 @@ else:
             predicted_salary = int(prediction[0])
 
             st.success(
-                f"💰 Predicted Salary: ₹ {predicted_salary:,}"
+                f" Predicted Salary: ₹ {predicted_salary:,}"
             )
 
             st.balloons()
@@ -489,9 +489,9 @@ else:
     # =========================
     # DASHBOARD PAGE
     # =========================
-    elif page == "📊 Dashboard":
+    elif page == "Dashboard":
 
-        st.title("📊 Dashboard")
+        st.title("Dashboard")
 
         col1, col2, col3 = st.columns(3)
 
