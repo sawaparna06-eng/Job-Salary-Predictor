@@ -724,9 +724,9 @@ Thank You 🚀
         st.markdown("</div>", unsafe_allow_html=True)
 
     # =====================================================
-    # ABOUT PAGE
-    # =====================================================
-    elif page == "ℹ About":
+# ABOUT PAGE
+# =====================================================
+elif page == "ℹ About":
 
     st.markdown(
         "<h1 class='main-title'>ℹ About Project</h1>",
