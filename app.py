@@ -649,8 +649,7 @@ else:
   # INSIGHTS PAGE
   # =====================================================
   elif page == "📈 Insights":
-
-    st.title("📈 Salary Insights")
+    st.title("📈 Insights")
 
     st.info("""
     ✔ More experience increases salary
