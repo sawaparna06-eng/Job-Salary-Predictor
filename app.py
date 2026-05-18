@@ -628,9 +628,6 @@ else:
     # =========================
     elif page == "ℹ About":
 
-        st.title("ℹ About Project")
-
-   
     st.markdown("""
     <style>
     .main-title{
@@ -691,6 +688,12 @@ else:
     }
     </style>
     """, unsafe_allow_html=True)
+
+     # ================= TITLE =================
+    st.markdown(
+        '<div class="main-title">💼 Salary Prediction System</div>',
+        unsafe_allow_html=True
+    )
 
 
     # ================= PROJECT CARD =================
