@@ -645,47 +645,47 @@ else:
             dashboard_df.set_index("Experience")
         )
 
-   # =====================================================
-    # INSIGHTS
-    # =====================================================
-    elif page == "📈 Insights":
+ # =====================================================
+# INSIGHTS PAGE
+# =====================================================
+elif page == "📈 Insights":
 
-        st.title("📈 Salary Insights")
+    st.title("📈 Salary Insights")
 
-        st.info("""
-        ✔ More experience increases salary
-        
-        ✔ More certifications improve salary
-        
-        ✔ Senior roles get higher packages
-        
-        ✔ Remote jobs may offer better salary
-        
-        ✔ Technical roles earn more
-        """)
+    st.info("""
+    ✔ More experience increases salary
+    
+    ✔ More certifications improve salary
+    
+    ✔ Senior roles get higher packages
+    
+    ✔ Remote jobs may offer better salary
+    
+    ✔ Technical roles earn more
+    """)
 
-        insights_df = pd.DataFrame({
+    insights_df = pd.DataFrame({
 
-            "Role":[
-                "Fresher",
-                "Junior",
-                "Mid",
-                "Senior"
-            ],
+        "Role":[
+            "Fresher",
+            "Junior",
+            "Mid",
+            "Senior"
+        ],
 
-            "Salary":[
-                25000,
-                50000,
-                90000,
-                150000
-            ]
-        })
+        "Salary":[
+            25000,
+            50000,
+            90000,
+            150000
+        ]
+    })
 
-        st.subheader("📊 Salary By Level")
+    st.subheader("📊 Salary By Level")
 
-        st.bar_chart(
-            insights_df.set_index("Role")
-        )
+    st.bar_chart(
+        insights_df.set_index("Role")
+    )
 
 # =====================================================
 # ABOUT PAGE
@@ -703,7 +703,7 @@ elif page == "ℹ About":
         margin-bottom:20px;
     }
 
-    .card {
+    .about-card {
         background: linear-gradient(135deg, #1e1e2f, #2d2d44);
         padding:20px;
         border-radius:15px;
@@ -713,7 +713,7 @@ elif page == "ℹ About":
         transition:0.3s;
     }
 
-    .card:hover{
+    .about-card:hover{
         transform:scale(1.02);
         box-shadow:0px 6px 20px rgba(0,255,150,0.4);
     }
@@ -725,6 +725,7 @@ elif page == "ℹ About":
         text-align:center;
         color:white;
         box-shadow:0px 2px 10px rgba(0,0,0,0.2);
+        margin-bottom:15px;
     }
 
     .tool-card{
@@ -735,6 +736,7 @@ elif page == "ℹ About":
         text-align:center;
         box-shadow:0px 2px 10px rgba(0,0,0,0.3);
         transition:0.3s;
+        margin-bottom:20px;
     }
 
     .tool-card:hover{
@@ -750,6 +752,7 @@ elif page == "ℹ About":
     .version{
         color:#00ff99;
         font-size:14px;
+        font-weight:bold;
     }
 
     </style>
@@ -761,23 +764,22 @@ elif page == "ℹ About":
         unsafe_allow_html=True
     )
 
-    # ================= PROJECT OVERVIEW =================
+    # ================= OVERVIEW =================
     st.markdown("""
-    <div class="card">
+    <div class="about-card">
 
         <h3>📌 Project Overview</h3>
 
         <p>
         This project predicts employee salaries using 
-        Machine Learning algorithms based on different 
-        employee details such as experience, education, 
-        job role, and working hours.
+        Machine Learning algorithms based on experience,
+        education, certifications and job role.
         </p>
 
         <p>
-        The system provides an interactive dashboard with 
-        data visualization, authentication, prediction reports, 
-        and downloadable insights.
+        The system provides interactive dashboard,
+        data visualization, authentication,
+        and downloadable reports.
         </p>
 
     </div>
@@ -786,18 +788,18 @@ elif page == "ℹ About":
     # ================= FEATURES =================
     st.subheader("🚀 Features")
 
-    col1, col2, col3 = st.columns(3)
+    c1, c2, c3 = st.columns(3)
 
-    with col1:
+    with c1:
         st.markdown("""
         <div class="feature">
             <h3>📈</h3>
             <h4>Salary Prediction</h4>
-            <p>Predict employee salary instantly.</p>
+            <p>Predict salaries instantly.</p>
         </div>
         """, unsafe_allow_html=True)
 
-    with col2:
+    with c2:
         st.markdown("""
         <div class="feature">
             <h3>📊</h3>
@@ -806,32 +808,32 @@ elif page == "ℹ About":
         </div>
         """, unsafe_allow_html=True)
 
-    with col3:
+    with c3:
         st.markdown("""
         <div class="feature">
             <h3>🔐</h3>
             <h4>Authentication</h4>
-            <p>Secure login and signup system.</p>
+            <p>Secure login system.</p>
         </div>
         """, unsafe_allow_html=True)
 
-    col4, col5 = st.columns(2)
+    c4, c5 = st.columns(2)
 
-    with col4:
+    with c4:
         st.markdown("""
         <div class="feature">
             <h3>📉</h3>
             <h4>Visualization</h4>
-            <p>Beautiful data visualization graphs.</p>
+            <p>Beautiful graphs & charts.</p>
         </div>
         """, unsafe_allow_html=True)
 
-    with col5:
+    with c5:
         st.markdown("""
         <div class="feature">
             <h3>📥</h3>
-            <h4>Download Reports</h4>
-            <p>Export prediction reports easily.</p>
+            <h4>Reports</h4>
+            <p>Download prediction reports.</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -844,57 +846,29 @@ elif page == "ℹ About":
         st.markdown("""
         <div class="tool-card">
             <div class="tool-logo">🐍</div>
-
             <h4>Python</h4>
-
-            <p class="version">
-            Version: 3.11
-            </p>
-
-            <p>
-            Main programming language used for backend
-            development and Machine Learning.
-            </p>
+            <p class="version">Version 3.11</p>
+            <p>Backend and ML programming language.</p>
         </div>
         """, unsafe_allow_html=True)
 
     with t2:
         st.markdown("""
         <div class="tool-card">
-
             <div class="tool-logo">🎈</div>
-
             <h4>Streamlit</h4>
-
-            <p class="version">
-            Version: 1.32
-            </p>
-
-            <p>
-            Used for building interactive dashboards
-            and web applications.
-            </p>
-
+            <p class="version">Version 1.32</p>
+            <p>Interactive web app framework.</p>
         </div>
         """, unsafe_allow_html=True)
 
     with t3:
         st.markdown("""
         <div class="tool-card">
-
             <div class="tool-logo">🐼</div>
-
             <h4>Pandas</h4>
-
-            <p class="version">
-            Version: 2.2
-            </p>
-
-            <p>
-            Used for data cleaning,
-            preprocessing and analysis.
-            </p>
-
+            <p class="version">Version 2.2</p>
+            <p>Data analysis and preprocessing.</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -903,60 +877,30 @@ elif page == "ℹ About":
     with t4:
         st.markdown("""
         <div class="tool-card">
-
             <div class="tool-logo">🔢</div>
-
             <h4>NumPy</h4>
-
-            <p class="version">
-            Version: 1.26
-            </p>
-
-            <p>
-            Used for numerical computation
-            and array operations.
-            </p>
-
+            <p class="version">Version 1.26</p>
+            <p>Numerical computing library.</p>
         </div>
         """, unsafe_allow_html=True)
 
     with t5:
         st.markdown("""
         <div class="tool-card">
-
             <div class="tool-logo">🤖</div>
-
             <h4>Scikit-Learn</h4>
-
-            <p class="version">
-            Version: 1.4
-            </p>
-
-            <p>
-            Machine Learning library used
-            for model training and prediction.
-            </p>
-
+            <p class="version">Version 1.4</p>
+            <p>Machine learning framework.</p>
         </div>
         """, unsafe_allow_html=True)
 
     with t6:
         st.markdown("""
         <div class="tool-card">
-
             <div class="tool-logo">📊</div>
-
             <h4>Machine Learning</h4>
-
-            <p class="version">
-            AI Technology
-            </p>
-
-            <p>
-            Used to analyze employee data
-            and predict salary accurately.
-            </p>
-
+            <p class="version">AI Technology</p>
+            <p>Salary prediction and analytics.</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -964,7 +908,7 @@ elif page == "ℹ About":
     st.markdown("""
     <br>
 
-    <div class="card" style="text-align:center;">
+    <div class="about-card" style="text-align:center;">
 
         <h3>✨ Developed with Passion</h3>
 
@@ -976,7 +920,6 @@ elif page == "ℹ About":
     </div>
     """, unsafe_allow_html=True)
 
-    # ================= FINAL FOOTER =================
     st.markdown("""
     <hr>
 
