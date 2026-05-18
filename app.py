@@ -626,9 +626,9 @@ else:
     # =========================
     # ABOUT PAGE
     # =========================
-     elif page == "ℹ About":
+    elif page == "ℹ About":
 
-    st.markdown("""
+      st.markdown("""
     <style>
     .main-title{
         font-size:38px;
