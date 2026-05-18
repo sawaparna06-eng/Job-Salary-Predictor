@@ -728,94 +728,272 @@ Thank You 🚀
     # =====================================================
     elif page == "ℹ About":
 
-        st.markdown(
-            "<h1 class='main-title'>ℹ About Project</h1>",
-            unsafe_allow_html=True
-        )
+    st.markdown(
+        "<h1 class='main-title'>ℹ About Project</h1>",
+        unsafe_allow_html=True
+    )
 
-        st.image(
-            "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
-            width=150
-        )
+    st.image(
+        "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+        width=150
+    )
+
+    st.markdown("""
+    <div class='custom-card'>
+
+    <h2>💼 AI Salary Prediction System</h2>
+
+    <p>
+    The AI Salary Prediction System is an advanced
+    Machine Learning based web application that predicts
+    employee salary according to different professional
+    factors such as experience, education, certifications,
+    industry type, skills, company size, and remote work.
+    </p>
+
+    <p>
+    This project is designed to help students,
+    employees, HR professionals, and recruiters
+    understand salary trends using Artificial Intelligence.
+    </p>
+
+    <h2>🚀 Main Features</h2>
+
+    ✔ Secure Login & Signup System <br><br>
+
+    ✔ AI Powered Salary Prediction <br><br>
+
+    ✔ Interactive Dashboard Analytics <br><br>
+
+    ✔ Attractive User Interface <br><br>
+
+    ✔ Real-time Graph Visualization <br><br>
+
+    ✔ WhatsApp Receipt Sending Feature <br><br>
+
+    ✔ Responsive Modern Design <br><br>
+
+    ✔ Machine Learning Integration <br><br>
+
+    ✔ Animated Hover Effects <br><br>
+
+    ✔ Prediction Receipt Generation <br><br>
+
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # =================================================
+    # TOOLS & TECHNOLOGIES
+    # =================================================
+    st.markdown(
+        "<h1 class='main-title'>🛠 Tools & Technologies</h1>",
+        unsafe_allow_html=True
+    )
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
 
         st.markdown("""
         <div class='custom-card'>
 
-        <h2>💼 AI Salary Prediction System</h2>
+        <h2>🐍 Python</h2>
 
         <p>
-        This project predicts employee salary
-        using Machine Learning algorithms.
+        Python is the core programming language
+        used for backend logic and machine learning.
         </p>
 
-        <h2>🚀 Features</h2>
+        <h3>Version:</h3>
 
-        ✔ Login & Signup <br><br>
-
-        ✔ Salary Prediction <br><br>
-
-        ✔ Dashboard Analytics <br><br>
-
-        ✔ Graph Visualization <br><br>
-
-        ✔ WhatsApp Receipt <br><br>
-
-        ✔ Modern UI Design <br><br>
+        ✔ Python 3.x
 
         </div>
         """, unsafe_allow_html=True)
 
-        st.subheader("🛠 Tools Used")
+    with col2:
 
-        col1,col2,col3 = st.columns(3)
+        st.markdown("""
+        <div class='custom-card'>
 
-        with col1:
+        <h2>🎨 Streamlit</h2>
 
-            st.markdown("""
-            <div class='custom-card'>
-            <h2>🐍 Python</h2>
+        <p>
+        Streamlit is used to create
+        attractive and interactive
+        web applications easily.
+        </p>
 
-            <p>
-            Main programming language.
-            </p>
+        <h3>Features Used:</h3>
 
-            </div>
-            """, unsafe_allow_html=True)
+        ✔ Sidebar Navigation <br>
+        ✔ Forms <br>
+        ✔ Charts <br>
+        ✔ Buttons <br>
 
-        with col2:
-
-            st.markdown("""
-            <div class='custom-card'>
-            <h2>🎨 Streamlit</h2>
-
-            <p>
-            Used for web application UI.
-            </p>
-
-            </div>
-            """, unsafe_allow_html=True)
-
-        with col3:
-
-            st.markdown("""
-            <div class='custom-card'>
-            <h2>🤖 Machine Learning</h2>
-
-            <p>
-            KNN model used for prediction.
-            </p>
-
-            </div>
-            """, unsafe_allow_html=True)
-
-    # =====================================================
-    # FOOTER
-    # =====================================================
-    st.markdown(
-        """
-        <div class='footer'>
-        Developed with ❤️ using Streamlit & AI
         </div>
-        """,
+        """, unsafe_allow_html=True)
+
+    with col3:
+
+        st.markdown("""
+        <div class='custom-card'>
+
+        <h2>🤖 Machine Learning</h2>
+
+        <p>
+        KNN Regression algorithm is used
+        for accurate salary prediction.
+        </p>
+
+        <h3>Model Features:</h3>
+
+        ✔ Feature Engineering <br>
+        ✔ Scaling <br>
+        ✔ Prediction System <br>
+
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # =================================================
+    # LIBRARIES
+    # =================================================
+    st.subheader("📚 Python Libraries Used")
+
+    col4, col5, col6 = st.columns(3)
+
+    with col4:
+
+        st.markdown("""
+        <div class='custom-card'>
+
+        <h2>📊 Pandas</h2>
+
+        <p>
+        Used for data manipulation,
+        preprocessing, and dataframe handling.
+        </p>
+
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col5:
+
+        st.markdown("""
+        <div class='custom-card'>
+
+        <h2>📦 Pickle</h2>
+
+        <p>
+        Used for saving and loading
+        trained machine learning models.
+        </p>
+
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col6:
+
+        st.markdown("""
+        <div class='custom-card'>
+
+        <h2>📈 Scikit-Learn</h2>
+
+        <p>
+        Used for machine learning model
+        training and prediction.
+        </p>
+
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # =================================================
+    # PROJECT WORKFLOW
+    # =================================================
+    st.markdown(
+        "<h1 class='main-title'>⚙ Project Workflow</h1>",
         unsafe_allow_html=True
     )
+
+    st.markdown("""
+    <div class='custom-card'>
+
+    <h3>Step 1️⃣ : Data Collection</h3>
+
+    Employee salary dataset is collected
+    from different professional sources.
+
+    <br><br>
+
+    <h3>Step 2️⃣ : Data Preprocessing</h3>
+
+    Missing values, categorical features,
+    and scaling operations are handled.
+
+    <br><br>
+
+    <h3>Step 3️⃣ : Feature Engineering</h3>
+
+    Additional smart features are created
+    for better prediction accuracy.
+
+    <br><br>
+
+    <h3>Step 4️⃣ : Model Training</h3>
+
+    KNN Machine Learning model is trained.
+
+    <br><br>
+
+    <h3>Step 5️⃣ : Deployment</h3>
+
+    Streamlit is used to deploy
+    the project as a modern web application.
+
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    st.image(
+        "https://images.unsplash.com/photo-1516321318423-f06f85e504b3",
+        use_container_width=True
+    )
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # =================================================
+    # FUTURE SCOPE
+    # =================================================
+    st.markdown(
+        "<h1 class='main-title'>🚀 Future Scope</h1>",
+        unsafe_allow_html=True
+    )
+
+    st.markdown("""
+    <div class='custom-card'>
+
+    ✔ Deep Learning Integration <br><br>
+
+    ✔ Resume Upload Feature <br><br>
+
+    ✔ AI Career Recommendation <br><br>
+
+    ✔ PDF Report Download <br><br>
+
+    ✔ Cloud Database Integration <br><br>
+
+    ✔ Real-time Industry Salary Trends <br><br>
+
+    ✔ Chatbot Integration <br><br>
+
+    ✔ Mobile Application Development <br><br>
+
+    </div>
+    """, unsafe_allow_html=True)
