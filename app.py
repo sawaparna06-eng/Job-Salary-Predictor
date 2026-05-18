@@ -276,62 +276,280 @@ else:
 
         st.title("💰 Predict Salary")
 
-        col1, col2 = st.columns(2)
+     # =========================
+# ALL INPUTS FOR SALARY PREDICTION
+# =========================
 
-        with col1:
-            exp = st.number_input("Experience", 0, 30)
-            skills = st.number_input("Skills Count", 0, 50)
-            cert = st.number_input("Certifications", 0, 20)
+st.title("💰 Salary Prediction")
 
-        with col2:
-            education = st.selectbox(
-                "Education",
-                ["Bachelor", "Master", "PhD"]
-            )
+col1, col2 = st.columns(2)
 
-            company = st.selectbox(
-                "Company Size",
-                ["Small", "Medium", "Large"]
-            )
+# =========================
+# COLUMN 1
+# =========================
+with col1:
 
-            remote = st.selectbox(
-                "Remote Work",
-                ["Remote", "Hybrid", "Office"]
-            )
+    exp = st.number_input(
+        "Experience (Years)",
+        min_value=0,
+        max_value=40,
+        value=1
+    )
 
-        if st.button("Predict Salary"):
+    skills = st.number_input(
+        "Skills Count",
+        min_value=0,
+        max_value=50,
+        value=1
+    )
 
-            fake_salary = (
-                exp * 10000 +
-                skills * 3000 +
-                cert * 5000
-            )
+    cert = st.number_input(
+        "Certifications",
+        min_value=0,
+        max_value=20,
+        value=0
+    )
 
-            st.success(
-                f"💰 Predicted Salary: ₹ {fake_salary:,}"
-            )
+    age = st.number_input(
+        "Age",
+        min_value=18,
+        max_value=65,
+        value=22
+    )
 
-            st.balloons()
+    education = st.selectbox(
+        "Education Level",
+        [
+            "High School",
+            "Diploma",
+            "Bachelor",
+            "Master",
+            "PhD"
+        ]
+    )
 
-            # GRAPH
-            chart_df = pd.DataFrame({
-                "Category": [
-                    "Experience",
-                    "Skills",
-                    "Certifications"
-                ],
-                "Value": [
-                    exp,
-                    skills,
-                    cert
-                ]
-            })
+# =========================
+# COLUMN 2
+# =========================
+with col2:
 
-            st.subheader("📊 Input Analysis")
+    job = st.selectbox(
+        "Job Role",
+        [
+            "Data Analyst",
+            "Data Scientist",
+            "Software Engineer",
+            "Web Developer",
+            "ML Engineer",
+            "Manager",
+            "HR",
+            "Other"
+        ]
+    )
 
-            st.bar_chart(
-                chart_df.set_index("Category")
-            )
+    industry = st.selectbox(
+        "Industry",
+        [
+            "IT",
+            "Finance",
+            "Healthcare",
+            "Education",
+            "Manufacturing",
+            "Retail",
+            "Other"
+        ]
+    )
+
+    location = st.selectbox(
+        "Location",
+        [
+            "Delhi",
+            "Mumbai",
+            "Bangalore",
+            "Hyderabad",
+            "Pune",
+            "Chennai",
+            "Other"
+        ]
+    )
+
+    company = st.selectbox(
+        "Company Size",
+        [
+            "Small",
+            "Medium",
+            "Large"
+        ]
+    )
+
+    remote = st.selectbox(
+        "Remote Work",
+        [
+            "Remote",
+            "Hybrid",
+            "Office"
+        ]
+    )
+
+# =========================
+# EXTRA FEATURES
+# =========================
+st.markdown("---")
+
+col3, col4 = st.columns(2)
+
+with col3:
+
+    performance = st.slider(
+        "Performance Rating",
+        1,
+        10,
+        5
+    )
+
+    projects = st.number_input(
+        "Projects Completed",
+        min_value=0,
+        max_value=100,
+        value=5
+    )
+
+with col4:
+
+    overtime = st.selectbox(
+        "Overtime",
+        [
+            "Yes",
+            "No"
+        ]
+    )
+
+    leadership = st.selectbox(
+        "Leadership Role",
+        [
+            "Yes",
+            "No"
+        ]
+    )
+
+# =========================
+# CREATE INPUT DATAFRAME
+# =========================
+input_dict = {
+
+    "experience_years": exp,
+    "skills_count": skills,
+    "certifications": cert,
+    "age": age,
+    "performance_rating": performance,
+    "projects_completed": projects,
+    "education_level": education,
+    "job_title": job,
+    "industry": industry,
+    "location": location,
+    "company_size": company,
+    "remote_work": remote,
+    "overtime": overtime,
+    "leadership_role": leadership
+}
+
+input_df = pd.DataFrame([input_dict])
+
+# =========================
+# FEATURE ENGINEERING
+# =========================
+input_df["exp_squared"] = (
+    input_df["experience_years"] ** 2
+)
+
+input_df["skill_per_exp"] = (
+    input_df["skills_count"] /
+    (input_df["experience_years"] + 1)
+)
+
+input_df["cert_per_skill"] = (
+    input_df["certifications"] /
+    (input_df["skills_count"] + 1)
+)
+
+# =========================
+# ONE HOT ENCODING
+# =========================
+input_df = pd.get_dummies(input_df)
+
+# MATCH TRAINING COLUMNS
+input_df = input_df.reindex(
+    columns=columns,
+    fill_value=0
+)
+
+# =========================
+# SCALE NUMERICAL DATA
+# =========================
+num_cols = [
+
+    "experience_years",
+    "skills_count",
+    "certifications",
+    "age",
+    "performance_rating",
+    "projects_completed",
+    "exp_squared",
+    "skill_per_exp",
+    "cert_per_skill"
+]
+
+input_df[num_cols] = scaler.transform(
+    input_df[num_cols]
+)
+
+# =========================
+# PREDICTION BUTTON
+# =========================
+if st.button("🚀 Predict Salary"):
+
+    prediction = model.predict(input_df)
+
+    predicted_salary = int(prediction[0])
+
+    st.success(
+        f"💰 Predicted Salary: ₹ {predicted_salary:,}"
+    )
+
+    st.balloons()
+
+    # =========================
+    # RESULT CHART
+    # =========================
+    graph_df = pd.DataFrame({
+
+        "Factors": [
+            "Experience",
+            "Skills",
+            "Certifications",
+            "Projects"
+        ],
+
+        "Values": [
+            exp,
+            skills,
+            cert,
+            projects
+        ]
+    })
+
+    st.subheader("📊 Employee Profile Analysis")
+
+    st.bar_chart(
+        graph_df.set_index("Factors")
+    )
+
+    # =========================
+    # RECEIPT
+    # =========================
+    st.subheader("🧾 Prediction Summary")
+
+    st.dataframe(input_df)
 
     # =========================
     # DASHBOARD
