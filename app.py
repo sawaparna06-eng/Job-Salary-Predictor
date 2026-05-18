@@ -525,7 +525,7 @@ if page == "🏠 Home":
     # =========================
     # SALARY PREDICTION
     # =========================
-    elif page == "💰 Salary Prediction":
+   if page == "💰 Salary Prediction":
 
         st.title("💰 Predict Salary")
 
