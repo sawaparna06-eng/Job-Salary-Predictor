@@ -646,7 +646,7 @@ else:
         padding:20px;
         border-radius:15px;
         box-shadow:0px 4px 15px rgba(0,0,0,0.3);
-        color:black;
+        color:#93c5fd;
         margin-bottom:20px;
         transition:0.3s;
     }
