@@ -251,24 +251,237 @@ else:
     if page == "🏠 Home":
 
         st.title("Welcome to Salary Prediction App")
-
-        st.image(
-            "https://images.unsplash.com/photo-1520607162513-77705c0f0d4a",
-            use_container_width=True
-        )
-
+      # =========================
+        # HOME PAGE CSS
+        # =========================
         st.markdown("""
-        ### 🚀 Features
+        <style>
 
-        ✔ Salary Prediction  
-        ✔ Interactive Dashboard  
-        ✔ Salary Insights  
-        ✔ Download Prediction Receipt  
-        ✔ Login & Signup System  
-        """)
+        .hero-box{
+            background: linear-gradient(
+            135deg,
+            #0f172a,
+            #1e3a8a,
+            #2563eb
+            );
 
-        st.info("Use sidebar navigation to explore pages.")
+            padding:50px;
+            border-radius:30px;
+            box-shadow:0px 10px 30px rgba(0,0,0,0.5);
+        }
 
+        .hero-title{
+            font-size:65px;
+            font-weight:800;
+            color:white;
+            line-height:1.1;
+        }
+
+        .hero-text{
+            font-size:20px;
+            color:#dbeafe;
+            margin-top:20px;
+        }
+
+        .feature-card{
+            background:rgba(255,255,255,0.08);
+            padding:25px;
+            border-radius:20px;
+            text-align:center;
+            backdrop-filter: blur(10px);
+            transition:0.3s;
+            border:1px solid rgba(255,255,255,0.1);
+        }
+
+        .feature-card:hover{
+            transform:translateY(-5px);
+        }
+
+        .feature-title{
+            color:white;
+            font-size:22px;
+            font-weight:bold;
+        }
+
+        .feature-text{
+            color:#cbd5e1;
+            margin-top:10px;
+        }
+
+        .stats-card{
+            background:rgba(255,255,255,0.05);
+            padding:30px;
+            border-radius:20px;
+            text-align:center;
+            margin-top:20px;
+        }
+
+        .stats-number{
+            font-size:40px;
+            color:#38bdf8;
+            font-weight:bold;
+        }
+
+        .stats-label{
+            color:white;
+            font-size:18px;
+        }
+
+        </style>
+        """, unsafe_allow_html=True)
+
+        # =========================
+        # HERO SECTION
+        # =========================
+        left,right = st.columns([1.4,1])
+
+        with left:
+
+            st.markdown("""
+            <div class="hero-box">
+
+            <div style="
+            color:#38bdf8;
+            font-size:20px;
+            font-weight:bold;">
+            AI POWERED SYSTEM
+            </div>
+
+            <div class="hero-title">
+            Salary <br>
+            Prediction <br>
+            Platform
+            </div>
+
+            <div class="hero-text">
+            Predict employee salary using
+            Machine Learning based on:
+            experience, skills, education,
+            certifications and job role.
+            </div>
+
+            </div>
+            """, unsafe_allow_html=True)
+
+        with right:
+
+            st.image(
+                "https://images.unsplash.com/photo-1520607162513-77705c0f0d4a",
+                use_container_width=True
+            )
+
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        # =========================
+        # FEATURES
+        # =========================
+        f1,f2,f3,f4 = st.columns(4)
+
+        with f1:
+            st.markdown("""
+            <div class="feature-card">
+            <div class="feature-title">
+            🎯 Accurate
+            </div>
+            <div class="feature-text">
+            Highly accurate salary prediction
+            </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        with f2:
+            st.markdown("""
+            <div class="feature-card">
+            <div class="feature-title">
+            ⚡ Fast
+            </div>
+            <div class="feature-text">
+            Instant AI prediction system
+            </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        with f3:
+            st.markdown("""
+            <div class="feature-card">
+            <div class="feature-title">
+            📊 Analytics
+            </div>
+            <div class="feature-text">
+            Interactive dashboard & charts
+            </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        with f4:
+            st.markdown("""
+            <div class="feature-card">
+            <div class="feature-title">
+            🔒 Secure
+            </div>
+            <div class="feature-text">
+            Safe and secure user system
+            </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        # =========================
+        # STATS SECTION
+        # =========================
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        s1,s2,s3,s4 = st.columns(4)
+
+        with s1:
+            st.markdown("""
+            <div class="stats-card">
+            <div class="stats-number">
+            1000+
+            </div>
+            <div class="stats-label">
+            Users
+            </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        with s2:
+            st.markdown("""
+            <div class="stats-card">
+            <div class="stats-number">
+            5000+
+            </div>
+            <div class="stats-label">
+            Predictions
+            </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        with s3:
+            st.markdown("""
+            <div class="stats-card">
+            <div class="stats-number">
+            90%
+            </div>
+            <div class="stats-label">
+            Accuracy
+            </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        with s4:
+            st.markdown("""
+            <div class="stats-card">
+            <div class="stats-number">
+            24/7
+            </div>
+            <div class="stats-label">
+            Availability
+            </div>
+            </div>
+            """, unsafe_allow_html=True
+
+
+        
     # =========================
     # SALARY PREDICTION
     # =========================
