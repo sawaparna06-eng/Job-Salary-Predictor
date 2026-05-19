@@ -119,6 +119,11 @@ section[data-testid="stSidebar"] {
 # =========================
 # NAVBAR
 # =========================
+st.markdown(
+    '<div class="navbar">💼 Salary Prediction System</div>',
+    unsafe_allow_html=True
+)
+
 st.markdown("<br><br><br>", unsafe_allow_html=True)
 
 # =========================
@@ -145,6 +150,7 @@ def login():
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")
 
+   remember = st.checkbox("Remember Me")
     if st.button("Login"):
 
         if username in st.session_state.users and \
@@ -228,11 +234,30 @@ else:
             "ℹ About"
         ]
     )
+st.sidebar.markdown(f"""
+<div style="
+background:linear-gradient(135deg,#1e293b,#334155);
+padding:20px;
+border-radius:15px;
+text-align:center;
+box-shadow:0px 4px 15px rgba(0,0,0,0.4);
+margin-bottom:20px;
+">
 
-    st.sidebar.success(
-        f"Logged in as {st.session_state.username}"
-    )
+<img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+width="90">
 
+<h3 style="color:white;">
+{st.session_state.username}
+</h3>
+
+<p style="color:#cbd5e1;">
+Logged In User
+</p>
+
+</div>
+""", unsafe_allow_html=True)
+ 
     if st.sidebar.button("Logout"):
 
         st.session_state.logged_in = False
