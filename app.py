@@ -130,7 +130,7 @@ st.markdown("<br><br><br>", unsafe_allow_html=True)
 # SESSION STATE
 # =========================
 if "users" not in st.session_state:
-st.session_state.users = {
+    st.session_state.users = {
     "admin": "1234",
     "aparna": "aparna123"
 }
