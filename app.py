@@ -518,11 +518,11 @@ else:
     
     
             
-        # =========================
-        # SALARY PREDICTION
-        # =========================
-        elif page == "💰 Salary Prediction":
-    
+    # =========================
+    # SALARY PREDICTION
+    # =========================
+    elif page == "💰 Salary Prediction":
+
             st.title("💰 Predict Salary")
     
             col1, col2 = st.columns(2)
