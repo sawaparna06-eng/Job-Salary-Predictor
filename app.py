@@ -220,20 +220,22 @@ if not st.session_state.logged_in:
 else:
 
     # =========================
-    # SIDEBAR
-    # =========================
-    st.sidebar.title("📌 Navigation")
+# SIDEBAR
+# =========================
+st.sidebar.title("📌 Navigation")
 
-    page = st.sidebar.radio(
-        "Go To",
-        [
-            "🏠 Home",
-            "💰 Salary Prediction",
-            "📊 Dashboard",
-            "📈 Insights",
-            "ℹ About"
-        ]
-    )
+page = st.sidebar.radio(
+    "Go To",
+    [
+        "🏠 Home",
+        "💰 Salary Prediction",
+        "📊 Dashboard",
+        "📈 Insights",
+        "ℹ About"
+    ]
+)
+
+# REPLACE THIS PART
 st.sidebar.markdown(f"""
 <div style="
 background:linear-gradient(135deg,#1e293b,#334155);
@@ -257,12 +259,8 @@ Logged In User
 
 </div>
 """, unsafe_allow_html=True)
- 
-    if st.sidebar.button("Logout"):
 
-        st.session_state.logged_in = False
-        st.rerun()
-
+if st.sidebar.button("Logout"):
     # =========================
     # LOAD MODEL
     # =========================
