@@ -219,7 +219,7 @@ if not st.session_state.logged_in:
 # =========================
 else:
 
-    # =========================
+# =========================
 # SIDEBAR
 # =========================
 st.sidebar.title("📌 Navigation")
