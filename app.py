@@ -230,7 +230,7 @@ else:
     # =========================
     st.sidebar.title("📌 Navigation")
 
-        page = st.sidebar.radio(
+    page = st.sidebar.radio(
             "Go To",
             [
                 "🏠 Home",
