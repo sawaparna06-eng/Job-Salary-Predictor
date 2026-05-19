@@ -281,11 +281,11 @@ else:
     scaler = pickle.load(open("scaler.pkl", "rb"))
     columns = pickle.load(open("columns.pkl", "rb"))
     
-        # =========================
-        # HOME PAGE
-        # =========================
-        if page == "🏠 Home":
-    
+    # =========================
+    # HOME PAGE
+    # =========================
+    if page == "🏠 Home":
+
             st.title("Welcome to Salary Prediction App")
           # =========================
             # HOME PAGE CSS
