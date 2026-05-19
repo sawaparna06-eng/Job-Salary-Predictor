@@ -582,10 +582,10 @@ else:
                     chart_df.set_index("Category")
                 )
     
-        # =========================
-        # DASHBOARD
-        # =========================
-        elif page == "📊 Dashboard":
+    # =========================
+    # DASHBOARD
+    # =========================
+    elif page == "📊 Dashboard":
     
             st.title("📊 Dashboard")
     
@@ -626,11 +626,11 @@ else:
                 chart_data.set_index("Experience")
             )
     
-        # =========================
-        # INSIGHTS PAGE
-        # =========================
-        elif page == "📈 Insights":
-    
+    # =========================
+    # INSIGHTS PAGE
+    # =========================
+    elif page == "📈 Insights":
+
             st.title("📈 Salary Insights")
     
             st.write("""
@@ -659,11 +659,11 @@ else:
                 pie_data.set_index("Work Mode")
             )
     
-        # =========================
-        # ABOUT PAGE
-        # =========================
-        elif page == "ℹ About":
-    
+    # =========================
+    # ABOUT PAGE
+    # =========================
+    elif page == "ℹ About":
+
              st.markdown("""
         <style>
         .main-title{
