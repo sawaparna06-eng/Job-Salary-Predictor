@@ -230,16 +230,16 @@ else:
     # =========================
     st.sidebar.title("📌 Navigation")
 
-page = st.sidebar.radio(
-    "Go To",
-    [
-        "🏠 Home",
-        "💰 Salary Prediction",
-        "📊 Dashboard",
-        "📈 Insights",
-        "ℹ About"
-    ]
-)
+    page = st.sidebar.radio(
+        "Go To",
+        [
+            "🏠 Home",
+            "💰 Salary Prediction",
+            "📊 Dashboard",
+            "📈 Insights",
+            "ℹ About"
+        ]
+    )
 
 # REPLACE THIS PART
 st.sidebar.markdown(f"""
@@ -267,6 +267,13 @@ Logged In User
 """, unsafe_allow_html=True)
 
 if st.sidebar.button("Logout"):
+
+    st.session_state.logged_in = False
+    st.session_state.remember = False
+    st.session_state.username = ""
+
+    st.rerun()
+    
     # =========================
     # LOAD MODEL
     # =========================
