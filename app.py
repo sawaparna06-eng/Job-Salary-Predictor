@@ -149,8 +149,8 @@ def login():
 
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")
-
-   remember = st.checkbox("Remember Me")
+    remember = st.checkbox("Remember Me")
+  
     if st.button("Login"):
 
         if username in st.session_state.users and \
