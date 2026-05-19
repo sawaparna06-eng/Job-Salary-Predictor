@@ -274,12 +274,12 @@ else:
     
         st.rerun()
         
-        # =========================
-        # LOAD MODEL
-        # =========================
-        model = pickle.load(open("knn_model.pkl", "rb"))
-        scaler = pickle.load(open("scaler.pkl", "rb"))
-        columns = pickle.load(open("columns.pkl", "rb"))
+     # =========================
+     # LOAD MODEL
+     # =========================
+     model = pickle.load(open("knn_model.pkl", "rb"))
+     scaler = pickle.load(open("scaler.pkl", "rb"))
+     columns = pickle.load(open("columns.pkl", "rb"))
     
         # =========================
         # HOME PAGE
