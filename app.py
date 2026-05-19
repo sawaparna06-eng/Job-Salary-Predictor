@@ -138,6 +138,12 @@ if "users" not in st.session_state:
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
+if "remember" not in st.session_state:
+    st.session_state.remember = False
+
+# ADD THIS
+if "username" not in st.session_state:
+    st.session_state.username = ""
 # =========================
 # LOGIN FUNCTION
 # =========================
