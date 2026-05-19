@@ -29,14 +29,17 @@ st.markdown("""
 
 /* Navbar */
 .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 999;
     background: linear-gradient(90deg, #06b6d4, #3b82f6);
-    padding: 15px;
-    border-radius: 15px;
+    padding: 18px;
     text-align: center;
-    font-size: 28px;
+    font-size: 30px;
     font-weight: bold;
     color: white;
-    margin-bottom: 20px;
     box-shadow: 0px 4px 15px rgba(0,0,0,0.4);
 }
 
