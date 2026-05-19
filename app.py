@@ -219,10 +219,10 @@ if not st.session_state.logged_in:
 # =========================
 else:
 
-# =========================
-# SIDEBAR
-# =========================
-st.sidebar.title("📌 Navigation")
+    # =========================
+    # SIDEBAR
+    # =========================
+    st.sidebar.title("📌 Navigation")
 
 page = st.sidebar.radio(
     "Go To",
