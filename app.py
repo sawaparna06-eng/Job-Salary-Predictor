@@ -163,13 +163,35 @@ st.markdown("""
 /* ── RESET & BASE ── */
 html, body, [class*="css"] { font-family: 'Inter', sans-serif !important; }
 #MainMenu, footer, header, .stDeployButton { visibility: hidden !important; display: none !important; }
-.block-container { padding: 0 !important; max-width: 100% !important; }
-section[data-testid="stSidebar"] { display: none !important; }
-.stApp { background: #f8f9fc !important; }
 
-/* ── REMOVE ALL STREAMLIT DEFAULT PADDING/GAPS ── */
-.stApp > div { padding: 0 !important; }
-div[data-testid="stVerticalBlock"] > div:has(> .element-container:only-child) { padding: 0 !important; }
+/* Streamlit ka default top padding/margin bilkul zero */
+.block-container {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+}
+.stApp { background: #f8f9fc !important; }
+section[data-testid="stSidebar"] { display: none !important; }
+
+/* Top gap hataao — ye Streamlit ke multiple layers mein hota hai */
+.stApp > div,
+.stApp > div > div,
+.stApp > div > div > div,
+[data-testid="stAppViewContainer"],
+[data-testid="stAppViewContainer"] > section,
+[data-testid="stAppViewContainer"] > section > div,
+[data-testid="stVerticalBlock"],
+div[data-testid="stVerticalBlock"] { 
+    padding-top: 0 !important; 
+    margin-top: 0 !important; 
+}
+
+/* Streamlit version-specific top toolbar gap */
+[data-testid="stHeader"] { display: none !important; height: 0 !important; }
+.css-18e3th9, .css-1d391kg, .css-fg4pbf, .css-eczf16 {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
 
 /* ── AUTH WRAPPER ── */
 /* 
@@ -306,27 +328,84 @@ div[data-testid="stVerticalBlock"] > div:has(> .element-container:only-child) { 
 }
 .stButton > button:hover { transform: translateY(-1px) !important; box-shadow: 0 6px 20px rgba(99,102,241,0.4) !important; }
 
-/* ── NAV BAR — responsive ── */
+/* ── NAV BAR — Hotel Royal style ── */
 .top-nav {
-    background: #ffffff; border-bottom: 1px solid #e2e8f0;
-    padding: 0 clamp(12px, 3vw, 32px);
+    background: #1a2236;
+    padding: 0 clamp(16px, 4vw, 48px);
     display: flex; align-items: center; justify-content: space-between;
-    min-height: 52px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-    flex-wrap: wrap; gap: 8px;
+    height: 64px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+    position: sticky; top: 0; z-index: 999;
+    flex-wrap: nowrap; gap: 0;
 }
 .nav-brand {
     font-family: 'Syne', sans-serif !important;
-    font-size: clamp(15px, 2.5vw, 18px); font-weight: 800; color: #1e1b4b;
+    font-size: clamp(16px, 2.5vw, 22px);
+    font-weight: 800; color: #ffffff; white-space: nowrap;
+    letter-spacing: 0.3px;
 }
-.nav-brand em { color: #6366f1; font-style: normal; }
-.nav-user { display: flex; align-items: center; gap: 10px; }
+.nav-brand em { color: #f5a623; font-style: normal; }
+
+/* Nav links row — pure HTML inline list */
+.nav-links {
+    display: flex; align-items: center; gap: clamp(4px, 2vw, 28px);
+    flex: 1; justify-content: center;
+}
+.nav-link {
+    font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.82);
+    cursor: pointer; padding: 4px 2px; white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+    text-decoration: none;
+}
+.nav-link:hover, .nav-link.active {
+    color: #ffffff; border-bottom-color: #f5a623;
+}
+.nav-link.active { color: #f5a623; }
+
+/* Right side buttons */
+.nav-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
+/* Gold "Book Now" style primary CTA */
+.nav-btn-primary > button {
+    background: #f5a623 !important; color: #1a1a1a !important;
+    border: none !important; border-radius: 6px !important;
+    padding: 8px 20px !important; font-size: 13px !important;
+    font-weight: 700 !important; cursor: pointer !important;
+    box-shadow: 0 2px 8px rgba(245,166,35,0.35) !important;
+    transition: all 0.2s !important; white-space: nowrap !important;
+    width: auto !important;
+}
+.nav-btn-primary > button:hover {
+    background: #e09610 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 14px rgba(245,166,35,0.45) !important;
+}
+
+/* Logout button — outlined style */
+.nav-btn-logout > button {
+    background: transparent !important; color: #ffffff !important;
+    border: 1.5px solid rgba(255,255,255,0.45) !important;
+    border-radius: 6px !important; padding: 7px 18px !important;
+    font-size: 13px !important; font-weight: 600 !important;
+    box-shadow: none !important; transition: all 0.2s !important;
+    white-space: nowrap !important; width: auto !important;
+}
+.nav-btn-logout > button:hover {
+    background: rgba(255,255,255,0.1) !important;
+    border-color: #ffffff !important;
+    transform: none !important;
+}
+
+/* User avatar */
 .nav-avatar {
-    width: 34px; height: 34px; border-radius: 50%;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    width: 32px; height: 32px; border-radius: 50%;
+    background: linear-gradient(135deg, #f5a623, #e07b10);
     display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0;
+    font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0;
+    border: 2px solid rgba(255,255,255,0.3);
 }
-.nav-name { font-size: 13px; font-weight: 500; color: #334155; }
+.nav-name { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.85); white-space: nowrap; }
 
 /* ── PAGE WRAP — responsive padding ── */
 .page-wrap {
@@ -431,16 +510,41 @@ div[data-testid="stVerticalBlock"] > div:has(> .element-container:only-child) { 
 .compare-bar-track { height: 8px; background: #f1f5f9; border-radius: 99px; overflow: hidden; }
 .compare-bar-fill  { height: 100%; border-radius: 99px; }
 
+/* ── NAV TAB BUTTONS (functional Streamlit buttons that look like hotel nav) ── */
+.nav-tab-btn > button {
+    background: transparent !important;
+    color: rgba(255,255,255,0.75) !important;
+    border: none !important; border-radius: 0 !important;
+    border-bottom: 2px solid transparent !important;
+    padding: 8px 4px !important;
+    font-size: 13px !important; font-weight: 500 !important;
+    box-shadow: none !important;
+    transition: color 0.2s, border-color 0.2s !important;
+    width: 100% !important;
+}
+.nav-tab-btn > button:hover {
+    color: #ffffff !important;
+    border-bottom-color: #f5a623 !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* The entire button row sits inside the dark navbar */
+div[data-testid="stHorizontalBlock"]:has(.nav-tab-btn) {
+    background: #1a2236 !important;
+    padding: 0 clamp(16px, 4vw, 48px) !important;
+    margin: 0 !important;
+    gap: 0 !important;
+}
+div[data-testid="stHorizontalBlock"]:has(.nav-tab-btn) > div {
+    padding: 0 !important;
+    min-width: 0 !important;
+}
+
 /* ── MISC ── */
 .trend-up   { color: #10b981; font-weight: 600; font-size: 13px; }
 .pw-track   { height: 4px; background: #e2e8f0; border-radius: 99px; overflow: hidden; margin-bottom: 6px; }
 .pw-bar     { height: 100%; border-radius: 99px; transition: width .3s, background .3s; }
-.signout-btn > button {
-    background: #fff !important; color: #ef4444 !important;
-    border: 1.5px solid #fecaca !important; box-shadow: none !important;
-    font-size: 13px !important; padding: 8px 16px !important;
-}
-.signout-btn > button:hover { background: #fff1f2 !important; }
 h1,h2,h3 { font-family:'Syne',sans-serif !important; color:#0f172a !important; }
 p,li { color:#475569; }
 
@@ -641,41 +745,65 @@ def show_signup():
 
 
 # =========================
-# NAV BAR
+# NAV BAR  — Hotel Royal style
 # =========================
 def show_nav():
     initials = get_initials(st.session_state.user_name)
+    active   = st.session_state.active_tab
+
+    nav_tabs = [
+        ("predict",     "Predict"),
+        ("insights",    "Insights"),
+        ("roadmap",     "Roadmap"),
+        ("dashboard",   "Dashboard"),
+        ("compare",     "Compare"),
+        ("leaderboard", "Leaderboard"),
+    ]
+
+    # Active link indicator in HTML (purely visual)
+    links_html = ""
+    for key, label in nav_tabs:
+        cls = "nav-link active" if active == key else "nav-link"
+        links_html += f'<span class="{cls}">{label}</span>'
+
+    # Dark hotel-style top bar (visual only)
     st.markdown(f"""
     <div class="top-nav">
         <div class="nav-brand">💼 Salary<em>IQ</em></div>
-        <div class="nav-user">
+        <nav class="nav-links">{links_html}</nav>
+        <div style="display:flex;align-items:center;gap:8px;">
             <div class="nav-avatar">{initials}</div>
             <span class="nav-name">{st.session_state.user_name}</span>
         </div>
     </div>""", unsafe_allow_html=True)
 
-    c1,c2,c3,c4,c5,c6,c7 = st.columns(7)
-    tabs   = ["predict","insights","roadmap","dashboard","compare","leaderboard","signout"]
-    labels = ["🔍 Predict","💡 Insights","🗺️ Roadmap","📊 Dashboard","⚖️ Compare","🏆 Leaderboard","🚪 Sign Out"]
-    cols   = [c1,c2,c3,c4,c5,c6,c7]
-
-    for col, tab, label in zip(cols, tabs, labels):
+    # Streamlit functional button row — styled to match hotel nav
+    c1,c2,c3,c4,c5,c6,c7,c8 = st.columns([1,1,1,1,1,1,1,1])
+    col_map = [c1,c2,c3,c4,c5,c6]
+    for col, (key, label) in zip(col_map, nav_tabs):
         with col:
-            if tab == "signout":
-                st.markdown('<div class="signout-btn">', unsafe_allow_html=True)
-                if st.button(label, key=f"nav_{tab}"):
-                    st.session_state.logged_in        = False
-                    st.session_state.user_name        = ""
-                    st.session_state.user_email       = ""
-                    st.session_state.active_tab       = "predict"
-                    st.session_state.last_prediction  = None
-                    st.session_state.last_inputs      = None
-                    st.rerun()
-                st.markdown('</div>', unsafe_allow_html=True)
-            else:
-                if st.button(label, key=f"nav_{tab}"):
-                    st.session_state.active_tab = tab
-                    st.rerun()
+            st.markdown('<div class="nav-tab-btn">', unsafe_allow_html=True)
+            if st.button(label, key=f"nav_{key}"):
+                st.session_state.active_tab = key
+                st.rerun()
+            st.markdown('</div>', unsafe_allow_html=True)
+    with c7:
+        st.markdown('<div class="nav-btn-primary">', unsafe_allow_html=True)
+        if st.button("🔍 Predict", key="nav_predict_cta"):
+            st.session_state.active_tab = "predict"
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+    with c8:
+        st.markdown('<div class="nav-btn-logout">', unsafe_allow_html=True)
+        if st.button("Logout", key="nav_logout"):
+            st.session_state.logged_in       = False
+            st.session_state.user_name       = ""
+            st.session_state.user_email      = ""
+            st.session_state.active_tab      = "predict"
+            st.session_state.last_prediction = None
+            st.session_state.last_inputs     = None
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
 
 
 # =========================
