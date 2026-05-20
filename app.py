@@ -760,26 +760,12 @@ def show_nav():
         ("leaderboard", "Leaderboard"),
     ]
 
-    # ===== TOP NAVBAR =====
-   def show_nav():
-    initials = get_initials(st.session_state.user_name)
-    active   = st.session_state.active_tab
- 
-    nav_tabs = [
-        ("predict",     "Predict"),
-        ("insights",    "Insights"),
-        ("roadmap",     "Roadmap"),
-        ("dashboard",   "Dashboard"),
-        ("compare",     "Compare"),
-        ("leaderboard", "Leaderboard"),
-    ]
- 
     # Active link indicator in HTML (purely visual)
     links_html = ""
     for key, label in nav_tabs:
         cls = "nav-link active" if active == key else "nav-link"
         links_html += f'<span class="{cls}">{label}</span>'
- 
+
     # Dark hotel-style top bar (visual only)
     st.markdown(f"""
     <div class="top-nav">
@@ -790,7 +776,7 @@ def show_nav():
             <span class="nav-name">{st.session_state.user_name}</span>
         </div>
     </div>""", unsafe_allow_html=True)
- 
+
     # Streamlit functional button row — styled to match hotel nav
     c1,c2,c3,c4,c5,c6,c7 = st.columns([1,1,1,1,1,1,1])
     col_map = [c1,c2,c3,c4,c5,c6]
@@ -818,7 +804,6 @@ def show_nav():
             st.session_state.last_inputs     = None
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
- 
 
 
 # =========================
