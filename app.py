@@ -154,50 +154,73 @@ for k, v in [("logged_in", False), ("user_name", ""), ("user_email", ""),
         st.session_state[k] = v
 
 # =========================
-# GLOBAL STYLES
+# GLOBAL STYLES  ← FIXED: responsive, no hardcoded spacers
 # =========================
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap');
 
+/* ── RESET & BASE ── */
 html, body, [class*="css"] { font-family: 'Inter', sans-serif !important; }
 #MainMenu, footer, header, .stDeployButton { visibility: hidden !important; display: none !important; }
 .block-container { padding: 0 !important; max-width: 100% !important; }
 section[data-testid="stSidebar"] { display: none !important; }
 .stApp { background: #f8f9fc !important; }
 
-/* AUTH */
-.auth-wrap {
-    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+/* ── REMOVE ALL STREAMLIT DEFAULT PADDING/GAPS ── */
+.stApp > div { padding: 0 !important; }
+div[data-testid="stVerticalBlock"] > div:has(> .element-container:only-child) { padding: 0 !important; }
+
+/* ── AUTH WRAPPER ── */
+/* 
+   FIX: dono columns (HTML panel + Streamlit inputs) ek hi visual block mein dikhein.
+   Pehle .auth-wrap ke andar HTML panel tha aur inputs alag column mein the —
+   ab hum .auth-wrap ko ek centered container banate hain jo sirf background deta hai,
+   aur ek naya .auth-center class inputs ke liye use karte hain.
+*/
+.auth-bg {
+    position: fixed;
+    inset: 0;
     background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 50%, #f0fff4 100%);
-    padding: 40px 20px;
+    z-index: 0;
+    pointer-events: none;
 }
+
 .auth-panel {
-    background: #ffffff; border-radius: 24px; padding: 48px 44px;
-    width: 100%; max-width: 460px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.04), 0 20px 60px rgba(99,102,241,0.08);
-    border: 1px solid rgba(99,102,241,0.08);
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 40px 36px 32px;
+    width: 100%;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.04), 0 20px 60px rgba(99,102,241,0.10);
+    border: 1px solid rgba(99,102,241,0.10);
+    margin-bottom: 0;
 }
+
 .auth-brand {
-    font-family: 'Syne', sans-serif !important; font-size: 20px; font-weight: 800;
-    color: #1e1b4b; margin-bottom: 32px; display: flex; align-items: center; gap: 8px;
+    font-family: 'Syne', sans-serif !important;
+    font-size: 20px; font-weight: 800;
+    color: #1e1b4b; margin-bottom: 24px;
+    display: flex; align-items: center; gap: 8px;
 }
 .auth-brand em { color: #6366f1; font-style: normal; }
+
 .auth-heading {
-    font-family: 'Syne', sans-serif !important; font-size: 32px; font-weight: 800;
+    font-family: 'Syne', sans-serif !important;
+    font-size: 30px; font-weight: 800;
     color: #0f172a; line-height: 1.15; margin-bottom: 6px;
 }
 .auth-heading span {
     background: linear-gradient(135deg, #6366f1, #8b5cf6);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
-.auth-sub { font-size: 14px; color: #64748b; margin-bottom: 32px; }
+.auth-sub { font-size: 14px; color: #64748b; margin-bottom: 24px; }
+
 .auth-stats-row {
     display: flex; border-radius: 12px; overflow: hidden;
-    border: 1px solid #e2e8f0; margin-bottom: 28px;
+    border: 1px solid #e2e8f0; margin-bottom: 0;
 }
 .auth-stat {
-    flex: 1; text-align: center; padding: 14px 8px;
+    flex: 1; text-align: center; padding: 12px 8px;
     border-right: 1px solid #e2e8f0; background: #f8fafc;
 }
 .auth-stat:last-child { border-right: none; }
@@ -207,8 +230,9 @@ section[data-testid="stSidebar"] { display: none !important; }
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
 .auth-stat-lbl { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: .6px; margin-top: 2px; }
+
 .auth-or {
-    text-align: center; color: #cbd5e1; font-size: 13px; margin: 16px 0; position: relative;
+    text-align: center; color: #cbd5e1; font-size: 13px; margin: 14px 0; position: relative;
 }
 .auth-or::before, .auth-or::after {
     content: ''; position: absolute; top: 50%;
@@ -216,7 +240,21 @@ section[data-testid="stSidebar"] { display: none !important; }
 }
 .auth-or::before { left: 0; } .auth-or::after { right: 0; }
 
-/* INPUTS */
+/* Auth page outer padding — responsive */
+.auth-page-wrap {
+    padding: clamp(16px, 4vw, 48px) clamp(12px, 5vw, 60px);
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 50%, #f0fff4 100%);
+}
+.auth-inner {
+    width: 100%;
+    max-width: 460px;
+}
+
+/* ── INPUTS ── */
 .stTextInput > div > div {
     background: #f8fafc !important; border: 1.5px solid #e2e8f0 !important; border-radius: 10px !important;
 }
@@ -257,7 +295,7 @@ section[data-testid="stSidebar"] { display: none !important; }
     background: #eef2ff !important; color: #4f46e5 !important;
 }
 
-/* BUTTONS */
+/* ── BUTTONS ── */
 .stButton > button {
     width: 100% !important;
     background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
@@ -268,58 +306,77 @@ section[data-testid="stSidebar"] { display: none !important; }
 }
 .stButton > button:hover { transform: translateY(-1px) !important; box-shadow: 0 6px 20px rgba(99,102,241,0.4) !important; }
 
-/* NAV */
+/* ── NAV BAR — responsive ── */
 .top-nav {
     background: #ffffff; border-bottom: 1px solid #e2e8f0;
-    padding: 0 32px; display: flex; align-items: center; justify-content: space-between;
-    height: 56px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    padding: 0 clamp(12px, 3vw, 32px);
+    display: flex; align-items: center; justify-content: space-between;
+    min-height: 52px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    flex-wrap: wrap; gap: 8px;
 }
-.nav-brand { font-family: 'Syne', sans-serif !important; font-size: 18px; font-weight: 800; color: #1e1b4b; }
+.nav-brand {
+    font-family: 'Syne', sans-serif !important;
+    font-size: clamp(15px, 2.5vw, 18px); font-weight: 800; color: #1e1b4b;
+}
 .nav-brand em { color: #6366f1; font-style: normal; }
 .nav-user { display: flex; align-items: center; gap: 10px; }
 .nav-avatar {
     width: 34px; height: 34px; border-radius: 50%;
     background: linear-gradient(135deg, #6366f1, #8b5cf6);
     display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 700; color: #fff;
+    font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0;
 }
 .nav-name { font-size: 13px; font-weight: 500; color: #334155; }
 
-/* PAGE */
-.page-wrap { padding: 28px 36px; max-width: 1200px; margin: 0 auto; }
-.page-title { font-family: 'Syne', sans-serif !important; font-size: 24px; font-weight: 800; color: #0f172a; margin-bottom: 4px; }
-.page-sub { font-size: 14px; color: #64748b; margin-bottom: 24px; }
+/* ── PAGE WRAP — responsive padding ── */
+.page-wrap {
+    padding: clamp(16px, 3vw, 28px) clamp(12px, 3vw, 36px);
+    max-width: 1200px; margin: 0 auto;
+}
+.page-title {
+    font-family: 'Syne', sans-serif !important;
+    font-size: clamp(18px, 3vw, 24px); font-weight: 800; color: #0f172a; margin-bottom: 4px;
+}
+.page-sub { font-size: 14px; color: #64748b; margin-bottom: 20px; }
 
-/* CARDS */
+/* ── CARDS ── */
 .card {
     background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0;
-    padding: 22px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 16px;
+    padding: clamp(14px, 2vw, 22px); box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 16px;
 }
-.card-title { font-size: 11px; font-weight: 700; color: #6366f1; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
+.card-title {
+    font-size: 11px; font-weight: 700; color: #6366f1;
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px;
+}
 
-/* METRICS */
+/* ── METRICS ── */
 .metric-card {
     background: #fff; border: 1px solid #e2e8f0; border-radius: 14px;
-    padding: 18px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    padding: 16px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
 .metric-label { font-size: 12px; color: #94a3b8; font-weight: 500; margin-bottom: 6px; }
-.metric-value { font-family: 'Syne', sans-serif !important; font-size: 22px; font-weight: 800; color: #0f172a; }
+.metric-value { font-family: 'Syne', sans-serif !important; font-size: clamp(16px, 2vw, 22px); font-weight: 800; color: #0f172a; }
 .metric-sub { font-size: 12px; color: #10b981; font-weight: 500; margin-top: 4px; }
 
-/* RESULT HERO */
+/* ── RESULT HERO — responsive ── */
 .result-hero {
     background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-    border-radius: 20px; padding: 36px 32px; text-align: center; margin-bottom: 20px;
+    border-radius: 20px;
+    padding: clamp(20px, 4vw, 36px) clamp(16px, 4vw, 32px);
+    text-align: center; margin-bottom: 20px;
     box-shadow: 0 8px 32px rgba(99,102,241,0.3);
 }
 .result-hero-label { font-size: 12px; color: rgba(255,255,255,0.7); letter-spacing: 1.5px; text-transform: uppercase; }
-.result-hero-amount { font-family: 'Syne', sans-serif !important; font-size: 56px; font-weight: 800; color: #fff; margin: 8px 0; }
+.result-hero-amount {
+    font-family: 'Syne', sans-serif !important;
+    font-size: clamp(36px, 8vw, 56px); font-weight: 800; color: #fff; margin: 8px 0;
+}
 .result-hero-sub { font-size: 13px; color: rgba(255,255,255,0.6); }
 
-/* INSIGHTS */
+/* ── INSIGHTS ── */
 .insight-card {
     background: #fff; border-radius: 12px; border: 1px solid #e2e8f0;
-    padding: 18px; margin-bottom: 10px; display: flex; gap: 14px; align-items: flex-start;
+    padding: 16px; margin-bottom: 10px; display: flex; gap: 14px; align-items: flex-start;
 }
 .insight-icon {
     width: 38px; height: 38px; border-radius: 10px;
@@ -332,10 +389,10 @@ section[data-testid="stSidebar"] { display: none !important; }
 .insight-title { font-size: 14px; font-weight: 600; color: #0f172a; margin-bottom: 4px; }
 .insight-desc  { font-size: 13px; color: #64748b; line-height: 1.5; }
 
-/* ROADMAP */
+/* ── ROADMAP ── */
 .roadmap-step {
     display: flex; gap: 16px; align-items: flex-start;
-    padding: 18px 0; border-bottom: 1px solid #f1f5f9;
+    padding: 16px 0; border-bottom: 1px solid #f1f5f9;
 }
 .roadmap-step:last-child { border-bottom: none; }
 .step-dot {
@@ -353,37 +410,62 @@ section[data-testid="stSidebar"] { display: none !important; }
 .badge-done    { background: #f0fdf4; color: #15803d; }
 .badge-future  { background: #f8fafc; color: #94a3b8; }
 
-/* LEADERBOARD */
+/* ── LEADERBOARD ── */
 .lb-row {
-    display: flex; align-items: center; gap: 14px; padding: 14px 16px;
-    border-radius: 12px; margin-bottom: 8px; background: #f8fafc; border: 1px solid #f1f5f9; transition: all 0.15s;
+    display: flex; align-items: center; gap: 12px; padding: 12px 14px;
+    border-radius: 12px; margin-bottom: 8px; background: #f8fafc;
+    border: 1px solid #f1f5f9; transition: all 0.15s; flex-wrap: wrap;
 }
 .lb-row:hover { background: #eef2ff; border-color: #c7d2fe; }
 .lb-row.gold   { background: linear-gradient(135deg,#fffbeb,#fef3c7); border-color: #fde68a; }
 .lb-row.silver { background: linear-gradient(135deg,#f8fafc,#f1f5f9); border-color: #e2e8f0; }
 .lb-row.bronze { background: linear-gradient(135deg,#fff7ed,#ffedd5); border-color: #fed7aa; }
 .lb-rank  { font-family:'Syne',sans-serif !important; font-size:16px; font-weight:800; min-width:28px; }
-.lb-name  { flex:1; font-size:14px; font-weight:600; color:#0f172a; }
+.lb-name  { flex:1; font-size:14px; font-weight:600; color:#0f172a; min-width: 100px; }
 .lb-role  { font-size:12px; color:#64748b; }
 .lb-salary{ font-family:'Syne',sans-serif !important; font-size:16px; font-weight:800; color:#4f46e5; }
 
-/* COMPARE BARS */
+/* ── COMPARE BARS ── */
 .compare-bar-wrap { margin-bottom: 14px; }
-.compare-bar-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
+.compare-bar-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; flex-wrap: wrap; gap: 4px; }
 .compare-bar-track { height: 8px; background: #f1f5f9; border-radius: 99px; overflow: hidden; }
 .compare-bar-fill  { height: 100%; border-radius: 99px; }
 
-/* MISC */
+/* ── MISC ── */
 .trend-up   { color: #10b981; font-weight: 600; font-size: 13px; }
 .pw-track   { height: 4px; background: #e2e8f0; border-radius: 99px; overflow: hidden; margin-bottom: 6px; }
 .pw-bar     { height: 100%; border-radius: 99px; transition: width .3s, background .3s; }
 .signout-btn > button {
     background: #fff !important; color: #ef4444 !important;
-    border: 1.5px solid #fecaca !important; box-shadow: none !important; font-size: 13px !important; padding: 8px 16px !important;
+    border: 1.5px solid #fecaca !important; box-shadow: none !important;
+    font-size: 13px !important; padding: 8px 16px !important;
 }
 .signout-btn > button:hover { background: #fff1f2 !important; }
 h1,h2,h3 { font-family:'Syne',sans-serif !important; color:#0f172a !important; }
 p,li { color:#475569; }
+
+/* ── RESPONSIVE BREAKPOINTS ── */
+@media (max-width: 768px) {
+    .top-nav { padding: 8px 12px; min-height: auto; }
+    .nav-name { display: none; }
+    .page-wrap { padding: 12px; }
+    .card { padding: 14px; border-radius: 12px; }
+    .result-hero { border-radius: 14px; }
+    .auth-panel { padding: 28px 20px 24px; border-radius: 16px; }
+    .auth-heading { font-size: 26px; }
+    .roadmap-step { gap: 10px; }
+    .lb-row { padding: 10px 12px; }
+}
+
+@media (max-width: 480px) {
+    .auth-panel { padding: 22px 16px 20px; }
+    .auth-heading { font-size: 22px; }
+    .auth-stats-row { flex-direction: column; }
+    .auth-stat { border-right: none; border-bottom: 1px solid #e2e8f0; }
+    .auth-stat:last-child { border-bottom: none; }
+    .metric-value { font-size: 16px; }
+    .result-hero-amount { font-size: 32px; }
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -436,29 +518,37 @@ def get_leaderboard():
 
 
 # =========================
-# LOGIN
+# LOGIN  ← FIXED: panel + inputs ek saath, no hardcoded spacers
 # =========================
 def show_login():
-    st.markdown('<div class="auth-wrap">', unsafe_allow_html=True)
-    st.markdown("""
-    <div class="auth-panel">
-        <div class="auth-brand">💼 Salary<em>IQ</em> <span style="font-size:11px;color:#94a3b8;font-weight:400;margin-left:4px;">PRO</span></div>
-        <div class="auth-heading">Welcome<br><span>back.</span></div>
-        <div class="auth-sub">Sign in to your career intelligence dashboard</div>
-        <div class="auth-stats-row">
-            <div class="auth-stat"><div class="auth-stat-val">95%</div><div class="auth-stat-lbl">Accuracy</div></div>
-            <div class="auth-stat"><div class="auth-stat-val">50K+</div><div class="auth-stat-lbl">Predictions</div></div>
-            <div class="auth-stat"><div class="auth-stat-val">120+</div><div class="auth-stat-lbl">Job Roles</div></div>
-        </div>
-    </div>""", unsafe_allow_html=True)
+    # Background gradient
+    st.markdown('<div class="auth-page-wrap">', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
+    # Center column
     _, col, _ = st.columns([1, 2, 1])
     with col:
-        st.markdown("<div style='height:332px'></div>", unsafe_allow_html=True)
+        # Header panel (HTML)
+        st.markdown("""
+        <div class="auth-panel">
+            <div class="auth-brand">💼 Salary<em>IQ</em> <span style="font-size:11px;color:#94a3b8;font-weight:400;margin-left:4px;">PRO</span></div>
+            <div class="auth-heading">Welcome<br><span>back.</span></div>
+            <div class="auth-sub">Sign in to your career intelligence dashboard</div>
+            <div class="auth-stats-row">
+                <div class="auth-stat"><div class="auth-stat-val">95%</div><div class="auth-stat-lbl">Accuracy</div></div>
+                <div class="auth-stat"><div class="auth-stat-val">50K+</div><div class="auth-stat-lbl">Predictions</div></div>
+                <div class="auth-stat"><div class="auth-stat-val">120+</div><div class="auth-stat-lbl">Job Roles</div></div>
+            </div>
+        </div>
+        <div style="height: 20px;"></div>
+        """, unsafe_allow_html=True)
+
+        # Inputs directly below panel — same column, no extra spacer
         email    = st.text_input("Email address", placeholder="you@example.com", key="login_email")
         password = st.text_input("Password", placeholder="Your password", key="login_password", type="password")
+
         st.markdown("<div style='height:4px'></div>", unsafe_allow_html=True)
+
         if st.button("Sign In →", key="login_btn"):
             if not email or not password:
                 st.error("Please fill in all fields.")
@@ -473,29 +563,31 @@ def show_login():
                     st.rerun()
                 else:
                     st.error(result)
+
         st.markdown('<div class="auth-or">or</div>', unsafe_allow_html=True)
+
         if st.button("Create a free account →", key="goto_signup"):
             st.session_state.auth_page = "signup"
             st.rerun()
+
         st.markdown("<p style='text-align:center;font-size:12px;color:#94a3b8;margin-top:16px;'>🔒 Your data is private and never shared.</p>", unsafe_allow_html=True)
 
 
 # =========================
-# SIGNUP
+# SIGNUP  ← FIXED: same approach, no hardcoded spacers
 # =========================
 def show_signup():
-    st.markdown('<div class="auth-wrap">', unsafe_allow_html=True)
-    st.markdown("""
-    <div class="auth-panel">
-        <div class="auth-brand">💼 Salary<em>IQ</em> <span style="font-size:11px;color:#94a3b8;font-weight:400;margin-left:4px;">PRO</span></div>
-        <div class="auth-heading">Create your<br><span>account.</span></div>
-        <div class="auth-sub">Join professionals discovering their true market value</div>
-    </div>""", unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-
     _, col, _ = st.columns([1, 2, 1])
     with col:
-        st.markdown("<div style='height:258px'></div>", unsafe_allow_html=True)
+        st.markdown("""
+        <div class="auth-panel">
+            <div class="auth-brand">💼 Salary<em>IQ</em> <span style="font-size:11px;color:#94a3b8;font-weight:400;margin-left:4px;">PRO</span></div>
+            <div class="auth-heading">Create your<br><span>account.</span></div>
+            <div class="auth-sub">Join professionals discovering their true market value</div>
+        </div>
+        <div style="height: 20px;"></div>
+        """, unsafe_allow_html=True)
+
         name     = st.text_input("Full Name",        placeholder="John Doe",             key="signup_name")
         email    = st.text_input("Email Address",    placeholder="you@example.com",      key="signup_email")
         password = st.text_input("Password",         placeholder="Min. 8 characters",    key="signup_password", type="password")
@@ -540,7 +632,9 @@ def show_signup():
                     st.rerun()
                 else:
                     st.error(msg)
+
         st.markdown('<div class="auth-or">or</div>', unsafe_allow_html=True)
+
         if st.button("Already have an account? Sign In", key="goto_login"):
             st.session_state.auth_page = "login"
             st.rerun()
@@ -697,7 +791,6 @@ def show_insights():
     skills = inp["skills_count"]; cert = inp["certifications"]
     edu    = inp["education_level"]; ind = inp["industry"]
 
-    # Salary boost tips
     st.markdown('<div class="card"><div class="card-title">🚀 How to Increase Your Salary</div>', unsafe_allow_html=True)
     icon_map = {"blue":"insight-icon-blue","green":"insight-icon-green","amber":"insight-icon-amber","rose":"insight-icon-rose"}
     for icon, title, desc, color in salary_boost_tips(job, exp, skills, cert, edu):
@@ -746,7 +839,6 @@ def show_insights():
         </div>""", unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # What-If Simulator
     st.markdown('<div class="card"><div class="card-title">⚡ What-If Salary Simulator</div>', unsafe_allow_html=True)
     st.markdown('<p style="font-size:13px;color:#64748b;margin-bottom:16px;">Drag the sliders to see how improving one factor changes your salary.</p>', unsafe_allow_html=True)
     s1,s2,s3 = st.columns(3)
@@ -975,7 +1067,7 @@ def show_leaderboard():
         st.markdown(f"""
         <div style="background:linear-gradient(135deg,#eef2ff,#f5f3ff);border:1px solid #c7d2fe;
                     border-radius:14px;padding:18px 24px;margin-bottom:20px;
-                    display:flex;align-items:center;justify-content:space-between;">
+                    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
             <div>
                 <div style="font-size:11px;color:#6366f1;font-weight:700;text-transform:uppercase;letter-spacing:.8px;">Your Position</div>
                 <div style="font-size:22px;font-weight:800;color:#1e1b4b;font-family:'Syne',sans-serif;">
