@@ -778,7 +778,7 @@ def show_nav():
     </div>""", unsafe_allow_html=True)
 
     # Streamlit functional button row — styled to match hotel nav
-    c1,c2,c3,c4,c5,c6,c7 = st.columns([1,1,1,1,1,1,1])
+    c1,c2,c3,c4,c5,c6,c7,c8 = st.columns([1,1,1,1,1,1,1,1])
     col_map = [c1,c2,c3,c4,c5,c6]
     for col, (key, label) in zip(col_map, nav_tabs):
         with col:
