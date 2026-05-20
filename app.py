@@ -761,36 +761,65 @@ def show_nav():
     ]
 
     # ===== TOP NAVBAR =====
+   def show_nav():
+    initials = get_initials(st.session_state.user_name)
+    active   = st.session_state.active_tab
+ 
+    nav_tabs = [
+        ("predict",     "Predict"),
+        ("insights",    "Insights"),
+        ("roadmap",     "Roadmap"),
+        ("dashboard",   "Dashboard"),
+        ("compare",     "Compare"),
+        ("leaderboard", "Leaderboard"),
+    ]
+ 
+    # Active link indicator in HTML (purely visual)
+    links_html = ""
+    for key, label in nav_tabs:
+        cls = "nav-link active" if active == key else "nav-link"
+        links_html += f'<span class="{cls}">{label}</span>'
+ 
+    # Dark hotel-style top bar (visual only)
     st.markdown(f"""
     <div class="top-nav">
         <div class="nav-brand">💼 Salary<em>IQ</em></div>
+        <nav class="nav-links">{links_html}</nav>
         <div style="display:flex;align-items:center;gap:8px;">
             <div class="nav-avatar">{initials}</div>
             <span class="nav-name">{st.session_state.user_name}</span>
         </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # ===== FUNCTIONAL BUTTONS =====
+    </div>""", unsafe_allow_html=True)
+ 
+    # Streamlit functional button row — styled to match hotel nav
     c1,c2,c3,c4,c5,c6,c7 = st.columns([1,1,1,1,1,1,1])
-
-    cols = [c1,c2,c3,c4,c5,c6]
-
-    for col, (key, label) in zip(cols, nav_tabs):
+    col_map = [c1,c2,c3,c4,c5,c6]
+    for col, (key, label) in zip(col_map, nav_tabs):
         with col:
+            st.markdown('<div class="nav-tab-btn">', unsafe_allow_html=True)
             if st.button(label, key=f"nav_{key}"):
                 st.session_state.active_tab = key
                 st.rerun()
-
+            st.markdown('</div>', unsafe_allow_html=True)
     with c7:
-        if st.button("Logout", key="nav_logout"):
-            st.session_state.logged_in = False
-            st.session_state.user_name = ""
-            st.session_state.user_email = ""
+        st.markdown('<div class="nav-btn-primary">', unsafe_allow_html=True)
+        if st.button("🔍 Predict", key="nav_predict_cta"):
             st.session_state.active_tab = "predict"
-            st.session_state.last_prediction = None
-            st.session_state.last_inputs = None
             st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+    with c8:
+        st.markdown('<div class="nav-btn-logout">', unsafe_allow_html=True)
+        if st.button("Logout", key="nav_logout"):
+            st.session_state.logged_in       = False
+            st.session_state.user_name       = ""
+            st.session_state.user_email      = ""
+            st.session_state.active_tab      = "predict"
+            st.session_state.last_prediction = None
+            st.session_state.last_inputs     = None
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+ 
+
 
 # =========================
 # PREDICT TAB
