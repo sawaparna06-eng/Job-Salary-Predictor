@@ -543,126 +543,206 @@ def get_leaderboard():
 
 
 # ══════════════════════════════════════════════════════════════════════
-# AUTH LAYOUT HELPER
-# Renders the dark background + two-column split card.
-# LEFT col  → pure HTML decoration (no Streamlit widgets).
-# RIGHT col → Streamlit widgets live here.
-# Both columns sit inside .auth-card-wrap so they share the rounded card.
+# LOGIN PAGE
+# Strategy: single centered column, left panel is CSS ::before on the card
+# All Streamlit widgets stay INSIDE .auth-right div naturally
 # ══════════════════════════════════════════════════════════════════════
-def _auth_bg():
-    """Dark full-screen background (fixed overlay)."""
+def show_login():
     st.markdown("""
-    <div class="auth-root"></div>
     <style>
-      /* Make the app transparent so the fixed overlay shows */
-      .stApp { background: transparent !important; }
-      /* Center the columns on screen */
-      section[data-testid="stAppViewContainer"] > div:first-child {
-          display: flex; align-items: center; justify-content: center;
-          min-height: 100vh; padding: 32px 20px;
-      }
-      /* Remove default gap between columns so panels touch */
-      div[data-testid="stHorizontalBlock"] { gap: 0 !important; }
-      /* Each column fills its panel completely */
-      div[data-testid="stHorizontalBlock"] > div { padding: 0 !important; }
+    .stApp { background: #0e0a25 !important; }
+    /* full page dark bg */
+    .stApp::before {
+        content:''; position:fixed; inset:0; z-index:0;
+        background: radial-gradient(ellipse 90% 70% at 15% 10%, rgba(92,61,232,.5) 0%, transparent 55%),
+                    radial-gradient(ellipse 60% 50% at 85% 85%, rgba(245,200,66,.12) 0%, transparent 55%),
+                    #0e0a25;
+        pointer-events:none;
+    }
+    /* hide default streamlit padding */
+    .block-container { padding:0 !important; }
+    [data-testid="stVerticalBlock"] { padding-top:0 !important; gap:0 !important; }
+    /* The auth card wrapper — centers everything */
+    .auth-card-outer {
+        position:relative; z-index:1;
+        min-height:100vh;
+        display:flex; align-items:center; justify-content:center;
+        padding:32px 16px;
+        box-sizing:border-box;
+    }
+    .auth-card {
+        display:flex; width:100%; max-width:820px; min-height:520px;
+        border-radius:20px; overflow:hidden;
+        box-shadow:0 32px 80px rgba(0,0,0,.6);
+    }
+    /* LEFT purple panel — pure CSS, no widgets */
+    .auth-left {
+        width:42%; min-width:260px;
+        background:linear-gradient(160deg,#7c5af0 0%,#5c3de8 55%,#4a2abf 100%);
+        padding:48px 36px 36px;
+        display:flex; flex-direction:column; justify-content:space-between;
+        position:relative; overflow:hidden;
+    }
+    .auth-left::before {
+        content:''; position:absolute; inset:0;
+        background:repeating-linear-gradient(-45deg,transparent,transparent 16px,rgba(255,255,255,.05) 16px,rgba(255,255,255,.05) 32px);
+    }
+    .al-inner { position:relative; z-index:1; }
+    .al-logo { font-family:'Syne',sans-serif; font-size:11px; font-weight:800; letter-spacing:2.5px; text-transform:uppercase; color:rgba(255,255,255,.5); margin-bottom:40px; }
+    .al-logo em { color:#f5c842; font-style:normal; }
+    .auth-left h2 { font-family:'Syne',sans-serif !important; font-size:36px !important; font-weight:800 !important; color:#fff !important; line-height:1.15; margin-bottom:14px; }
+    .auth-left p  { font-size:13px; color:rgba(255,255,255,.55); line-height:1.7; margin-bottom:0; }
+    .al-switch-lbl { font-size:12px; color:rgba(255,255,255,.38); margin-bottom:10px; margin-top:28px; }
+    .al-switch-btn {
+        display:inline-block; padding:9px 22px;
+        border:1.5px solid rgba(255,255,255,.45); border-radius:8px;
+        font-size:13px; font-weight:600; color:#fff; cursor:pointer;
+        background:transparent; transition:all .2s;
+        font-family:'Inter',sans-serif;
+    }
+    .al-switch-btn:hover { background:rgba(255,255,255,.12); border-color:#fff; }
+    .al-stats { display:flex; gap:24px; padding-top:24px; border-top:1px solid rgba(255,255,255,.12); position:relative; z-index:1; }
+    .al-stat-num { font-family:'Syne',sans-serif; font-size:20px; font-weight:800; color:#f5c842; }
+    .al-stat-lbl { font-size:10px; color:rgba(255,255,255,.38); text-transform:uppercase; letter-spacing:.7px; margin-top:2px; }
+    /* RIGHT white panel */
+    .auth-right {
+        flex:1; background:#fff;
+        padding:44px 40px 36px;
+        display:flex; flex-direction:column; justify-content:center;
+        overflow:auto;
+    }
+    .ar-help { font-size:12px; color:#94a3b8; text-align:right; margin-bottom:24px; }
+    .ar-title { font-family:'Syne',sans-serif; font-size:26px; font-weight:800; color:#5c3de8; margin-bottom:4px; }
+    .ar-sub   { font-size:13px; color:#94a3b8; margin-bottom:20px; }
     </style>
     """, unsafe_allow_html=True)
 
+    # Outer centering wrapper (pure HTML)
+    st.markdown('<div class="auth-card-outer"><div class="auth-card">', unsafe_allow_html=True)
 
-# ══════════════════════════════════════════════════════════════════════
-# LOGIN PAGE
-# ══════════════════════════════════════════════════════════════════════
-def show_login():
-    _auth_bg()
-    left, right = st.columns([5, 6], gap="small")
+    # LEFT panel (pure HTML — no Streamlit widgets inside)
+    st.markdown("""
+    <div class="auth-left">
+      <div class="al-inner">
+        <div class="al-logo">Salary<em>IQ</em> Pro</div>
+        <h2>Welcome<br>Back!</h2>
+        <p>Sign in to your career intelligence dashboard and discover your true market value.</p>
+        <div class="al-switch-lbl">Don't have an account?</div>
+        <button class="al-switch-btn" onclick="
+          window.parent.document.querySelectorAll('button').forEach(b=>{
+            if(b.innerText.includes('SIGNUP_TRIGGER'))b.click();
+          })">Sign Up →</button>
+      </div>
+      <div class="al-stats">
+        <div><div class="al-stat-num">95%</div><div class="al-stat-lbl">Accuracy</div></div>
+        <div><div class="al-stat-num">50K+</div><div class="al-stat-lbl">Predictions</div></div>
+        <div><div class="al-stat-num">120+</div><div class="al-stat-lbl">Job Roles</div></div>
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
 
-    # ── LEFT: pure HTML ──────────────────────────────────────────
-    with left:
-        st.markdown("""
-        <div class="al">
-          <div class="ali">
-            <div class="al-logo">Salary<em>IQ</em> Pro</div>
-            <h2>Welcome<br>Back!</h2>
-            <p>Sign in to your career intelligence dashboard and discover your true market value.</p>
-            <div class="al-switch-lbl">Don't have an account?</div>
-          </div>
-        </div>
-        """, unsafe_allow_html=True)
-        # Switch button rendered AFTER the HTML div — Streamlit appends it below
-        st.markdown('<div class="ghost-wrap" style="margin-top:-12px;padding:0 40px 28px;">', unsafe_allow_html=True)
-        if st.button("Sign Up →", key="l_switch"):
-            st.session_state.auth_page = "signup"; st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-        st.markdown("""
-        <div class="al-stats" style="padding:24px 40px 32px;border-top:1px solid rgba(255,255,255,.12);margin-top:0;">
-          <div><div class="al-stat-num">95%</div><div class="al-stat-lbl">Accuracy</div></div>
-          <div><div class="al-stat-num">50K+</div><div class="al-stat-lbl">Predictions</div></div>
-          <div><div class="al-stat-num">120+</div><div class="al-stat-lbl">Job Roles</div></div>
-        </div>
-        """, unsafe_allow_html=True)
+    # RIGHT panel — open div, then Streamlit widgets render inside naturally
+    st.markdown('<div class="auth-right">', unsafe_allow_html=True)
+    st.markdown('<div class="ar-help">Need help?</div>', unsafe_allow_html=True)
+    st.markdown('<div class="ar-title">Log in</div>', unsafe_allow_html=True)
+    st.markdown('<div class="ar-sub">Enter your credentials to continue</div>', unsafe_allow_html=True)
 
-    # ── RIGHT: white panel with Streamlit widgets ─────────────────
-    with right:
-        st.markdown('<div class="ar">', unsafe_allow_html=True)
-        st.markdown('<div class="ar-help">Need help?</div>', unsafe_allow_html=True)
-        st.markdown('<h3>Log in</h3>', unsafe_allow_html=True)
-        st.markdown('<div class="ar-sub">Enter your credentials to continue</div>', unsafe_allow_html=True)
+    email    = st.text_input("Email address", placeholder="you@example.com", key="login_email")
+    password = st.text_input("Password", placeholder="Your password", key="login_password", type="password")
+    st.markdown('<div style="height:6px"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="submit-wrap">', unsafe_allow_html=True)
+    login_clicked = st.button("Log in", key="login_btn")
+    st.markdown('</div>', unsafe_allow_html=True)
 
-        email    = st.text_input("Email address", placeholder="you@example.com", key="login_email")
-        password = st.text_input("Password", placeholder="Your password", key="login_password", type="password")
-
-        st.markdown('<div style="height:8px"></div>', unsafe_allow_html=True)
-        st.markdown('<div class="submit-wrap">', unsafe_allow_html=True)
-        login_clicked = st.button("Log in", key="login_btn")
-        st.markdown('</div>', unsafe_allow_html=True)
-
-        if login_clicked:
-            if not email or not password:
-                st.error("Please fill in all fields.")
-            elif not is_valid_email(email):
-                st.error("Please enter a valid email.")
+    if login_clicked:
+        if not email or not password:
+            st.error("Please fill in all fields.")
+        elif not is_valid_email(email):
+            st.error("Please enter a valid email.")
+        else:
+            ok, result = login_user(email, password)
+            if ok:
+                st.session_state.logged_in  = True
+                st.session_state.user_name  = result
+                st.session_state.user_email = email.lower()
+                st.rerun()
             else:
-                ok, result = login_user(email, password)
-                if ok:
-                    st.session_state.logged_in  = True
-                    st.session_state.user_name  = result
-                    st.session_state.user_email = email.lower()
-                    st.rerun()
-                else:
-                    st.error(result)
+                st.error(result)
 
-        st.markdown('<div class="auth-or">or</div>', unsafe_allow_html=True)
-        st.markdown('<div class="link-wrap">', unsafe_allow_html=True)
-        if st.button("New user? Create a free account", key="r_goto_signup"):
-            st.session_state.auth_page = "signup"; st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-        st.markdown('<p class="auth-footer">🔒 Your data is private and never shared.</p>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)   # close .ar
+    st.markdown('<div class="auth-or">or</div>', unsafe_allow_html=True)
+    st.markdown('<div class="link-wrap">', unsafe_allow_html=True)
+    if st.button("New user? Create a free account", key="r_goto_signup"):
+        st.session_state.auth_page = "signup"; st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('<p style="text-align:center;font-size:11px;color:#94a3b8;margin-top:14px;">🔒 Your data is private and never shared.</p>', unsafe_allow_html=True)
+
+    # Hidden trigger for left panel button
+    st.markdown('<div style="display:none;">', unsafe_allow_html=True)
+    if st.button("SIGNUP_TRIGGER", key="l_switch"):
+        st.session_state.auth_page = "signup"; st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    st.markdown('</div></div></div>', unsafe_allow_html=True)  # close auth-right, auth-card, auth-card-outer
 
 
 # ══════════════════════════════════════════════════════════════════════
 # SIGNUP PAGE
 # ══════════════════════════════════════════════════════════════════════
 def show_signup():
-    _auth_bg()
-    left, right = st.columns([5, 6], gap="small")
+    st.markdown("""
+    <style>
+    .stApp { background: #0e0a25 !important; }
+    .stApp::before {
+        content:''; position:fixed; inset:0; z-index:0;
+        background: radial-gradient(ellipse 90% 70% at 15% 10%, rgba(92,61,232,.5) 0%, transparent 55%),
+                    radial-gradient(ellipse 60% 50% at 85% 85%, rgba(245,200,66,.12) 0%, transparent 55%),
+                    #0e0a25;
+        pointer-events:none;
+    }
+    .block-container { padding:0 !important; }
+    [data-testid="stVerticalBlock"] { padding-top:0 !important; gap:0 !important; }
+    .auth-card-outer {
+        position:relative; z-index:1;
+        min-height:100vh; display:flex; align-items:center; justify-content:center;
+        padding:32px 16px; box-sizing:border-box;
+    }
+    .auth-card { display:flex; width:100%; max-width:820px; min-height:560px; border-radius:20px; overflow:hidden; box-shadow:0 32px 80px rgba(0,0,0,.6); }
+    .auth-left { width:42%; min-width:260px; background:linear-gradient(160deg,#7c5af0 0%,#5c3de8 55%,#4a2abf 100%); padding:48px 36px 36px; display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden; }
+    .auth-left::before { content:''; position:absolute; inset:0; background:repeating-linear-gradient(-45deg,transparent,transparent 16px,rgba(255,255,255,.05) 16px,rgba(255,255,255,.05) 32px); }
+    .al-inner { position:relative; z-index:1; }
+    .al-logo { font-family:'Syne',sans-serif; font-size:11px; font-weight:800; letter-spacing:2.5px; text-transform:uppercase; color:rgba(255,255,255,.5); margin-bottom:40px; }
+    .al-logo em { color:#f5c842; font-style:normal; }
+    .auth-left h2 { font-family:'Syne',sans-serif !important; font-size:36px !important; font-weight:800 !important; color:#fff !important; line-height:1.15; margin-bottom:14px; }
+    .auth-left p  { font-size:13px; color:rgba(255,255,255,.55); line-height:1.7; margin-bottom:0; }
+    .al-switch-lbl { font-size:12px; color:rgba(255,255,255,.38); margin-bottom:10px; margin-top:28px; }
+    .al-switch-btn { display:inline-block; padding:9px 22px; border:1.5px solid rgba(255,255,255,.45); border-radius:8px; font-size:13px; font-weight:600; color:#fff; cursor:pointer; background:transparent; transition:all .2s; font-family:'Inter',sans-serif; }
+    .al-switch-btn:hover { background:rgba(255,255,255,.12); border-color:#fff; }
+    .al-stats { display:none; }
+    .auth-right { flex:1; background:#fff; padding:40px 40px 32px; display:flex; flex-direction:column; justify-content:center; overflow:auto; }
+    .ar-help  { font-size:12px; color:#94a3b8; text-align:right; margin-bottom:16px; }
+    .ar-title { font-family:'Syne',sans-serif; font-size:26px; font-weight:800; color:#5c3de8; margin-bottom:4px; }
+    .ar-sub   { font-size:13px; color:#94a3b8; margin-bottom:16px; }
+    </style>
+    """, unsafe_allow_html=True)
 
-    # ── LEFT ──────────────────────────────────────────────────────
-    with left:
-        st.markdown("""
-        <div class="al">
-          <div class="ali">
-            <div class="al-logo">Salary<em>IQ</em> Pro</div>
-            <h2>Get<br>Started!</h2>
-            <p>Join professionals discovering their true market value. Free forever, no credit card needed.</p>
-            <div class="al-switch-lbl">Already have an account?</div>
-          </div>
-        </div>
-        """, unsafe_allow_html=True)
-        st.markdown('<div class="ghost-wrap" style="margin-top:-12px;padding:0 40px 32px;">', unsafe_allow_html=True)
-        if st.button("← Log In", key="s_switch"):
-            st.session_state.auth_page = "login"; st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('<div class="auth-card-outer"><div class="auth-card">', unsafe_allow_html=True)
+
+    # LEFT panel
+    st.markdown("""
+    <div class="auth-left">
+      <div class="al-inner">
+        <div class="al-logo">Salary<em>IQ</em> Pro</div>
+        <h2>Get<br>Started!</h2>
+        <p>Join professionals discovering their true market value. Free forever, no credit card needed.</p>
+        <div class="al-switch-lbl">Already have an account?</div>
+        <button class="al-switch-btn" onclick="
+          window.parent.document.querySelectorAll('button').forEach(b=>{
+            if(b.innerText.includes('LOGIN_TRIGGER'))b.click();
+          })">← Log In</button>
+      </div>
+      <div class="al-stats"></div>
+    </div>
+    """, unsafe_allow_html=True)
 
     # ── RIGHT ─────────────────────────────────────────────────────
     with right:
