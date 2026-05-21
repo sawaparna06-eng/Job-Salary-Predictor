@@ -160,125 +160,122 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@300;400;500;600;700&display=swap');
 
-*, html, body, [class*="css"] { font-family: 'Inter', sans-serif !important; box-sizing: border-box; }
+*, html, body, [class*="css"] { font-family: 'Inter', sans-serif !important; }
 #MainMenu, footer, header, .stDeployButton { visibility: hidden !important; display: none !important; }
-[data-testid="stHeader"]     { display: none !important; }
-[data-testid="stSidebarNav"] { display: none !important; }
+[data-testid="stHeader"]         { display: none !important; }
+[data-testid="stSidebarNav"]     { display: none !important; }
 
-.block-container {
-    padding: 0 !important; margin: 0 !important; max-width: 100% !important;
-}
-.stApp > div,
-[data-testid="stAppViewContainer"],
+/* ── zero all padding ── */
+.block-container { padding: 0 !important; margin: 0 !important; max-width: 100% !important; }
+.stApp > div, [data-testid="stAppViewContainer"],
 [data-testid="stAppViewContainer"] > section,
 [data-testid="stAppViewContainer"] > section > div,
 [data-testid="stVerticalBlock"] {
     padding-top: 0 !important; margin-top: 0 !important;
 }
 
-/* ══════════════════════════════════════════════════
-   AUTH PAGES
-══════════════════════════════════════════════════ */
-.stApp.auth-bg-active { background: #0e0a25 !important; }
-
-/* The auth wrapper forces full-viewport dark background */
-.auth-root {
-    position: fixed; inset: 0; z-index: 0; pointer-events: none;
-    background: radial-gradient(ellipse 90% 70% at 15% 10%, rgba(92,61,232,.45) 0%, transparent 55%),
-                radial-gradient(ellipse 60% 50% at 85% 85%, rgba(245,200,66,.10) 0%, transparent 55%),
-                #0e0a25;
+/* ══════════════════════════════════
+   AUTH BACKGROUND
+══════════════════════════════════ */
+.auth-bg {
+    position: fixed; inset: 0; z-index: 0;
+    background: radial-gradient(ellipse 80% 60% at 20% 10%, rgba(92,61,232,.38) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 50% at 80% 80%, rgba(245,200,66,.13) 0%, transparent 60%),
+                #120d30;
 }
 
-/* LEFT purple panel — pure decoration, rendered via HTML */
-.al {
-    background: linear-gradient(160deg, #7c5af0 0%, #5c3de8 55%, #4a2abf 100%);
-    border-radius: 18px 0 0 18px;
-    padding: 52px 40px 40px;
+/* ── left purple panel (pure HTML, no Streamlit widgets inside) ── */
+.auth-left-panel {
+    background: #5c3de8;
+    border-radius: 20px 0 0 20px;
+    padding: 52px 40px;
     min-height: 560px;
+    height: 100%;
     position: relative;
     overflow: hidden;
-    display: flex; flex-direction: column; justify-content: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
-.al::before {
+.auth-left-panel::before {
     content: '';
     position: absolute; inset: 0;
     background: repeating-linear-gradient(
         -45deg, transparent, transparent 16px,
-        rgba(255,255,255,.05) 16px, rgba(255,255,255,.05) 32px);
+        rgba(255,255,255,.045) 16px, rgba(255,255,255,.045) 32px);
 }
-.ali { position: relative; z-index: 1; }
-.al-logo {
+.auth-left-inner { position: relative; z-index: 1; }
+.auth-brand {
     font-family: 'Syne', sans-serif;
-    font-size: 12px; font-weight: 800; letter-spacing: 2.5px;
-    text-transform: uppercase; color: rgba(255,255,255,.5);
-    margin-bottom: 48px;
+    font-size: 13px; font-weight: 800;
+    color: rgba(255,255,255,.55);
+    letter-spacing: 2px; text-transform: uppercase;
+    margin-bottom: 44px;
 }
-.al-logo em { color: #f5c842; font-style: normal; }
-.al h2 {
+.auth-brand em { color: #f5c842; font-style: normal; }
+.auth-left-panel h2 {
     font-family: 'Syne', sans-serif !important;
-    font-size: 38px !important; font-weight: 800 !important;
+    font-size: 38px; font-weight: 800 !important;
     color: #fff !important; line-height: 1.15; margin-bottom: 14px;
 }
-.al p {
+.auth-left-panel p {
     font-size: 13.5px; color: rgba(255,255,255,.55);
-    line-height: 1.7; margin-bottom: 28px;
+    line-height: 1.7; margin-bottom: 36px;
 }
-.al-switch-lbl { font-size: 12px; color: rgba(255,255,255,.38); margin-bottom: 10px; }
-.al-stats {
-    display: flex; gap: 28px;
-    margin-top: 40px; padding-top: 24px;
-    border-top: 1px solid rgba(255,255,255,.12);
+.switch-label-txt { font-size: 12px; color: rgba(255,255,255,.4); margin-bottom: 12px; }
+.auth-stats-row {
+    display: flex; gap: 24px;
+    margin-top: 40px; padding-top: 28px;
+    border-top: 1px solid rgba(255,255,255,.13);
 }
-.al-stat-num {
+.auth-stat-num {
     font-family: 'Syne', sans-serif;
     font-size: 22px; font-weight: 800; color: #f5c842;
 }
-.al-stat-lbl {
-    font-size: 10px; color: rgba(255,255,255,.38);
-    text-transform: uppercase; letter-spacing: .7px; margin-top: 2px;
+.auth-stat-lbl {
+    font-size: 10px; color: rgba(255,255,255,.4);
+    text-transform: uppercase; letter-spacing: .6px; margin-top: 2px;
 }
 
-/* RIGHT white panel */
-.ar {
+/* ── right white panel ── */
+.auth-right-panel {
     background: #fff;
-    border-radius: 0 18px 18px 0;
-    padding: 48px 44px 44px;
+    border-radius: 0 20px 20px 0;
+    padding: 52px 44px;
     min-height: 560px;
-    display: flex; flex-direction: column; justify-content: center;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
-.ar-help { font-size: 12px; color: #94a3b8; text-align: right; margin-bottom: 28px; }
-.ar h3 {
+.auth-right-panel h3 {
     font-family: 'Syne', sans-serif !important;
-    font-size: 26px !important; font-weight: 800 !important;
+    font-size: 26px; font-weight: 800 !important;
     color: #5c3de8 !important; margin-bottom: 4px;
 }
-.ar-sub { font-size: 13px; color: #94a3b8; margin-bottom: 22px; }
+.auth-right-sub { font-size: 13px; color: #94a3b8; margin-bottom: 24px; }
+.auth-help-txt  { font-size: 12px; color: #94a3b8; text-align: right; margin-bottom: 20px; }
+
+/* ── auth divider ── */
 .auth-or {
     text-align: center; color: #cbd5e1; font-size: 11px;
-    margin: 12px 0; position: relative;
+    margin: 10px 0; position: relative;
 }
 .auth-or::before, .auth-or::after {
     content: ''; position: absolute; top: 50%;
     width: calc(50% - 22px); height: 1px; background: #e2e8f0;
 }
 .auth-or::before { left: 0; } .auth-or::after { right: 0; }
-.auth-footer { font-size: 11px; color: #94a3b8; text-align: center; margin-top: 16px; }
 
-/* Card wrapper — keeps both panels inside a rounded card */
-.auth-card-wrap {
-    background: transparent;
-    border-radius: 18px;
-    overflow: hidden;
-    box-shadow: 0 30px 80px rgba(0,0,0,.55);
-}
-
-/* password strength */
-.pw-track { height: 3px; background: #e2e8f0; border-radius: 99px; overflow: hidden; margin: 4px 0 3px; }
+/* ── password strength ── */
+.pw-track { height: 3px; background: #e2e8f0; border-radius: 99px; overflow: hidden; margin: 6px 0 4px; }
 .pw-bar   { height: 100%; border-radius: 99px; transition: width .3s, background .3s; }
 
-/* ── BUTTON OVERRIDES ── */
+/* ══════════════════════════════════
+   BUTTON OVERRIDES
+══════════════════════════════════ */
 
-/* Default app buttons */
+/* default (used in main app) */
 .stButton > button {
     width: 100% !important;
     background: linear-gradient(135deg,#6366f1,#8b5cf6) !important;
@@ -286,45 +283,37 @@ st.markdown("""
     padding: 12px 20px !important; font-size: 14px !important; font-weight: 600 !important;
     box-shadow: 0 4px 14px rgba(99,102,241,.3) !important; transition: all .2s !important;
 }
-.stButton > button:hover {
-    transform: translateY(-1px) !important;
-    box-shadow: 0 6px 20px rgba(99,102,241,.4) !important;
-}
+.stButton > button:hover { transform: translateY(-1px) !important; box-shadow: 0 6px 20px rgba(99,102,241,.4) !important; }
 
-/* Purple submit inside .submit-wrap */
+/* purple submit */
+div[data-testid="stVerticalBlock"] .submit-wrap > div > button,
 .submit-wrap .stButton > button {
     background: #5c3de8 !important;
-    border-radius: 9px !important;
-    font-size: 15px !important;
-    padding: 13px !important;
     box-shadow: 0 4px 18px rgba(92,61,232,.32) !important;
+    border-radius: 9px !important; font-size: 15px !important;
 }
-.submit-wrap .stButton > button:hover {
-    background: #3d28b5 !important; transform: translateY(-1px) !important;
-}
+.submit-wrap .stButton > button:hover { background: #3d28b5 !important; }
 
-/* Ghost white button — left panel switch */
-.ghost-wrap .stButton > button {
+/* ghost switch button (left panel) */
+.switch-wrap .stButton > button {
     background: transparent !important;
     color: #fff !important;
     border: 1.5px solid rgba(255,255,255,.45) !important;
-    border-radius: 8px !important;
-    padding: 9px 24px !important;
-    font-size: 13px !important; font-weight: 600 !important;
+    border-radius: 8px !important; padding: 9px 22px !important;
+    font-size: 13px !important; font-weight: 500 !important;
     box-shadow: none !important; width: auto !important;
 }
-.ghost-wrap .stButton > button:hover {
+.switch-wrap .stButton > button:hover {
     background: rgba(255,255,255,.12) !important;
     border-color: #fff !important; transform: none !important; box-shadow: none !important;
 }
 
-/* Ghost purple — right panel secondary link */
+/* ghost link button (right panel) */
 .link-wrap .stButton > button {
     background: transparent !important;
     color: #5c3de8 !important;
     border: 1.5px solid #e2e8f0 !important;
-    border-radius: 9px !important;
-    font-size: 13px !important; font-weight: 500 !important;
+    border-radius: 9px !important; font-size: 14px !important; font-weight: 500 !important;
     box-shadow: none !important;
 }
 .link-wrap .stButton > button:hover {
@@ -332,17 +321,16 @@ st.markdown("""
     transform: none !important; box-shadow: none !important;
 }
 
-/* ── INPUTS ── */
+/* ══════════════════════════════════
+   INPUTS
+══════════════════════════════════ */
 .stTextInput > div > div {
     background: #f8fafc !important; border: 1.5px solid #e2e8f0 !important; border-radius: 9px !important;
 }
 .stTextInput > div > div:focus-within {
-    border-color: #5c3de8 !important; box-shadow: 0 0 0 3px rgba(92,61,232,.10) !important; background: #fff !important;
+    border-color: #5c3de8 !important; box-shadow: 0 0 0 3px rgba(92,61,232,.1) !important; background: #fff !important;
 }
-.stTextInput input {
-    color: #0f172a !important; background: transparent !important;
-    box-shadow: none !important; font-size: 14px !important;
-}
+.stTextInput input { color: #0f172a !important; background: transparent !important; box-shadow: none !important; font-size: 14px !important; }
 .stTextInput input::placeholder { color: #94a3b8 !important; }
 .stTextInput label { color: #475569 !important; font-size: 12px !important; font-weight: 500 !important; }
 
@@ -354,54 +342,45 @@ st.markdown("""
 
 .stSelectbox > div > div { background: #f8fafc !important; border: 1.5px solid #e2e8f0 !important; border-radius: 10px !important; }
 .stSelectbox > div > div:focus-within { border-color: #6366f1 !important; box-shadow: 0 0 0 3px rgba(99,102,241,.12) !important; }
-.stSelectbox [data-baseweb="select"] > div,
-.stSelectbox [data-baseweb="select"] span { color: #0f172a !important; background: transparent !important; }
+.stSelectbox [data-baseweb="select"] > div, .stSelectbox [data-baseweb="select"] span { color: #0f172a !important; background: transparent !important; }
 .stSelectbox label { color: #475569 !important; font-size: 13px !important; font-weight: 500 !important; }
-[data-baseweb="popover"],[data-baseweb="menu"],[role="listbox"] {
-    background: #fff !important; border: 1px solid #e2e8f0 !important;
-    border-radius: 12px !important; box-shadow: 0 8px 32px rgba(0,0,0,.12) !important;
+[data-baseweb="popover"], [data-baseweb="menu"], [role="listbox"] {
+    background: #fff !important; border: 1px solid #e2e8f0 !important; border-radius: 12px !important; box-shadow: 0 8px 32px rgba(0,0,0,.12) !important;
 }
-[data-baseweb="menu"] li,[role="option"] { background: #fff !important; color: #1e293b !important; font-size: 14px !important; }
-[data-baseweb="menu"] li:hover,[role="option"]:hover,[role="option"][aria-selected="true"] {
-    background: #eef2ff !important; color: #4f46e5 !important;
-}
+[data-baseweb="menu"] li, [role="option"] { background: #fff !important; color: #1e293b !important; font-size: 14px !important; }
+[data-baseweb="menu"] li:hover, [role="option"]:hover, [role="option"][aria-selected="true"] { background: #eef2ff !important; color: #4f46e5 !important; }
 
-/* ══════════════════════════════════════════════════
+/* ══════════════════════════════════
    SIDEBAR
-══════════════════════════════════════════════════ */
+══════════════════════════════════ */
 section[data-testid="stSidebar"] {
     background: #1a2236 !important;
     border-right: 1px solid rgba(255,255,255,.08) !important;
     min-width: 260px !important; max-width: 260px !important;
 }
 section[data-testid="stSidebar"] > div { padding: 0 !important; }
-section[data-testid="stSidebar"] .stButton > button {
-    position: absolute !important; opacity: 0 !important;
-    height: 0 !important; overflow: hidden !important;
-    padding: 0 !important; margin: 0 !important;
-    pointer-events: all !important; width: 100% !important; cursor: pointer !important;
-}
-.sb-nav-item { position: relative !important; }
 
-/* ══════════════════════════════════════════════════
-   TOP NAV
-══════════════════════════════════════════════════ */
+/* ══════════════════════════════════
+   NAV BAR
+══════════════════════════════════ */
 .top-nav {
     background: #1a2236;
     padding: 0 clamp(16px,4vw,48px);
     display: flex; align-items: center; justify-content: space-between;
-    height: 64px; box-shadow: 0 2px 12px rgba(0,0,0,.25);
+    height: 64px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.25);
     position: sticky; top: 0; z-index: 999;
 }
-.nav-brand { font-family:'Syne',sans-serif !important; font-size:clamp(16px,2.5vw,22px); font-weight:800; color:#fff; }
+.nav-brand { font-family:'Syne',sans-serif !important; font-size:clamp(16px,2.5vw,22px); font-weight:800; color:#fff; letter-spacing:.3px; }
 .nav-brand em { color:#f5a623; font-style:normal; }
-.nav-links { display:flex; align-items:center; gap:clamp(4px,2vw,28px); flex:1; justify-content:center; }
-.nav-link  { font-size:14px; font-weight:500; color:rgba(255,255,255,.82); cursor:pointer; padding:4px 2px; border-bottom:2px solid transparent; transition:color .2s,border-color .2s; white-space:nowrap; }
-.nav-link.active, .nav-link:hover { color:#fff; border-bottom-color:#f5a623; }
+.nav-links  { display:flex; align-items:center; gap:clamp(4px,2vw,28px); flex:1; justify-content:center; }
+.nav-link   { font-size:14px; font-weight:500; color:rgba(255,255,255,.82); cursor:pointer; padding:4px 2px; border-bottom:2px solid transparent; transition:color .2s,border-color .2s; }
+.nav-link:hover, .nav-link.active { color:#fff; border-bottom-color:#f5a623; }
 .nav-link.active { color:#f5a623; }
 .nav-avatar { width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#f5a623,#e07b10);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;border:2px solid rgba(255,255,255,.3); }
-.nav-name   { font-size:13px;font-weight:500;color:rgba(255,255,255,.85);white-space:nowrap; }
+.nav-name   { font-size:13px; font-weight:500; color:rgba(255,255,255,.85); white-space:nowrap; }
 
+/* nav tab buttons */
 .nav-tab-btn > button {
     background:transparent !important; color:rgba(255,255,255,.75) !important;
     border:none !important; border-radius:0 !important; border-bottom:2px solid transparent !important;
@@ -409,9 +388,7 @@ section[data-testid="stSidebar"] .stButton > button {
     box-shadow:none !important; width:100% !important;
 }
 .nav-tab-btn > button:hover { color:#fff !important; border-bottom-color:#f5a623 !important; transform:none !important; box-shadow:none !important; }
-div[data-testid="stHorizontalBlock"]:has(.nav-tab-btn) {
-    background:#1a2236 !important; padding:0 clamp(16px,4vw,48px) !important; margin:0 !important; gap:0 !important;
-}
+div[data-testid="stHorizontalBlock"]:has(.nav-tab-btn) { background:#1a2236 !important; padding:0 clamp(16px,4vw,48px) !important; margin:0 !important; gap:0 !important; }
 div[data-testid="stHorizontalBlock"]:has(.nav-tab-btn) > div { padding:0 !important; min-width:0 !important; }
 
 .nav-btn-primary > button { background:#f5a623 !important; color:#1a1a1a !important; border:none !important; border-radius:6px !important; padding:8px 20px !important; font-size:13px !important; font-weight:700 !important; box-shadow:0 2px 8px rgba(245,166,35,.35) !important; width:auto !important; }
@@ -419,20 +396,20 @@ div[data-testid="stHorizontalBlock"]:has(.nav-tab-btn) > div { padding:0 !import
 .nav-btn-logout  > button { background:transparent !important; color:#fff !important; border:1.5px solid rgba(255,255,255,.45) !important; border-radius:6px !important; padding:7px 18px !important; font-size:13px !important; font-weight:600 !important; box-shadow:none !important; width:auto !important; }
 .nav-btn-logout  > button:hover { background:rgba(255,255,255,.1) !important; border-color:#fff !important; transform:none !important; }
 
-/* ══════════════════════════════════════════════════
+/* ══════════════════════════════════
    MAIN APP STYLES
-══════════════════════════════════════════════════ */
+══════════════════════════════════ */
 .stApp { background:#f8f9fc !important; }
 .page-wrap { padding:clamp(16px,3vw,28px) clamp(12px,3vw,36px); max-width:1200px; margin:0 auto; }
 .page-title { font-family:'Syne',sans-serif !important; font-size:clamp(18px,3vw,24px); font-weight:800; color:#0f172a; margin-bottom:4px; }
 .page-sub   { font-size:14px; color:#64748b; margin-bottom:20px; }
 .card { background:#fff; border-radius:16px; border:1px solid #e2e8f0; padding:clamp(14px,2vw,22px); box-shadow:0 1px 3px rgba(0,0,0,.04); margin-bottom:16px; }
 .card-title { font-size:11px; font-weight:700; color:#6366f1; text-transform:uppercase; letter-spacing:1px; margin-bottom:16px; }
-.metric-card  { background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:16px 14px; box-shadow:0 1px 3px rgba(0,0,0,.04); }
+.metric-card { background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:16px 14px; box-shadow:0 1px 3px rgba(0,0,0,.04); }
 .metric-label { font-size:12px; color:#94a3b8; font-weight:500; margin-bottom:6px; }
 .metric-value { font-family:'Syne',sans-serif !important; font-size:clamp(16px,2vw,22px); font-weight:800; color:#0f172a; }
 .metric-sub   { font-size:12px; color:#10b981; font-weight:500; margin-top:4px; }
-.result-hero        { background:linear-gradient(135deg,#6366f1,#8b5cf6); border-radius:20px; padding:clamp(20px,4vw,36px) clamp(16px,4vw,32px); text-align:center; margin-bottom:20px; box-shadow:0 8px 32px rgba(99,102,241,.3); }
+.result-hero { background:linear-gradient(135deg,#6366f1 0%,#8b5cf6 100%); border-radius:20px; padding:clamp(20px,4vw,36px) clamp(16px,4vw,32px); text-align:center; margin-bottom:20px; box-shadow:0 8px 32px rgba(99,102,241,.3); }
 .result-hero-label  { font-size:12px; color:rgba(255,255,255,.7); letter-spacing:1.5px; text-transform:uppercase; }
 .result-hero-amount { font-family:'Syne',sans-serif !important; font-size:clamp(36px,8vw,56px); font-weight:800; color:#fff; margin:8px 0; }
 .result-hero-sub    { font-size:13px; color:rgba(255,255,255,.6); }
@@ -456,10 +433,10 @@ div[data-testid="stHorizontalBlock"]:has(.nav-tab-btn) > div { padding:0 !import
 .lb-row.gold  {background:linear-gradient(135deg,#fffbeb,#fef3c7);border-color:#fde68a;}
 .lb-row.silver{background:linear-gradient(135deg,#f8fafc,#f1f5f9);border-color:#e2e8f0;}
 .lb-row.bronze{background:linear-gradient(135deg,#fff7ed,#ffedd5);border-color:#fed7aa;}
-.lb-rank{font-family:'Syne',sans-serif !important;font-size:16px;font-weight:800;min-width:28px;}
-.lb-name{flex:1;font-size:14px;font-weight:600;color:#0f172a;min-width:100px;}
-.lb-role{font-size:12px;color:#64748b;}
-.lb-salary{font-family:'Syne',sans-serif !important;font-size:16px;font-weight:800;color:#4f46e5;}
+.lb-rank  { font-family:'Syne',sans-serif !important;font-size:16px;font-weight:800;min-width:28px; }
+.lb-name  { flex:1;font-size:14px;font-weight:600;color:#0f172a;min-width:100px; }
+.lb-role  { font-size:12px;color:#64748b; }
+.lb-salary{ font-family:'Syne',sans-serif !important;font-size:16px;font-weight:800;color:#4f46e5; }
 .compare-bar-wrap  { margin-bottom:14px; }
 .compare-bar-label { display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;flex-wrap:wrap;gap:4px; }
 .compare-bar-track { height:8px;background:#f1f5f9;border-radius:99px;overflow:hidden; }
@@ -467,30 +444,6 @@ div[data-testid="stHorizontalBlock"]:has(.nav-tab-btn) > div { padding:0 !import
 .trend-up { color:#10b981;font-weight:600;font-size:13px; }
 h1,h2,h3  { font-family:'Syne',sans-serif !important; color:#0f172a !important; }
 p,li      { color:#475569; }
-
-/* Sidebar styles */
-.sb-avatar-wrap { display:flex;flex-direction:column;align-items:center;padding:32px 20px 24px;border-bottom:1px solid rgba(255,255,255,.1); }
-.sb-avatar { width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#f5a623,#e07b10);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:#fff;border:3px solid rgba(255,255,255,.2);margin-bottom:14px; }
-.sb-name  { font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:#fff;text-align:center;line-height:1.3; }
-.sb-email { font-size:12px;color:rgba(255,255,255,.4);text-align:center;margin-top:4px;word-break:break-all; }
-.sb-badge { display:inline-block;margin-top:10px;background:rgba(245,166,35,.15);color:#f5a623;border:1px solid rgba(245,166,35,.35);border-radius:99px;padding:3px 14px;font-size:11px;font-weight:700;letter-spacing:.5px; }
-.sb-stats { display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(255,255,255,.08);margin:0;border-bottom:1px solid rgba(255,255,255,.08); }
-.sb-stat  { background:#1a2236;padding:16px 14px;display:flex;flex-direction:column;gap:4px; }
-.sb-stat-val { font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#f5a623; }
-.sb-stat-lbl { font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.6px; }
-.sb-section { padding:20px 20px 0; }
-.sb-section-title { font-size:10px;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px; }
-.sb-row { display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06); }
-.sb-row:last-child { border-bottom:none; }
-.sb-row-label { font-size:12px;color:rgba(255,255,255,.45); }
-.sb-row-val   { font-size:13px;font-weight:600;color:#fff; }
-.sb-row-val.green { color:#34d399; }
-.sb-row-val.gold  { color:#f5a623; }
-.sb-nav { padding:16px 20px;border-top:1px solid rgba(255,255,255,.08); }
-.sb-nav-item { display:block;padding:10px 12px;border-radius:8px;font-size:13px;font-weight:500;color:rgba(255,255,255,.65);cursor:pointer;transition:all .15s;margin-bottom:2px; }
-.sb-nav-item:hover { background:rgba(255,255,255,.07);color:#fff; }
-.sb-nav-item.active-nav { background:rgba(245,166,35,.12);color:#f5a623;font-weight:600; }
-.sb-footer { padding:16px 20px;border-top:1px solid rgba(255,255,255,.08);font-size:11px;color:rgba(255,255,255,.25);text-align:center; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -542,214 +495,128 @@ def get_leaderboard():
     return lb[:10]
 
 
-# ══════════════════════════════════════════════════════════════════════
-# LOGIN PAGE
-# Strategy: single centered column, left panel is CSS ::before on the card
-# All Streamlit widgets stay INSIDE .auth-right div naturally
-# ══════════════════════════════════════════════════════════════════════
+# =========================================================
+# LOGIN PAGE  — pure HTML left panel + Streamlit right inputs
+# =========================================================
 def show_login():
+    # dark background
+    st.markdown('<div class="auth-bg"></div>', unsafe_allow_html=True)
+
+    # outer centering wrapper
     st.markdown("""
     <style>
-    .stApp { background: #0e0a25 !important; }
-    /* full page dark bg */
-    .stApp::before {
-        content:''; position:fixed; inset:0; z-index:0;
-        background: radial-gradient(ellipse 90% 70% at 15% 10%, rgba(92,61,232,.5) 0%, transparent 55%),
-                    radial-gradient(ellipse 60% 50% at 85% 85%, rgba(245,200,66,.12) 0%, transparent 55%),
-                    #0e0a25;
-        pointer-events:none;
+    .stApp { background: transparent !important; }
+    /* center the two-column auth layout */
+    section[data-testid="stAppViewContainer"] > div:first-child {
+        display: flex; align-items: center; justify-content: center;
+        min-height: 100vh; padding: 24px;
     }
-    /* hide default streamlit padding */
-    .block-container { padding:0 !important; }
-    [data-testid="stVerticalBlock"] { padding-top:0 !important; gap:0 !important; }
-    /* The auth card wrapper — centers everything */
-    .auth-card-outer {
-        position:relative; z-index:1;
-        min-height:100vh;
-        display:flex; align-items:center; justify-content:center;
-        padding:32px 16px;
-        box-sizing:border-box;
-    }
-    .auth-card {
-        display:flex; width:100%; max-width:820px; min-height:520px;
-        border-radius:20px; overflow:hidden;
-        box-shadow:0 32px 80px rgba(0,0,0,.6);
-    }
-    /* LEFT purple panel — pure CSS, no widgets */
-    .auth-left {
-        width:42%; min-width:260px;
-        background:linear-gradient(160deg,#7c5af0 0%,#5c3de8 55%,#4a2abf 100%);
-        padding:48px 36px 36px;
-        display:flex; flex-direction:column; justify-content:space-between;
-        position:relative; overflow:hidden;
-    }
-    .auth-left::before {
-        content:''; position:absolute; inset:0;
-        background:repeating-linear-gradient(-45deg,transparent,transparent 16px,rgba(255,255,255,.05) 16px,rgba(255,255,255,.05) 32px);
-    }
-    .al-inner { position:relative; z-index:1; }
-    .al-logo { font-family:'Syne',sans-serif; font-size:11px; font-weight:800; letter-spacing:2.5px; text-transform:uppercase; color:rgba(255,255,255,.5); margin-bottom:40px; }
-    .al-logo em { color:#f5c842; font-style:normal; }
-    .auth-left h2 { font-family:'Syne',sans-serif !important; font-size:36px !important; font-weight:800 !important; color:#fff !important; line-height:1.15; margin-bottom:14px; }
-    .auth-left p  { font-size:13px; color:rgba(255,255,255,.55); line-height:1.7; margin-bottom:0; }
-    .al-switch-lbl { font-size:12px; color:rgba(255,255,255,.38); margin-bottom:10px; margin-top:28px; }
-    .al-switch-btn {
-        display:inline-block; padding:9px 22px;
-        border:1.5px solid rgba(255,255,255,.45); border-radius:8px;
-        font-size:13px; font-weight:600; color:#fff; cursor:pointer;
-        background:transparent; transition:all .2s;
-        font-family:'Inter',sans-serif;
-    }
-    .al-switch-btn:hover { background:rgba(255,255,255,.12); border-color:#fff; }
-    .al-stats { display:flex; gap:24px; padding-top:24px; border-top:1px solid rgba(255,255,255,.12); position:relative; z-index:1; }
-    .al-stat-num { font-family:'Syne',sans-serif; font-size:20px; font-weight:800; color:#f5c842; }
-    .al-stat-lbl { font-size:10px; color:rgba(255,255,255,.38); text-transform:uppercase; letter-spacing:.7px; margin-top:2px; }
-    /* RIGHT white panel */
-    .auth-right {
-        flex:1; background:#fff;
-        padding:44px 40px 36px;
-        display:flex; flex-direction:column; justify-content:center;
-        overflow:auto;
-    }
-    .ar-help { font-size:12px; color:#94a3b8; text-align:right; margin-bottom:24px; }
-    .ar-title { font-family:'Syne',sans-serif; font-size:26px; font-weight:800; color:#5c3de8; margin-bottom:4px; }
-    .ar-sub   { font-size:13px; color:#94a3b8; margin-bottom:20px; }
     </style>
     """, unsafe_allow_html=True)
 
-    # Outer centering wrapper (pure HTML)
-    st.markdown('<div class="auth-card-outer"><div class="auth-card">', unsafe_allow_html=True)
+    left, right = st.columns([5, 6], gap="small")
 
-    # LEFT panel (pure HTML — no Streamlit widgets inside)
-    st.markdown("""
-    <div class="auth-left">
-      <div class="al-inner">
-        <div class="al-logo">Salary<em>IQ</em> Pro</div>
-        <h2>Welcome<br>Back!</h2>
-        <p>Sign in to your career intelligence dashboard and discover your true market value.</p>
-        <div class="al-switch-lbl">Don't have an account?</div>
-        <button class="al-switch-btn" onclick="
-          window.parent.document.querySelectorAll('button').forEach(b=>{
-            if(b.innerText.includes('SIGNUP_TRIGGER'))b.click();
-          })">Sign Up →</button>
-      </div>
-      <div class="al-stats">
-        <div><div class="al-stat-num">95%</div><div class="al-stat-lbl">Accuracy</div></div>
-        <div><div class="al-stat-num">50K+</div><div class="al-stat-lbl">Predictions</div></div>
-        <div><div class="al-stat-num">120+</div><div class="al-stat-lbl">Job Roles</div></div>
-      </div>
-    </div>
-    """, unsafe_allow_html=True)
+    # ── LEFT: pure HTML, no widgets ──
+    with left:
+        st.markdown("""
+        <div class="auth-left-panel">
+          <div class="auth-left-inner">
+            <div class="auth-brand">Salary<em>IQ</em> Pro</div>
+            <h2>Welcome<br>Back!</h2>
+            <p>Sign in to your career intelligence dashboard and discover your true market value.</p>
+            <div class="switch-label-txt">Don't have an account?</div>
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
+        st.markdown('<div class="switch-wrap" style="margin-top:-8px;">', unsafe_allow_html=True)
+        if st.button("Sign Up →", key="l_goto_signup"):
+            st.session_state.auth_page = "signup"; st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="auth-stats-row" style="padding-left:4px;">
+          <div><div class="auth-stat-num">95%</div><div class="auth-stat-lbl">Accuracy</div></div>
+          <div><div class="auth-stat-num">50K+</div><div class="auth-stat-lbl">Predictions</div></div>
+          <div><div class="auth-stat-num">120+</div><div class="auth-stat-lbl">Job Roles</div></div>
+        </div>
+        """, unsafe_allow_html=True)
 
-    # RIGHT panel — open div, then Streamlit widgets render inside naturally
-    st.markdown('<div class="auth-right">', unsafe_allow_html=True)
-    st.markdown('<div class="ar-help">Need help?</div>', unsafe_allow_html=True)
-    st.markdown('<div class="ar-title">Log in</div>', unsafe_allow_html=True)
-    st.markdown('<div class="ar-sub">Enter your credentials to continue</div>', unsafe_allow_html=True)
-
-    email    = st.text_input("Email address", placeholder="you@example.com", key="login_email")
-    password = st.text_input("Password", placeholder="Your password", key="login_password", type="password")
-    st.markdown('<div style="height:6px"></div>', unsafe_allow_html=True)
-    st.markdown('<div class="submit-wrap">', unsafe_allow_html=True)
-    login_clicked = st.button("Log in", key="login_btn")
-    st.markdown('</div>', unsafe_allow_html=True)
-
-    if login_clicked:
-        if not email or not password:
-            st.error("Please fill in all fields.")
-        elif not is_valid_email(email):
-            st.error("Please enter a valid email.")
-        else:
-            ok, result = login_user(email, password)
-            if ok:
-                st.session_state.logged_in  = True
-                st.session_state.user_name  = result
-                st.session_state.user_email = email.lower()
-                st.rerun()
-            else:
-                st.error(result)
-
-    st.markdown('<div class="auth-or">or</div>', unsafe_allow_html=True)
-    st.markdown('<div class="link-wrap">', unsafe_allow_html=True)
-    if st.button("New user? Create a free account", key="r_goto_signup"):
-        st.session_state.auth_page = "signup"; st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
-    st.markdown('<p style="text-align:center;font-size:11px;color:#94a3b8;margin-top:14px;">🔒 Your data is private and never shared.</p>', unsafe_allow_html=True)
-
-    # Hidden trigger for left panel button
-    st.markdown('<div style="display:none;">', unsafe_allow_html=True)
-    if st.button("SIGNUP_TRIGGER", key="l_switch"):
-        st.session_state.auth_page = "signup"; st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
-
-    st.markdown('</div></div></div>', unsafe_allow_html=True)  # close auth-right, auth-card, auth-card-outer
-
-
-# ══════════════════════════════════════════════════════════════════════
-# SIGNUP PAGE
-# ══════════════════════════════════════════════════════════════════════
-def show_signup():
-    st.markdown("""
-    <style>
-    .stApp { background: #0e0a25 !important; }
-    .stApp::before {
-        content:''; position:fixed; inset:0; z-index:0;
-        background: radial-gradient(ellipse 90% 70% at 15% 10%, rgba(92,61,232,.5) 0%, transparent 55%),
-                    radial-gradient(ellipse 60% 50% at 85% 85%, rgba(245,200,66,.12) 0%, transparent 55%),
-                    #0e0a25;
-        pointer-events:none;
-    }
-    .block-container { padding:0 !important; }
-    [data-testid="stVerticalBlock"] { padding-top:0 !important; gap:0 !important; }
-    .auth-card-outer {
-        position:relative; z-index:1;
-        min-height:100vh; display:flex; align-items:center; justify-content:center;
-        padding:32px 16px; box-sizing:border-box;
-    }
-    .auth-card { display:flex; width:100%; max-width:820px; min-height:560px; border-radius:20px; overflow:hidden; box-shadow:0 32px 80px rgba(0,0,0,.6); }
-    .auth-left { width:42%; min-width:260px; background:linear-gradient(160deg,#7c5af0 0%,#5c3de8 55%,#4a2abf 100%); padding:48px 36px 36px; display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden; }
-    .auth-left::before { content:''; position:absolute; inset:0; background:repeating-linear-gradient(-45deg,transparent,transparent 16px,rgba(255,255,255,.05) 16px,rgba(255,255,255,.05) 32px); }
-    .al-inner { position:relative; z-index:1; }
-    .al-logo { font-family:'Syne',sans-serif; font-size:11px; font-weight:800; letter-spacing:2.5px; text-transform:uppercase; color:rgba(255,255,255,.5); margin-bottom:40px; }
-    .al-logo em { color:#f5c842; font-style:normal; }
-    .auth-left h2 { font-family:'Syne',sans-serif !important; font-size:36px !important; font-weight:800 !important; color:#fff !important; line-height:1.15; margin-bottom:14px; }
-    .auth-left p  { font-size:13px; color:rgba(255,255,255,.55); line-height:1.7; margin-bottom:0; }
-    .al-switch-lbl { font-size:12px; color:rgba(255,255,255,.38); margin-bottom:10px; margin-top:28px; }
-    .al-switch-btn { display:inline-block; padding:9px 22px; border:1.5px solid rgba(255,255,255,.45); border-radius:8px; font-size:13px; font-weight:600; color:#fff; cursor:pointer; background:transparent; transition:all .2s; font-family:'Inter',sans-serif; }
-    .al-switch-btn:hover { background:rgba(255,255,255,.12); border-color:#fff; }
-    .al-stats { display:none; }
-    .auth-right { flex:1; background:#fff; padding:40px 40px 32px; display:flex; flex-direction:column; justify-content:center; overflow:auto; }
-    .ar-help  { font-size:12px; color:#94a3b8; text-align:right; margin-bottom:16px; }
-    .ar-title { font-family:'Syne',sans-serif; font-size:26px; font-weight:800; color:#5c3de8; margin-bottom:4px; }
-    .ar-sub   { font-size:13px; color:#94a3b8; margin-bottom:16px; }
-    </style>
-    """, unsafe_allow_html=True)
-
-    st.markdown('<div class="auth-card-outer"><div class="auth-card">', unsafe_allow_html=True)
-
-    # LEFT panel
-    st.markdown("""
-    <div class="auth-left">
-      <div class="al-inner">
-        <div class="al-logo">Salary<em>IQ</em> Pro</div>
-        <h2>Get<br>Started!</h2>
-        <p>Join professionals discovering their true market value. Free forever, no credit card needed.</p>
-        <div class="al-switch-lbl">Already have an account?</div>
-        <button class="al-switch-btn" onclick="
-          window.parent.document.querySelectorAll('button').forEach(b=>{
-            if(b.innerText.includes('LOGIN_TRIGGER'))b.click();
-          })">← Log In</button>
-      </div>
-      <div class="al-stats"></div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # ── RIGHT ─────────────────────────────────────────────────────
+    # ── RIGHT: white panel + Streamlit inputs ──
     with right:
-        st.markdown('<div class="ar">', unsafe_allow_html=True)
-        st.markdown('<div class="ar-help">Need help?</div>', unsafe_allow_html=True)
+        st.markdown('<div class="auth-right-panel">', unsafe_allow_html=True)
+        st.markdown('<div class="auth-help-txt">Need help?</div>', unsafe_allow_html=True)
+        st.markdown('<h3>Log in</h3>', unsafe_allow_html=True)
+        st.markdown('<div class="auth-right-sub">Enter your credentials to continue</div>', unsafe_allow_html=True)
+
+        email    = st.text_input("Email address", placeholder="you@example.com", key="login_email")
+        password = st.text_input("Password", placeholder="Your password", key="login_password", type="password")
+
+        st.markdown('<div style="height:6px"></div>', unsafe_allow_html=True)
+        st.markdown('<div class="submit-wrap">', unsafe_allow_html=True)
+        login_clicked = st.button("Log in", key="login_btn")
+        st.markdown('</div>', unsafe_allow_html=True)
+
+        if login_clicked:
+            if not email or not password:
+                st.error("Please fill in all fields.")
+            elif not is_valid_email(email):
+                st.error("Please enter a valid email.")
+            else:
+                ok, result = login_user(email, password)
+                if ok:
+                    st.session_state.logged_in  = True
+                    st.session_state.user_name  = result
+                    st.session_state.user_email = email.lower()
+                    st.rerun()
+                else:
+                    st.error(result)
+
+        st.markdown('<div class="auth-or">or</div>', unsafe_allow_html=True)
+        st.markdown('<div class="link-wrap">', unsafe_allow_html=True)
+        if st.button("New user? Create a free account", key="goto_signup"):
+            st.session_state.auth_page = "signup"; st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown("<p style='text-align:center;font-size:11px;color:#94a3b8;margin-top:14px;'>🔒 Your data is private and never shared.</p>", unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)  # close auth-right-panel
+
+
+# =========================================================
+# SIGNUP PAGE
+# =========================================================
+def show_signup():
+    st.markdown('<div class="auth-bg"></div>', unsafe_allow_html=True)
+    st.markdown("""
+    <style>
+    .stApp { background: transparent !important; }
+    section[data-testid="stAppViewContainer"] > div:first-child {
+        display: flex; align-items: center; justify-content: center;
+        min-height: 100vh; padding: 24px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    left, right = st.columns([5, 6], gap="small")
+
+    with left:
+        st.markdown("""
+        <div class="auth-left-panel">
+          <div class="auth-left-inner">
+            <div class="auth-brand">Salary<em>IQ</em> Pro</div>
+            <h2>Get<br>Started!</h2>
+            <p>Join professionals discovering their true market value. Free forever, no credit card needed.</p>
+            <div class="switch-label-txt">Already have an account?</div>
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
+        st.markdown('<div class="switch-wrap" style="margin-top:-8px;">', unsafe_allow_html=True)
+        if st.button("← Log In", key="s_goto_login"):
+            st.session_state.auth_page = "login"; st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    with right:
+        st.markdown('<div class="auth-right-panel">', unsafe_allow_html=True)
+        st.markdown('<div class="auth-help-txt">Need help?</div>', unsafe_allow_html=True)
         st.markdown('<h3>Create Account</h3>', unsafe_allow_html=True)
-        st.markdown('<div class="ar-sub">Fill in your details to get started</div>', unsafe_allow_html=True)
+        st.markdown('<div class="auth-right-sub">Fill in your details to get started</div>', unsafe_allow_html=True)
 
         name     = st.text_input("Full Name",        placeholder="John Doe",             key="signup_name")
         email    = st.text_input("Email Address",    placeholder="you@example.com",      key="signup_email")
@@ -803,67 +670,10 @@ def show_signup():
 
         st.markdown('<div class="auth-or">or</div>', unsafe_allow_html=True)
         st.markdown('<div class="link-wrap">', unsafe_allow_html=True)
-        if st.button("Already have an account? Sign In", key="r_goto_login"):
+        if st.button("Already have an account? Sign In", key="goto_login"):
             st.session_state.auth_page = "login"; st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)   # close .ar
-
-
-# =========================
-# SIDEBAR
-# =========================
-def show_sidebar():
-    users   = load_users()
-    email   = st.session_state.user_email
-    udata   = users.get(email, {})
-    preds   = udata.get("predictions", [])
-    name    = st.session_state.user_name
-    initials = get_initials(name)
-
-    best_sal = max([p["salary"] for p in preds], default=0)
-    total_p  = len(preds)
-    last_sal = preds[-1]["salary"] if preds else 0
-    last_job = preds[-1].get("job", "—") if preds else "—"
-    joined   = udata.get("created_at", "")[:10] if udata.get("created_at") else "—"
-
-    with st.sidebar:
-        st.markdown(f"""
-        <div class="sb-avatar-wrap">
-            <div class="sb-avatar">{initials}</div>
-            <div class="sb-name">{name}</div>
-            <div class="sb-email">{email}</div>
-            <span class="sb-badge">PRO Member</span>
-        </div>
-        <div class="sb-stats">
-            <div class="sb-stat"><div class="sb-stat-val">{total_p}</div><div class="sb-stat-lbl">Predictions</div></div>
-            <div class="sb-stat"><div class="sb-stat-val">{'₹'+f'{best_sal//1000}K' if best_sal else '—'}</div><div class="sb-stat-lbl">Best Salary</div></div>
-        </div>
-        <div class="sb-section">
-            <div class="sb-section-title">Profile Info</div>
-            <div class="sb-row"><span class="sb-row-label">Latest Role</span><span class="sb-row-val">{last_job[:16]+('…' if len(last_job)>16 else '')}</span></div>
-            <div class="sb-row"><span class="sb-row-label">Last Salary</span><span class="sb-row-val gold">{'₹'+f'{last_sal:,}' if last_sal else '—'}</span></div>
-            <div class="sb-row"><span class="sb-row-label">Member Since</span><span class="sb-row-val">{joined}</span></div>
-            <div class="sb-row"><span class="sb-row-label">Status</span><span class="sb-row-val green">● Active</span></div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        active = st.session_state.active_tab
-        nav_items = [
-            ("predict","🔍","Predict Salary"),
-            ("insights","💡","Career Insights"),
-            ("roadmap","🗺️","Roadmap"),
-            ("dashboard","📊","My Dashboard"),
-            ("compare","⚖️","Compare"),
-            ("leaderboard","🏆","Leaderboard"),
-        ]
-        st.markdown('<div class="sb-nav"><div class="sb-section-title">Navigation</div>', unsafe_allow_html=True)
-        for key, icon, label in nav_items:
-            cls = "active-nav" if active == key else ""
-            st.markdown(f'<div class="sb-nav-item {cls}" style="pointer-events:none;">{icon} &nbsp;{label}</div>', unsafe_allow_html=True)
-            if st.button(label, key=f"sb_{key}"):
-                st.session_state.active_tab = key; st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
-        st.markdown('<div class="sb-footer">SalaryIQ Pro · © 2025</div>', unsafe_allow_html=True)
 
 
 # =========================
@@ -877,7 +687,7 @@ def show_nav():
         ("dashboard","Dashboard"),("compare","Compare"),("leaderboard","Leaderboard"),
     ]
     links_html = "".join(
-        f'<span class="nav-link {"active" if active==k else ""}">{l}</span>'
+        f'<span class="nav-link{"active" if active==k else ""}">{l}</span>'
         for k,l in nav_tabs
     )
     st.markdown(f"""
@@ -907,7 +717,8 @@ def show_nav():
         if st.button("Logout", key="nav_logout"):
             for k in ["logged_in","user_name","user_email","last_prediction","last_inputs"]:
                 st.session_state[k] = False if k=="logged_in" else (None if k in ["last_prediction","last_inputs"] else "")
-            st.session_state.active_tab = "predict"; st.rerun()
+            st.session_state.active_tab = "predict"
+            st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
 
@@ -995,6 +806,7 @@ def show_predict():
             <span style="font-size:14px;color:#15803d;font-weight:600;">✅ Prediction saved!</span>
             <span style="font-size:13px;color:#166534;"> &nbsp;·&nbsp; Now explore your <strong>Insights</strong>, <strong>Roadmap</strong>, and <strong>Compare</strong> tabs.</span>
         </div>""", unsafe_allow_html=True)
+
     st.markdown('</div>', unsafe_allow_html=True)
 
 
@@ -1020,7 +832,7 @@ def show_insights():
 
     col_a,col_b = st.columns(2,gap="large")
     with col_a:
-        top_skills = list(zip(get_skills_to_learn(job,skills),["+₹8K–15K","+₹10K–20K","+₹6K–12K","+₹12K–25K","+₹5K–10K","+₹15K–30K"]))
+        top_skills=[( s,b) for s,b in zip(get_skills_to_learn(job,skills),["+₹8K–15K","+₹10K–20K","+₹6K–12K","+₹12K–25K","+₹5K–10K","+₹15K–30K"])]
         st.markdown('<div class="card"><div class="card-title">🛠️ Top Skills to Learn Next</div>', unsafe_allow_html=True)
         for i,(sk,boost) in enumerate(top_skills):
             pct=90-i*10
@@ -1066,9 +878,9 @@ def show_roadmap():
         exp_ranges=["0–2 yrs","2–5 yrs","5–10 yrs","10–15 yrs","15+ yrs"]
         st.markdown(f'<div class="card"><div class="card-title">🗺️ Your Career Path — {job}</div>', unsafe_allow_html=True)
         for i,step in enumerate(steps):
-            if i<current_step:    dot="step-dot-done"; badge="badge-done";    btxt="✓ Completed"
-            elif i==current_step: dot="step-dot-curr"; badge="badge-current"; btxt="📍 You are here"
-            else:                 dot="step-dot-next"; badge="badge-future";  btxt=f"Next · {exp_ranges[i]}"
+            if i<current_step:   dot="step-dot-done"; badge="badge-done";    btxt="✓ Completed"
+            elif i==current_step:dot="step-dot-curr"; badge="badge-current"; btxt="📍 You are here"
+            else:                dot="step-dot-next"; badge="badge-future";  btxt=f"Next · {exp_ranges[i]}"
             st.markdown(f'<div class="roadmap-step"><div class="step-dot {dot}">{i+1}</div><div><div class="step-title">{step}</div><div class="step-sub">{exp_ranges[i]} · {salary_ranges[i]}</div><span class="step-badge {badge}">{btxt}</span></div></div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
     with col_i:
@@ -1124,20 +936,14 @@ def show_compare():
     salary=st.session_state.last_prediction; inp=st.session_state.last_inputs; job=inp["job_title"]
     base=max(40000,salary-random.randint(10000,20000))
     top25=int(salary*1.22); top10=int(salary*1.48); top5=int(salary*1.75); max_v=top5
-    benchmarks=[
-        ("Entry Level (0–2 yrs)",int(base*0.6),"#e2e8f0"),
-        ("Mid Level (3–6 yrs)",int(base*0.85),"#c7d2fe"),
-        ("Your Salary",salary,"#6366f1"),
-        ("Top 25% in your role",top25,"#8b5cf6"),
-        ("Top 10% in your role",top10,"#7c3aed"),
-        ("Top 5% — Elite earner",top5,"#4338ca"),
-    ]
+    benchmarks=[("Entry Level (0–2 yrs)",int(base*0.6),"#e2e8f0"),("Mid Level (3–6 yrs)",int(base*0.85),"#c7d2fe"),("Your Salary",salary,"#6366f1"),("Top 25% in your role",top25,"#8b5cf6"),("Top 10% in your role",top10,"#7c3aed"),("Top 5% — Elite earner",top5,"#4338ca")]
+
     col1,col2=st.columns([3,2],gap="large")
     with col1:
         st.markdown(f'<div class="card"><div class="card-title">📊 Salary Benchmarks — {job}</div>', unsafe_allow_html=True)
         for label,val,color in benchmarks:
             pct=int((val/max_v)*100); is_you=label=="Your Salary"
-            st.markdown(f'<div class="compare-bar-wrap" style="{"background:#eef2ff;border-radius:8px;padding:8px 10px;border:1px solid #c7d2fe;" if is_you else ""}"><div class="compare-bar-label"><span style="font-size:13px;font-weight:{"700" if is_you else "500"};color:{"#4f46e5" if is_you else "#374151"};">{"📍 " if is_you else ""}{label}</span><span style="font-size:13px;font-weight:600;color:{"#4f46e5" if is_you else "#0f172a"};">₹{val:,}</span></div><div class="compare-bar-track"><div class="compare-bar-fill" style="width:{pct}%;background:{color};"></div></div></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="compare-bar-wrap" style="{"background:#eef2ff;border-radius:8px;padding:8px 10px;border:1px solid #c7d2fe;" if is_you else ""}"><div class="compare-bar-label"><span style="font-size:13px;font-weight:{"700" if is_you else "500"};color:{"#4f46e5" if is_you else "#374151"};"> {"📍 " if is_you else ""}{label}</span><span style="font-size:13px;font-weight:600;color:{"#4f46e5" if is_you else "#0f172a"};">₹{val:,}</span></div><div class="compare-bar-track"><div class="compare-bar-fill" style="width:{pct}%;background:{color};"></div></div></div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
     with col2:
         pct_rank=min(95,max(25,int(30+(salary/top5)*65))); gap=max(0,top10-salary)
@@ -1167,9 +973,7 @@ def show_leaderboard():
         medals=["🥇","🥈","🥉"]; row_cls=["gold","silver","bronze"]
         for i,entry in enumerate(lb):
             medal=medals[i] if i<3 else f"#{i+1}"; cls=row_cls[i] if i<3 else ""
-            is_me = entry["name"]==st.session_state.user_name
-            you = '&nbsp;<span style="font-size:11px;background:#eef2ff;color:#4f46e5;padding:2px 8px;border-radius:99px;font-weight:600;">You</span>' if is_me else ""
-            st.markdown(f'<div class="lb-row {cls}" style="{"border:2px solid #6366f1;" if is_me else ""}"><span class="lb-rank">{medal}</span><div style="flex:1;min-width:100px;"><div class="lb-name">{entry["name"]}{you}</div><div class="lb-role">{entry["job"]} · {entry["exp"]} yrs exp</div></div><span class="lb-salary">₹{entry["salary"]:,}</span></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="lb-row {cls}"><span class="lb-rank">{medal}</span><div style="flex:1;min-width:100px;"><div class="lb-name">{entry["name"]}</div><div class="lb-role">{entry["job"]} · {entry["exp"]} yrs exp</div></div><span class="lb-salary">₹{entry["salary"]:,}</span></div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
 
@@ -1182,7 +986,6 @@ if not st.session_state.logged_in:
     else:
         show_signup()
 else:
-    show_sidebar()
     show_nav()
     tab = st.session_state.active_tab
     if   tab == "predict":     show_predict()
@@ -1191,3 +994,8 @@ else:
     elif tab == "dashboard":   show_dashboard()
     elif tab == "compare":     show_compare()
     elif tab == "leaderboard": show_leaderboard()
+PYEOF
+echo "Done"
+Output
+
+Done
