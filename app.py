@@ -496,89 +496,312 @@ def get_leaderboard():
 
 
 # =========================================================
-# LOGIN PAGE  — pure HTML left panel + Streamlit right inputs
+# LOGIN PAGE
 # =========================================================
 def show_login():
-    # dark background
-    st.markdown('<div class="auth-bg"></div>', unsafe_allow_html=True)
 
-    # outer centering wrapper
+    # Background
     st.markdown("""
     <style>
-    .stApp { background: transparent !important; }
-    /* center the two-column auth layout */
-    section[data-testid="stAppViewContainer"] > div:first-child {
-        display: flex; align-items: center; justify-content: center;
-        min-height: 100vh; padding: 24px;
+
+    .stApp{
+        background:linear-gradient(135deg,#14052c,#24115a);
     }
+
+    /* remove white space */
+    .block-container{
+        padding-top:0rem !important;
+        padding-bottom:0rem !important;
+        max-width:100% !important;
+    }
+
+    /* MAIN CARD */
+    .login-container{
+        width:1100px;
+        margin:auto;
+        margin-top:25px;
+        background:white;
+        border-radius:25px;
+        overflow:hidden;
+        box-shadow:0 15px 40px rgba(0,0,0,0.35);
+    }
+
+    /* LEFT PANEL */
+    .left-panel{
+        background:linear-gradient(135deg,#5f3bff,#7c4dff);
+        min-height:650px;
+        padding:60px 50px;
+        position:relative;
+        overflow:hidden;
+    }
+
+    .left-panel::before{
+        content:'';
+        position:absolute;
+        inset:0;
+        background:repeating-linear-gradient(
+            -45deg,
+            transparent,
+            transparent 18px,
+            rgba(255,255,255,0.04) 18px,
+            rgba(255,255,255,0.04) 36px
+        );
+    }
+
+    .left-content{
+        position:relative;
+        z-index:2;
+    }
+
+    .brand{
+        color:white;
+        font-size:22px;
+        font-weight:800;
+        margin-bottom:70px;
+    }
+
+    .brand span{
+        color:#ffcc33;
+    }
+
+    .welcome{
+        color:white;
+        font-size:58px;
+        font-weight:800;
+        line-height:1.1;
+        margin-bottom:20px;
+    }
+
+    .desc{
+        color:rgba(255,255,255,0.75);
+        font-size:18px;
+        line-height:1.8;
+        margin-bottom:40px;
+    }
+
+    .small-text{
+        color:rgba(255,255,255,0.7);
+        margin-bottom:15px;
+        font-size:16px;
+    }
+
+    /* STATS */
+    .stats{
+        display:flex;
+        gap:40px;
+        margin-top:60px;
+    }
+
+    .stat-number{
+        color:#ffcc33;
+        font-size:38px;
+        font-weight:800;
+    }
+
+    .stat-label{
+        color:rgba(255,255,255,0.7);
+        font-size:14px;
+    }
+
+    /* RIGHT PANEL */
+    .right-panel{
+        padding:70px 60px;
+        min-height:650px;
+        background:white;
+    }
+
+    .help{
+        text-align:right;
+        color:#94a3b8;
+        margin-bottom:40px;
+        font-size:15px;
+    }
+
+    .login-title{
+        color:#5f3bff;
+        font-size:45px;
+        font-weight:800;
+        margin-bottom:10px;
+    }
+
+    .login-sub{
+        color:#94a3b8;
+        font-size:18px;
+        margin-bottom:40px;
+    }
+
+    /* INPUTS */
+    .stTextInput > div > div{
+        background:#f8fafc !important;
+        border:1.5px solid #e2e8f0 !important;
+        border-radius:12px !important;
+        height:58px !important;
+    }
+
+    .stTextInput input{
+        font-size:18px !important;
+    }
+
+    /* BUTTONS */
+    .signup-btn .stButton button{
+        background:transparent !important;
+        border:2px solid rgba(255,255,255,0.5) !important;
+        color:white !important;
+        border-radius:12px !important;
+        height:55px !important;
+        font-size:18px !important;
+        font-weight:700 !important;
+        width:170px !important;
+    }
+
+    .signup-btn .stButton button:hover{
+        background:rgba(255,255,255,0.1) !important;
+    }
+
+    .login-btn .stButton button{
+        background:#5f3bff !important;
+        color:white !important;
+        border:none !important;
+        border-radius:12px !important;
+        height:58px !important;
+        font-size:20px !important;
+        font-weight:700 !important;
+        width:100% !important;
+        margin-top:10px;
+    }
+
+    .login-btn .stButton button:hover{
+        background:#4b2de0 !important;
+    }
+
     </style>
     """, unsafe_allow_html=True)
 
-    left, right = st.columns([5, 6], gap="small")
+    st.markdown('<div class="login-container">', unsafe_allow_html=True)
 
-    # ── LEFT: pure HTML, no widgets ──
+    left, right = st.columns([5, 6])
+
+    # =====================================================
+    # LEFT SIDE
+    # =====================================================
     with left:
+
         st.markdown("""
-        <div class="auth-left-panel">
-          <div class="auth-left-inner">
-            <div class="auth-brand">Salary<em>IQ</em> Pro</div>
-            <h2>Welcome<br>Back!</h2>
-            <p>Sign in to your career intelligence dashboard and discover your true market value.</p>
-            <div class="switch-label-txt">Don't have an account?</div>
-          </div>
-        </div>
+        <div class="left-panel">
+            <div class="left-content">
+
+                <div class="brand">
+                    SALARY<span>IQ</span> PRO
+                </div>
+
+                <div class="welcome">
+                    Welcome<br>
+                    Back!
+                </div>
+
+                <div class="desc">
+                    Sign in to your career intelligence dashboard
+                    and discover your true market value.
+                </div>
+
+                <div class="small-text">
+                    Don't have an account?
+                </div>
         """, unsafe_allow_html=True)
-        st.markdown('<div class="switch-wrap" style="margin-top:-8px;">', unsafe_allow_html=True)
-        if st.button("Sign Up →", key="l_goto_signup"):
-            st.session_state.auth_page = "signup"; st.rerun()
+
+        st.markdown('<div class="signup-btn">', unsafe_allow_html=True)
+
+        if st.button("Sign Up"):
+            st.session_state.auth_page = "signup"
+            st.rerun()
+
         st.markdown('</div>', unsafe_allow_html=True)
+
         st.markdown("""
-        <div class="auth-stats-row" style="padding-left:4px;">
-          <div><div class="auth-stat-num">95%</div><div class="auth-stat-lbl">Accuracy</div></div>
-          <div><div class="auth-stat-num">50K+</div><div class="auth-stat-lbl">Predictions</div></div>
-          <div><div class="auth-stat-num">120+</div><div class="auth-stat-lbl">Job Roles</div></div>
+                <div class="stats">
+
+                    <div>
+                        <div class="stat-number">95%</div>
+                        <div class="stat-label">ACCURACY</div>
+                    </div>
+
+                    <div>
+                        <div class="stat-number">50K+</div>
+                        <div class="stat-label">PREDICTIONS</div>
+                    </div>
+
+                    <div>
+                        <div class="stat-number">120+</div>
+                        <div class="stat-label">JOB ROLES</div>
+                    </div>
+
+                </div>
+
+            </div>
         </div>
         """, unsafe_allow_html=True)
 
-    # ── RIGHT: white panel + Streamlit inputs ──
+    # =====================================================
+    # RIGHT SIDE
+    # =====================================================
     with right:
-        st.markdown('<div class="auth-right-panel">', unsafe_allow_html=True)
-        st.markdown('<div class="auth-help-txt">Need help?</div>', unsafe_allow_html=True)
-        st.markdown('<h3>Log in</h3>', unsafe_allow_html=True)
-        st.markdown('<div class="auth-right-sub">Enter your credentials to continue</div>', unsafe_allow_html=True)
 
-        email    = st.text_input("Email address", placeholder="you@example.com", key="login_email")
-        password = st.text_input("Password", placeholder="Your password", key="login_password", type="password")
+        st.markdown("""
+        <div class="right-panel">
 
-        st.markdown('<div style="height:6px"></div>', unsafe_allow_html=True)
-        st.markdown('<div class="submit-wrap">', unsafe_allow_html=True)
-        login_clicked = st.button("Log in", key="login_btn")
+            <div class="help">
+                Need help?
+            </div>
+
+            <div class="login-title">
+                Log in
+            </div>
+
+            <div class="login-sub">
+                Enter your credentials to continue
+            </div>
+        """, unsafe_allow_html=True)
+
+        email = st.text_input(
+            "Username or Email",
+            placeholder="Username",
+            key="login_email"
+        )
+
+        password = st.text_input(
+            "Password",
+            placeholder="Password",
+            type="password",
+            key="login_password"
+        )
+
+        st.markdown('<div class="login-btn">', unsafe_allow_html=True)
+
+        login_clicked = st.button("Log in")
+
         st.markdown('</div>', unsafe_allow_html=True)
 
         if login_clicked:
+
             if not email or not password:
-                st.error("Please fill in all fields.")
-            elif not is_valid_email(email):
-                st.error("Please enter a valid email.")
+                st.error("Please fill all fields")
+
             else:
+
                 ok, result = login_user(email, password)
+
                 if ok:
-                    st.session_state.logged_in  = True
-                    st.session_state.user_name  = result
-                    st.session_state.user_email = email.lower()
+                    st.session_state.logged_in = True
+                    st.session_state.user_name = result
+                    st.session_state.user_email = email
                     st.rerun()
+
                 else:
                     st.error(result)
 
-        st.markdown('<div class="auth-or">or</div>', unsafe_allow_html=True)
-        st.markdown('<div class="link-wrap">', unsafe_allow_html=True)
-        if st.button("New user? Create a free account", key="goto_signup"):
-            st.session_state.auth_page = "signup"; st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-        st.markdown("<p style='text-align:center;font-size:11px;color:#94a3b8;margin-top:14px;'>🔒 Your data is private and never shared.</p>", unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)  # close auth-right-panel
+        st.markdown("</div>", unsafe_allow_html=True)
 
-
+    st.markdown("</div>", unsafe_allow_html=True)
 # =========================================================
 # SIGNUP PAGE
 # =========================================================
