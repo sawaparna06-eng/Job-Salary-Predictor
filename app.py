@@ -496,88 +496,407 @@ def get_leaderboard():
 
 
 # =========================================================
-# LOGIN PAGE  — pure HTML left panel + Streamlit right inputs
+# LOGIN PAGE
 # =========================================================
 def show_login():
-    # dark background
+
+    # Background
     st.markdown('<div class="auth-bg"></div>', unsafe_allow_html=True)
 
-    # outer centering wrapper
     st.markdown("""
     <style>
-    .stApp { background: transparent !important; }
-    /* center the two-column auth layout */
-    section[data-testid="stAppViewContainer"] > div:first-child {
-        display: flex; align-items: center; justify-content: center;
-        min-height: 100vh; padding: 24px;
+
+    .stApp{
+        background: transparent !important;
     }
+
+    section[data-testid="stAppViewContainer"] > div:first-child{
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        min-height:100vh;
+        padding:25px;
+    }
+
+    /* MAIN LOGIN CARD */
+    .login-wrapper{
+        max-width:1100px;
+        width:100%;
+        background:white;
+        border-radius:24px;
+        overflow:hidden;
+        box-shadow:0 20px 60px rgba(0,0,0,0.35);
+    }
+
+    /* LEFT PANEL */
+    .auth-left-panel{
+        background:linear-gradient(135deg,#5c3de8,#6d4dff);
+        min-height:650px;
+        padding:60px 45px;
+        position:relative;
+        overflow:hidden;
+        display:flex;
+        flex-direction:column;
+        justify-content:space-between;
+    }
+
+    .auth-left-panel::before{
+        content:'';
+        position:absolute;
+        inset:0;
+        background:repeating-linear-gradient(
+            -45deg,
+            transparent,
+            transparent 18px,
+            rgba(255,255,255,0.04) 18px,
+            rgba(255,255,255,0.04) 36px
+        );
+    }
+
+    .auth-left-inner{
+        position:relative;
+        z-index:2;
+    }
+
+    .auth-brand{
+        font-size:18px;
+        font-weight:800;
+        color:white;
+        margin-bottom:70px;
+        letter-spacing:1px;
+    }
+
+    .auth-brand em{
+        color:#f5c842;
+        font-style:normal;
+    }
+
+    .auth-left-panel h2{
+        color:white !important;
+        font-size:58px;
+        font-weight:800 !important;
+        line-height:1.1;
+        margin-bottom:20px;
+    }
+
+    .auth-left-panel p{
+        color:rgba(255,255,255,0.75);
+        font-size:18px;
+        line-height:1.7;
+        max-width:350px;
+    }
+
+    .switch-label-txt{
+        color:rgba(255,255,255,0.75);
+        margin-top:45px;
+        margin-bottom:14px;
+        font-size:16px;
+    }
+
+    .switch-wrap{
+        position:relative;
+        z-index:10;
+        width:160px;
+    }
+
+    .switch-wrap .stButton button{
+        background:transparent !important;
+        border:2px solid rgba(255,255,255,0.5) !important;
+        color:white !important;
+        border-radius:14px !important;
+        padding:12px 25px !important;
+        font-size:18px !important;
+        font-weight:600 !important;
+        width:100% !important;
+        box-shadow:none !important;
+    }
+
+    .switch-wrap .stButton button:hover{
+        background:rgba(255,255,255,0.15) !important;
+        border-color:white !important;
+    }
+
+    /* STATS */
+    .auth-stats-row{
+        display:flex;
+        gap:40px;
+        margin-top:50px;
+        position:relative;
+        z-index:10;
+    }
+
+    .auth-stat-num{
+        color:#f5c842;
+        font-size:42px;
+        font-weight:800;
+    }
+
+    .auth-stat-lbl{
+        color:rgba(255,255,255,0.7);
+        font-size:15px;
+        margin-top:4px;
+    }
+
+    /* RIGHT PANEL */
+    .auth-right-panel{
+        background:white;
+        min-height:650px;
+        padding:70px 55px;
+        display:flex;
+        flex-direction:column;
+        justify-content:center;
+    }
+
+    .auth-help-txt{
+        text-align:right;
+        color:#94a3b8;
+        margin-bottom:30px;
+        font-size:15px;
+    }
+
+    .auth-right-panel h3{
+        color:#5c3de8 !important;
+        font-size:42px;
+        font-weight:800 !important;
+        margin-bottom:10px;
+    }
+
+    .auth-right-sub{
+        color:#94a3b8;
+        font-size:18px;
+        margin-bottom:35px;
+    }
+
+    /* INPUTS */
+    .stTextInput > div > div{
+        background:#f8fafc !important;
+        border:1.5px solid #e2e8f0 !important;
+        border-radius:12px !important;
+        height:56px !important;
+    }
+
+    .stTextInput input{
+        font-size:18px !important;
+        color:#0f172a !important;
+    }
+
+    .stTextInput label{
+        color:#475569 !important;
+        font-size:15px !important;
+        font-weight:600 !important;
+    }
+
+    /* LOGIN BUTTON */
+    .submit-wrap .stButton button{
+        background:#5c3de8 !important;
+        color:white !important;
+        border:none !important;
+        border-radius:12px !important;
+        height:56px !important;
+        font-size:20px !important;
+        font-weight:700 !important;
+        margin-top:15px;
+        box-shadow:0 8px 25px rgba(92,61,232,0.35) !important;
+    }
+
+    .submit-wrap .stButton button:hover{
+        background:#4b2de0 !important;
+        transform:translateY(-2px);
+    }
+
+    .auth-or{
+        text-align:center;
+        margin:30px 0;
+        color:#94a3b8;
+        position:relative;
+    }
+
+    .auth-or::before,
+    .auth-or::after{
+        content:'';
+        position:absolute;
+        top:50%;
+        width:40%;
+        height:1px;
+        background:#e2e8f0;
+    }
+
+    .auth-or::before{ left:0; }
+    .auth-or::after{ right:0; }
+
+    .link-wrap .stButton button{
+        background:white !important;
+        border:1.5px solid #e2e8f0 !important;
+        color:#5c3de8 !important;
+        border-radius:12px !important;
+        height:54px !important;
+        font-size:16px !important;
+        font-weight:600 !important;
+        box-shadow:none !important;
+    }
+
+    .link-wrap .stButton button:hover{
+        background:#eef2ff !important;
+        border-color:#5c3de8 !important;
+    }
+
     </style>
     """, unsafe_allow_html=True)
 
-    left, right = st.columns([5, 6], gap="small")
+    # MAIN CARD
+    st.markdown('<div class="login-wrapper">', unsafe_allow_html=True)
 
-    # ── LEFT: pure HTML, no widgets ──
+    left, right = st.columns([5,7], gap="small")
+
+    # =====================================================
+    # LEFT PANEL
+    # =====================================================
     with left:
+
         st.markdown("""
         <div class="auth-left-panel">
-          <div class="auth-left-inner">
-            <div class="auth-brand">Salary<em>IQ</em> Pro</div>
-            <h2>Welcome<br>Back!</h2>
-            <p>Sign in to your career intelligence dashboard and discover your true market value.</p>
-            <div class="switch-label-txt">Don't have an account?</div>
-          </div>
-        </div>
+
+            <div class="auth-left-inner">
+
+                <div class="auth-brand">
+                    SALARY<em>IQ</em> PRO
+                </div>
+
+                <h2>
+                    Welcome<br>
+                    Back!
+                </h2>
+
+                <p>
+                    Sign in to your career intelligence dashboard
+                    and discover your true market value.
+                </p>
+
+                <div class="switch-label-txt">
+                    Don't have an account?
+                </div>
+
         """, unsafe_allow_html=True)
-        st.markdown('<div class="switch-wrap" style="margin-top:-8px;">', unsafe_allow_html=True)
-        if st.button("Sign Up →", key="l_goto_signup"):
-            st.session_state.auth_page = "signup"; st.rerun()
+
+        st.markdown('<div class="switch-wrap">', unsafe_allow_html=True)
+
+        if st.button("Sign Up", key="goto_signup"):
+            st.session_state.auth_page = "signup"
+            st.rerun()
+
         st.markdown('</div>', unsafe_allow_html=True)
+
         st.markdown("""
-        <div class="auth-stats-row" style="padding-left:4px;">
-          <div><div class="auth-stat-num">95%</div><div class="auth-stat-lbl">Accuracy</div></div>
-          <div><div class="auth-stat-num">50K+</div><div class="auth-stat-lbl">Predictions</div></div>
-          <div><div class="auth-stat-num">120+</div><div class="auth-stat-lbl">Job Roles</div></div>
+
+                <div class="auth-stats-row">
+
+                    <div>
+                        <div class="auth-stat-num">95%</div>
+                        <div class="auth-stat-lbl">ACCURACY</div>
+                    </div>
+
+                    <div>
+                        <div class="auth-stat-num">50K+</div>
+                        <div class="auth-stat-lbl">PREDICTIONS</div>
+                    </div>
+
+                    <div>
+                        <div class="auth-stat-num">120+</div>
+                        <div class="auth-stat-lbl">JOB ROLES</div>
+                    </div>
+
+                </div>
+
+            </div>
         </div>
         """, unsafe_allow_html=True)
 
-    # ── RIGHT: white panel + Streamlit inputs ──
+    # =====================================================
+    # RIGHT PANEL
+    # =====================================================
     with right:
+
         st.markdown('<div class="auth-right-panel">', unsafe_allow_html=True)
-        st.markdown('<div class="auth-help-txt">Need help?</div>', unsafe_allow_html=True)
-        st.markdown('<h3>Log in</h3>', unsafe_allow_html=True)
-        st.markdown('<div class="auth-right-sub">Enter your credentials to continue</div>', unsafe_allow_html=True)
 
-        email    = st.text_input("Email address", placeholder="you@example.com", key="login_email")
-        password = st.text_input("Password", placeholder="Your password", key="login_password", type="password")
+        st.markdown("""
+        <div class="auth-help-txt">
+            Need help?
+        </div>
 
-        st.markdown('<div style="height:6px"></div>', unsafe_allow_html=True)
+        <h3>Log in</h3>
+
+        <div class="auth-right-sub">
+            Enter your credentials to continue
+        </div>
+        """, unsafe_allow_html=True)
+
+        email = st.text_input(
+            "Username or Email",
+            placeholder="Username",
+            key="login_email"
+        )
+
+        password = st.text_input(
+            "Password",
+            placeholder="Password",
+            type="password",
+            key="login_password"
+        )
+
         st.markdown('<div class="submit-wrap">', unsafe_allow_html=True)
-        login_clicked = st.button("Log in", key="login_btn")
+
+        login_clicked = st.button(
+            "Log in",
+            key="login_btn"
+        )
+
         st.markdown('</div>', unsafe_allow_html=True)
 
         if login_clicked:
+
             if not email or not password:
-                st.error("Please fill in all fields.")
-            elif not is_valid_email(email):
-                st.error("Please enter a valid email.")
+                st.error("Please fill all fields")
+
             else:
+
                 ok, result = login_user(email, password)
+
                 if ok:
-                    st.session_state.logged_in  = True
-                    st.session_state.user_name  = result
-                    st.session_state.user_email = email.lower()
+                    st.session_state.logged_in = True
+                    st.session_state.user_name = result
+                    st.session_state.user_email = email
                     st.rerun()
+
                 else:
                     st.error(result)
 
         st.markdown('<div class="auth-or">or</div>', unsafe_allow_html=True)
-        st.markdown('<div class="link-wrap">', unsafe_allow_html=True)
-        if st.button("New user? Create a free account", key="goto_signup"):
-            st.session_state.auth_page = "signup"; st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-        st.markdown("<p style='text-align:center;font-size:11px;color:#94a3b8;margin-top:14px;'>🔒 Your data is private and never shared.</p>", unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)  # close auth-right-panel
 
+        st.markdown('<div class="link-wrap">', unsafe_allow_html=True)
+
+        if st.button(
+            "Create Free Account",
+            key="create_account"
+        ):
+            st.session_state.auth_page = "signup"
+            st.rerun()
+
+        st.markdown('</div>', unsafe_allow_html=True)
+
+        st.markdown("""
+        <p style="
+            text-align:center;
+            color:#94a3b8;
+            font-size:14px;
+            margin-top:35px;
+        ">
+            Privacy Policy · Terms & Conditions
+        </p>
+        """, unsafe_allow_html=True)
+
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # =========================================================
 # SIGNUP PAGE
