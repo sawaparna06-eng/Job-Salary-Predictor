@@ -145,238 +145,245 @@ INDUSTRY_TRENDS = {
 }
 
 # =========================
-# SESSION STATE INIT
+# SESSION STATE
 # =========================
-for k, v in [
-    ("logged_in", False), ("user_name", ""), ("user_email", ""),
-    ("auth_page", "login"), ("active_tab", "predict"),
-    ("last_prediction", None), ("last_inputs", None)
-]:
+for k, v in [("logged_in", False), ("user_name", ""), ("user_email", ""),
+             ("auth_page", "login"), ("active_tab", "predict"),
+             ("last_prediction", None), ("last_inputs", None)]:
     if k not in st.session_state:
         st.session_state[k] = v
 
 # =========================
-# GLOBAL CSS
+# GLOBAL STYLES
 # =========================
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap');
 
-*, html, body, [class*="css"] { font-family: 'Inter', sans-serif !important; box-sizing: border-box; }
+html, body, [class*="css"] { font-family: 'Inter', sans-serif !important; }
 #MainMenu, footer, header, .stDeployButton { visibility: hidden !important; display: none !important; }
-[data-testid="stHeader"]     { display: none !important; }
-[data-testid="stSidebarNav"] { display: none !important; }
+.block-container { padding: 0 !important; max-width: 100% !important; }
+section[data-testid="stSidebar"] { display: none !important; }
+.stApp { background: #f8f9fc !important; }
 
-.block-container {
-    padding: 0 !important; margin: 0 !important; max-width: 100% !important;
+/* AUTH */
+.auth-wrap {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 50%, #f0fff4 100%);
+    padding: 40px 20px;
 }
-.stApp > div,
-[data-testid="stAppViewContainer"],
-[data-testid="stAppViewContainer"] > section,
-[data-testid="stAppViewContainer"] > section > div,
-[data-testid="stVerticalBlock"] {
-    padding-top: 0 !important; margin-top: 0 !important;
+.auth-panel {
+    background: #ffffff; border-radius: 24px; padding: 48px 44px;
+    width: 100%; max-width: 460px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.04), 0 20px 60px rgba(99,102,241,0.08);
+    border: 1px solid rgba(99,102,241,0.08);
 }
+.auth-brand {
+    font-family: 'Syne', sans-serif !important; font-size: 20px; font-weight: 800;
+    color: #1e1b4b; margin-bottom: 32px; display: flex; align-items: center; gap: 8px;
+}
+.auth-brand em { color: #6366f1; font-style: normal; }
+.auth-heading {
+    font-family: 'Syne', sans-serif !important; font-size: 32px; font-weight: 800;
+    color: #0f172a; line-height: 1.15; margin-bottom: 6px;
+}
+.auth-heading span {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.auth-sub { font-size: 14px; color: #64748b; margin-bottom: 32px; }
+.auth-stats-row {
+    display: flex; border-radius: 12px; overflow: hidden;
+    border: 1px solid #e2e8f0; margin-bottom: 28px;
+}
+.auth-stat {
+    flex: 1; text-align: center; padding: 14px 8px;
+    border-right: 1px solid #e2e8f0; background: #f8fafc;
+}
+.auth-stat:last-child { border-right: none; }
+.auth-stat-val {
+    font-family: 'Syne', sans-serif !important; font-size: 18px; font-weight: 800;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.auth-stat-lbl { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: .6px; margin-top: 2px; }
+.auth-or {
+    text-align: center; color: #cbd5e1; font-size: 13px; margin: 16px 0; position: relative;
+}
+.auth-or::before, .auth-or::after {
+    content: ''; position: absolute; top: 50%;
+    width: calc(50% - 24px); height: 1px; background: #e2e8f0;
+}
+.auth-or::before { left: 0; } .auth-or::after { right: 0; }
 
-/* ── BUTTON OVERRIDES ── */
-.stButton > button {
-    width: 100% !important;
-    background: linear-gradient(135deg,#6366f1,#8b5cf6) !important;
-    color: #fff !important; border: none !important; border-radius: 10px !important;
-    padding: 12px 20px !important; font-size: 14px !important; font-weight: 600 !important;
-    box-shadow: 0 4px 14px rgba(99,102,241,.3) !important; transition: all .2s !important;
-}
-.stButton > button:hover {
-    transform: translateY(-1px) !important;
-    box-shadow: 0 6px 20px rgba(99,102,241,.4) !important;
-}
-.submit-wrap .stButton > button {
-    background: #5c3de8 !important;
-    border-radius: 9px !important;
-    font-size: 15px !important;
-    padding: 13px !important;
-    box-shadow: 0 4px 18px rgba(92,61,232,.32) !important;
-}
-.submit-wrap .stButton > button:hover {
-    background: #3d28b5 !important; transform: translateY(-1px) !important;
-}
-.link-wrap .stButton > button {
-    background: transparent !important;
-    color: #5c3de8 !important;
-    border: 1.5px solid #e2e8f0 !important;
-    border-radius: 9px !important;
-    font-size: 13px !important; font-weight: 500 !important;
-    box-shadow: none !important;
-}
-.link-wrap .stButton > button:hover {
-    background: #eef2ff !important; border-color: #5c3de8 !important;
-    transform: none !important; box-shadow: none !important;
-}
-.nav-btn-primary > button {
-    background: #f5a623 !important; color: #1a1a1a !important;
-    border: none !important; border-radius: 6px !important;
-    padding: 8px 20px !important; font-size: 13px !important;
-    font-weight: 700 !important;
-    box-shadow: 0 2px 8px rgba(245,166,35,.35) !important; width: auto !important;
-}
-.nav-btn-primary > button:hover { background: #e09610 !important; transform: translateY(-1px) !important; }
-.nav-btn-logout > button {
-    background: transparent !important; color: #fff !important;
-    border: 1.5px solid rgba(255,255,255,.45) !important; border-radius: 6px !important;
-    padding: 7px 18px !important; font-size: 13px !important;
-    font-weight: 600 !important; box-shadow: none !important; width: auto !important;
-}
-.nav-btn-logout > button:hover { background: rgba(255,255,255,.1) !important; border-color: #fff !important; transform: none !important; }
-.nav-tab-btn > button {
-    background: transparent !important; color: rgba(255,255,255,.75) !important;
-    border: none !important; border-radius: 0 !important;
-    border-bottom: 2px solid transparent !important;
-    padding: 8px 4px !important; font-size: 13px !important;
-    font-weight: 500 !important; box-shadow: none !important; width: 100% !important;
-}
-.nav-tab-btn > button:hover {
-    color: #fff !important; border-bottom-color: #f5a623 !important;
-    transform: none !important; box-shadow: none !important;
-}
-
-/* ── INPUTS ── */
+/* INPUTS */
 .stTextInput > div > div {
-    background: #f8fafc !important; border: 1.5px solid #e2e8f0 !important; border-radius: 9px !important;
+    background: #f8fafc !important; border: 1.5px solid #e2e8f0 !important; border-radius: 10px !important;
 }
 .stTextInput > div > div:focus-within {
-    border-color: #5c3de8 !important; box-shadow: 0 0 0 3px rgba(92,61,232,.10) !important; background: #fff !important;
+    border-color: #6366f1 !important; box-shadow: 0 0 0 3px rgba(99,102,241,0.12) !important; background: #fff !important;
 }
-.stTextInput input { color: #0f172a !important; background: transparent !important; box-shadow: none !important; font-size: 14px !important; }
+.stTextInput input {
+    color: #0f172a !important; background: transparent !important;
+    -webkit-box-shadow: none !important; box-shadow: none !important; font-size: 14px !important;
+}
 .stTextInput input::placeholder { color: #94a3b8 !important; }
-.stTextInput label { color: #475569 !important; font-size: 12px !important; font-weight: 500 !important; }
+.stTextInput label { color: #475569 !important; font-size: 13px !important; font-weight: 500 !important; }
 
-.stNumberInput > div > div { background: #f8fafc !important; border: 1.5px solid #e2e8f0 !important; border-radius: 10px !important; }
-.stNumberInput > div > div:focus-within { border-color: #6366f1 !important; box-shadow: 0 0 0 3px rgba(99,102,241,.12) !important; }
-.stNumberInput input { color: #0f172a !important; background: transparent !important; box-shadow: none !important; font-size: 14px !important; }
+.stNumberInput > div > div {
+    background: #f8fafc !important; border: 1.5px solid #e2e8f0 !important; border-radius: 10px !important;
+}
+.stNumberInput > div > div:focus-within { border-color: #6366f1 !important; box-shadow: 0 0 0 3px rgba(99,102,241,0.12) !important; }
+.stNumberInput input {
+    color: #0f172a !important; background: transparent !important;
+    -webkit-box-shadow: none !important; box-shadow: none !important; font-size: 14px !important;
+}
 .stNumberInput label { color: #475569 !important; font-size: 13px !important; font-weight: 500 !important; }
 .stNumberInput button { color: #6366f1 !important; }
 
-.stSelectbox > div > div { background: #f8fafc !important; border: 1.5px solid #e2e8f0 !important; border-radius: 10px !important; }
-.stSelectbox > div > div:focus-within { border-color: #6366f1 !important; box-shadow: 0 0 0 3px rgba(99,102,241,.12) !important; }
+.stSelectbox > div > div {
+    background: #f8fafc !important; border: 1.5px solid #e2e8f0 !important; border-radius: 10px !important;
+}
+.stSelectbox > div > div:focus-within { border-color: #6366f1 !important; box-shadow: 0 0 0 3px rgba(99,102,241,0.12) !important; }
 .stSelectbox [data-baseweb="select"] > div,
 .stSelectbox [data-baseweb="select"] span { color: #0f172a !important; background: transparent !important; }
 .stSelectbox label { color: #475569 !important; font-size: 13px !important; font-weight: 500 !important; }
-[data-baseweb="popover"],[data-baseweb="menu"],[role="listbox"] {
-    background: #fff !important; border: 1px solid #e2e8f0 !important;
-    border-radius: 12px !important; box-shadow: 0 8px 32px rgba(0,0,0,.12) !important;
+[data-baseweb="popover"], [data-baseweb="menu"], [role="listbox"] {
+    background: #ffffff !important; border: 1px solid #e2e8f0 !important;
+    border-radius: 12px !important; box-shadow: 0 8px 32px rgba(0,0,0,0.12) !important;
 }
-[data-baseweb="menu"] li,[role="option"] { background: #fff !important; color: #1e293b !important; font-size: 14px !important; }
-[data-baseweb="menu"] li:hover,[role="option"]:hover,[role="option"][aria-selected="true"] {
+[data-baseweb="menu"] li, [role="option"] { background: #fff !important; color: #1e293b !important; font-size: 14px !important; }
+[data-baseweb="menu"] li:hover, [role="option"]:hover, [role="option"][aria-selected="true"] {
     background: #eef2ff !important; color: #4f46e5 !important;
 }
 
-/* ── PASSWORD STRENGTH ── */
-.pw-track { height: 3px; background: #e2e8f0; border-radius: 99px; overflow: hidden; margin: 4px 0 3px; }
-.pw-bar   { height: 100%; border-radius: 99px; transition: width .3s, background .3s; }
+/* BUTTONS */
+.stButton > button {
+    width: 100% !important;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+    color: #fff !important; border: none !important; border-radius: 10px !important;
+    padding: 12px 20px !important; font-family: 'Inter', sans-serif !important;
+    font-size: 14px !important; font-weight: 600 !important; cursor: pointer !important;
+    box-shadow: 0 4px 14px rgba(99,102,241,0.3) !important; transition: all 0.2s !important;
+}
+.stButton > button:hover { transform: translateY(-1px) !important; box-shadow: 0 6px 20px rgba(99,102,241,0.4) !important; }
 
-/* ── TOP NAV ── */
+/* NAV */
 .top-nav {
-    background: #1a2236;
-    padding: 0 clamp(16px,4vw,48px);
-    display: flex; align-items: center; justify-content: space-between;
-    height: 64px; box-shadow: 0 2px 12px rgba(0,0,0,.25);
-    position: sticky; top: 0; z-index: 999;
+    background: #ffffff; border-bottom: 1px solid #e2e8f0;
+    padding: 0 32px; display: flex; align-items: center; justify-content: space-between;
+    height: 56px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
-.nav-brand { font-family:'Syne',sans-serif !important; font-size:clamp(16px,2.5vw,22px); font-weight:800; color:#fff; }
-.nav-brand em { color:#f5a623; font-style:normal; }
-.nav-links { display:flex; align-items:center; gap:clamp(4px,2vw,28px); flex:1; justify-content:center; }
-.nav-link  { font-size:14px; font-weight:500; color:rgba(255,255,255,.82); cursor:pointer; padding:4px 2px; border-bottom:2px solid transparent; transition:color .2s,border-color .2s; white-space:nowrap; }
-.nav-link.active { color:#f5a623; border-bottom-color:#f5a623; }
-.nav-avatar { width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#f5a623,#e07b10);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;border:2px solid rgba(255,255,255,.3); }
-.nav-name   { font-size:13px;font-weight:500;color:rgba(255,255,255,.85);white-space:nowrap; }
-div[data-testid="stHorizontalBlock"]:has(.nav-tab-btn) {
-    background:#1a2236 !important; padding:0 clamp(16px,4vw,48px) !important; margin:0 !important; gap:0 !important;
+.nav-brand { font-family: 'Syne', sans-serif !important; font-size: 18px; font-weight: 800; color: #1e1b4b; }
+.nav-brand em { color: #6366f1; font-style: normal; }
+.nav-user { display: flex; align-items: center; gap: 10px; }
+.nav-avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: #fff;
 }
-div[data-testid="stHorizontalBlock"]:has(.nav-tab-btn) > div { padding:0 !important; min-width:0 !important; }
+.nav-name { font-size: 13px; font-weight: 500; color: #334155; }
 
-/* ── SIDEBAR ── */
-section[data-testid="stSidebar"] {
-    background: #1a2236 !important;
-    border-right: 1px solid rgba(255,255,255,.08) !important;
-    min-width: 260px !important; max-width: 260px !important;
-}
-section[data-testid="stSidebar"] > div { padding: 0 !important; }
-section[data-testid="stSidebar"] .stButton > button {
-    position: absolute !important; opacity: 0 !important;
-    height: 0 !important; overflow: hidden !important;
-    padding: 0 !important; margin: 0 !important;
-    pointer-events: all !important; width: 100% !important; cursor: pointer !important;
-}
-.sb-nav-item { position: relative !important; }
+/* PAGE */
+.page-wrap { padding: 28px 36px; max-width: 1200px; margin: 0 auto; }
+.page-title { font-family: 'Syne', sans-serif !important; font-size: 24px; font-weight: 800; color: #0f172a; margin-bottom: 4px; }
+.page-sub { font-size: 14px; color: #64748b; margin-bottom: 24px; }
 
-/* ── MAIN APP ── */
-.stApp { background: #f8f9fc !important; }
-.page-wrap { padding:clamp(16px,3vw,28px) clamp(12px,3vw,36px); max-width:1200px; margin:0 auto; }
-.page-title { font-family:'Syne',sans-serif !important; font-size:clamp(18px,3vw,24px); font-weight:800; color:#0f172a; margin-bottom:4px; }
-.page-sub   { font-size:14px; color:#64748b; margin-bottom:20px; }
-.card { background:#fff; border-radius:16px; border:1px solid #e2e8f0; padding:clamp(14px,2vw,22px); box-shadow:0 1px 3px rgba(0,0,0,.04); margin-bottom:16px; }
-.card-title { font-size:11px; font-weight:700; color:#6366f1; text-transform:uppercase; letter-spacing:1px; margin-bottom:16px; }
-.metric-card  { background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:16px 14px; box-shadow:0 1px 3px rgba(0,0,0,.04); }
-.metric-label { font-size:12px; color:#94a3b8; font-weight:500; margin-bottom:6px; }
-.metric-value { font-family:'Syne',sans-serif !important; font-size:clamp(16px,2vw,22px); font-weight:800; color:#0f172a; }
-.metric-sub   { font-size:12px; color:#10b981; font-weight:500; margin-top:4px; }
-.result-hero        { background:linear-gradient(135deg,#6366f1,#8b5cf6); border-radius:20px; padding:clamp(20px,4vw,36px) clamp(16px,4vw,32px); text-align:center; margin-bottom:20px; box-shadow:0 8px 32px rgba(99,102,241,.3); }
-.result-hero-label  { font-size:12px; color:rgba(255,255,255,.7); letter-spacing:1.5px; text-transform:uppercase; }
-.result-hero-amount { font-family:'Syne',sans-serif !important; font-size:clamp(36px,8vw,56px); font-weight:800; color:#fff; margin:8px 0; }
-.result-hero-sub    { font-size:13px; color:rgba(255,255,255,.6); }
-.insight-card { background:#fff; border-radius:12px; border:1px solid #e2e8f0; padding:16px; margin-bottom:10px; display:flex; gap:14px; align-items:flex-start; }
-.insight-icon { width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0; }
-.insight-icon-blue{background:#eef2ff;} .insight-icon-green{background:#f0fdf4;} .insight-icon-amber{background:#fffbeb;} .insight-icon-rose{background:#fff1f2;}
-.insight-title { font-size:14px; font-weight:600; color:#0f172a; margin-bottom:4px; }
-.insight-desc  { font-size:13px; color:#64748b; line-height:1.5; }
-.roadmap-step  { display:flex; gap:16px; align-items:flex-start; padding:16px 0; border-bottom:1px solid #f1f5f9; }
-.roadmap-step:last-child { border-bottom:none; }
-.step-dot      { width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;margin-top:2px; }
-.step-dot-done { background:#6366f1;color:#fff; }
-.step-dot-curr { background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;box-shadow:0 0 0 4px rgba(99,102,241,.2); }
-.step-dot-next { background:#f1f5f9;color:#94a3b8;border:2px dashed #cbd5e1; }
-.step-title { font-size:15px; font-weight:600; color:#0f172a; }
-.step-sub   { font-size:13px; color:#64748b; margin-top:3px; }
-.step-badge { display:inline-block; font-size:11px; font-weight:600; padding:2px 10px; border-radius:99px; margin-top:6px; }
-.badge-current{background:#eef2ff;color:#4f46e5;} .badge-done{background:#f0fdf4;color:#15803d;} .badge-future{background:#f8fafc;color:#94a3b8;}
-.lb-row   { display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;margin-bottom:8px;background:#f8fafc;border:1px solid #f1f5f9;transition:all .15s;flex-wrap:wrap; }
-.lb-row:hover{background:#eef2ff;border-color:#c7d2fe;}
-.lb-row.gold  {background:linear-gradient(135deg,#fffbeb,#fef3c7);border-color:#fde68a;}
-.lb-row.silver{background:linear-gradient(135deg,#f8fafc,#f1f5f9);border-color:#e2e8f0;}
-.lb-row.bronze{background:linear-gradient(135deg,#fff7ed,#ffedd5);border-color:#fed7aa;}
-.lb-rank{font-family:'Syne',sans-serif !important;font-size:16px;font-weight:800;min-width:28px;}
-.lb-name{flex:1;font-size:14px;font-weight:600;color:#0f172a;min-width:100px;}
-.lb-role{font-size:12px;color:#64748b;}
-.lb-salary{font-family:'Syne',sans-serif !important;font-size:16px;font-weight:800;color:#4f46e5;}
-.compare-bar-wrap  { margin-bottom:14px; }
-.compare-bar-label { display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;flex-wrap:wrap;gap:4px; }
-.compare-bar-track { height:8px;background:#f1f5f9;border-radius:99px;overflow:hidden; }
-.compare-bar-fill  { height:100%;border-radius:99px; }
-.trend-up { color:#10b981;font-weight:600;font-size:13px; }
-h1,h2,h3  { font-family:'Syne',sans-serif !important; color:#0f172a !important; }
-p,li      { color:#475569; }
-.sb-avatar-wrap { display:flex;flex-direction:column;align-items:center;padding:32px 20px 24px;border-bottom:1px solid rgba(255,255,255,.1); }
-.sb-avatar { width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#f5a623,#e07b10);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:#fff;border:3px solid rgba(255,255,255,.2);margin-bottom:14px; }
-.sb-name  { font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:#fff;text-align:center;line-height:1.3; }
-.sb-email { font-size:12px;color:rgba(255,255,255,.4);text-align:center;margin-top:4px;word-break:break-all; }
-.sb-badge { display:inline-block;margin-top:10px;background:rgba(245,166,35,.15);color:#f5a623;border:1px solid rgba(245,166,35,.35);border-radius:99px;padding:3px 14px;font-size:11px;font-weight:700;letter-spacing:.5px; }
-.sb-stats { display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(255,255,255,.08);margin:0;border-bottom:1px solid rgba(255,255,255,.08); }
-.sb-stat  { background:#1a2236;padding:16px 14px;display:flex;flex-direction:column;gap:4px; }
-.sb-stat-val { font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#f5a623; }
-.sb-stat-lbl { font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.6px; }
-.sb-section { padding:20px 20px 0; }
-.sb-section-title { font-size:10px;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px; }
-.sb-row { display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06); }
-.sb-row:last-child { border-bottom:none; }
-.sb-row-label { font-size:12px;color:rgba(255,255,255,.45); }
-.sb-row-val   { font-size:13px;font-weight:600;color:#fff; }
-.sb-row-val.green { color:#34d399; }
-.sb-row-val.gold  { color:#f5a623; }
-.sb-nav { padding:16px 20px;border-top:1px solid rgba(255,255,255,.08); }
-.sb-nav-item { display:block;padding:10px 12px;border-radius:8px;font-size:13px;font-weight:500;color:rgba(255,255,255,.65);cursor:pointer;transition:all .15s;margin-bottom:2px; }
-.sb-nav-item:hover { background:rgba(255,255,255,.07);color:#fff; }
-.sb-nav-item.active-nav { background:rgba(245,166,35,.12);color:#f5a623;font-weight:600; }
-.sb-footer { padding:16px 20px;border-top:1px solid rgba(255,255,255,.08);font-size:11px;color:rgba(255,255,255,.25);text-align:center; }
+/* CARDS */
+.card {
+    background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0;
+    padding: 22px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 16px;
+}
+.card-title { font-size: 11px; font-weight: 700; color: #6366f1; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
+
+/* METRICS */
+.metric-card {
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 14px;
+    padding: 18px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.metric-label { font-size: 12px; color: #94a3b8; font-weight: 500; margin-bottom: 6px; }
+.metric-value { font-family: 'Syne', sans-serif !important; font-size: 22px; font-weight: 800; color: #0f172a; }
+.metric-sub { font-size: 12px; color: #10b981; font-weight: 500; margin-top: 4px; }
+
+/* RESULT HERO */
+.result-hero {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    border-radius: 20px; padding: 36px 32px; text-align: center; margin-bottom: 20px;
+    box-shadow: 0 8px 32px rgba(99,102,241,0.3);
+}
+.result-hero-label { font-size: 12px; color: rgba(255,255,255,0.7); letter-spacing: 1.5px; text-transform: uppercase; }
+.result-hero-amount { font-family: 'Syne', sans-serif !important; font-size: 56px; font-weight: 800; color: #fff; margin: 8px 0; }
+.result-hero-sub { font-size: 13px; color: rgba(255,255,255,0.6); }
+
+/* INSIGHTS */
+.insight-card {
+    background: #fff; border-radius: 12px; border: 1px solid #e2e8f0;
+    padding: 18px; margin-bottom: 10px; display: flex; gap: 14px; align-items: flex-start;
+}
+.insight-icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;
+}
+.insight-icon-blue  { background: #eef2ff; }
+.insight-icon-green { background: #f0fdf4; }
+.insight-icon-amber { background: #fffbeb; }
+.insight-icon-rose  { background: #fff1f2; }
+.insight-title { font-size: 14px; font-weight: 600; color: #0f172a; margin-bottom: 4px; }
+.insight-desc  { font-size: 13px; color: #64748b; line-height: 1.5; }
+
+/* ROADMAP */
+.roadmap-step {
+    display: flex; gap: 16px; align-items: flex-start;
+    padding: 18px 0; border-bottom: 1px solid #f1f5f9;
+}
+.roadmap-step:last-child { border-bottom: none; }
+.step-dot {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; flex-shrink: 0; margin-top: 2px;
+}
+.step-dot-done { background: #6366f1; color: #fff; }
+.step-dot-curr { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; box-shadow: 0 0 0 4px rgba(99,102,241,0.2); }
+.step-dot-next { background: #f1f5f9; color: #94a3b8; border: 2px dashed #cbd5e1; }
+.step-title { font-size: 15px; font-weight: 600; color: #0f172a; }
+.step-sub   { font-size: 13px; color: #64748b; margin-top: 3px; }
+.step-badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 10px; border-radius: 99px; margin-top: 6px; }
+.badge-current { background: #eef2ff; color: #4f46e5; }
+.badge-done    { background: #f0fdf4; color: #15803d; }
+.badge-future  { background: #f8fafc; color: #94a3b8; }
+
+/* LEADERBOARD */
+.lb-row {
+    display: flex; align-items: center; gap: 14px; padding: 14px 16px;
+    border-radius: 12px; margin-bottom: 8px; background: #f8fafc; border: 1px solid #f1f5f9; transition: all 0.15s;
+}
+.lb-row:hover { background: #eef2ff; border-color: #c7d2fe; }
+.lb-row.gold   { background: linear-gradient(135deg,#fffbeb,#fef3c7); border-color: #fde68a; }
+.lb-row.silver { background: linear-gradient(135deg,#f8fafc,#f1f5f9); border-color: #e2e8f0; }
+.lb-row.bronze { background: linear-gradient(135deg,#fff7ed,#ffedd5); border-color: #fed7aa; }
+.lb-rank  { font-family:'Syne',sans-serif !important; font-size:16px; font-weight:800; min-width:28px; }
+.lb-name  { flex:1; font-size:14px; font-weight:600; color:#0f172a; }
+.lb-role  { font-size:12px; color:#64748b; }
+.lb-salary{ font-family:'Syne',sans-serif !important; font-size:16px; font-weight:800; color:#4f46e5; }
+
+/* COMPARE BARS */
+.compare-bar-wrap { margin-bottom: 14px; }
+.compare-bar-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
+.compare-bar-track { height: 8px; background: #f1f5f9; border-radius: 99px; overflow: hidden; }
+.compare-bar-fill  { height: 100%; border-radius: 99px; }
+
+/* MISC */
+.trend-up   { color: #10b981; font-weight: 600; font-size: 13px; }
+.pw-track   { height: 4px; background: #e2e8f0; border-radius: 99px; overflow: hidden; margin-bottom: 6px; }
+.pw-bar     { height: 100%; border-radius: 99px; transition: width .3s, background .3s; }
+.signout-btn > button {
+    background: #fff !important; color: #ef4444 !important;
+    border: 1.5px solid #fecaca !important; box-shadow: none !important; font-size: 13px !important; padding: 8px 16px !important;
+}
+.signout-btn > button:hover { background: #fff1f2 !important; }
+h1,h2,h3 { font-family:'Syne',sans-serif !important; color:#0f172a !important; }
+p,li { color:#475569; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -391,19 +398,19 @@ def get_initials(name):
 def salary_boost_tips(job, exp, skills, cert, edu):
     tips = []
     if exp < 3:
-        tips.append(("🚀","Build a strong portfolio","Create 3–5 GitHub projects demonstrating real skills. At junior levels, projects matter more than years of experience.","blue"))
+        tips.append(("🚀", "Build a strong portfolio", "Create 3–5 GitHub projects demonstrating real skills. At junior levels, projects matter more than years of experience.", "blue"))
     if 3 <= exp < 7:
-        tips.append(("📈","Apply for senior roles now","With your experience, senior roles pay 35–50% more. Rewrite your resume to highlight impact and outcomes, not just duties.","green"))
+        tips.append(("📈", "Apply for senior roles now", "With your experience, senior roles pay 35–50% more. Rewrite your resume to highlight impact and outcomes, not just duties.", "green"))
     if exp >= 7:
-        tips.append(("🏆","Move into leadership","7+ years of experience puts you in prime position for Lead/Manager roles — which pay 50–80% more than individual contributor positions.","amber"))
+        tips.append(("🏆", "Move into leadership", "7+ years of experience puts you in prime position for Lead/Manager roles — which pay 50–80% more than individual contributor positions.", "amber"))
     if skills < 8:
-        tips.append(("🛠️","Expand your skill set","Professionals with 10+ in-demand skills earn 28% more on average. Focus on cloud, data, or AI tools relevant to your role.","rose"))
+        tips.append(("🛠️", "Expand your skill set", "Professionals with 10+ in-demand skills earn 28% more on average. Focus on cloud, data, or AI tools relevant to your role.", "rose"))
     if cert < 2:
-        tips.append(("📜","Earn certifications","AWS, Google Cloud, and PMP certifications add ₹10,000–₹25,000 to your annual salary. Many have free study resources.","blue"))
-    if edu in ["High School","Diploma","Other"]:
-        tips.append(("🎓","Upskill with online courses","Online Master's degrees or professional diplomas can boost salary by 15–20%. Platforms like Coursera and edX are affordable.","green"))
-    tips.append(("🌍","Target remote / global roles","Remote roles at global companies pay 2–4x Indian market rates. Explore Toptal, Turing, and Remote.com.","amber"))
-    tips.append(("💬","Negotiate your salary","60% of professionals never negotiate. Research market rates on Glassdoor and LinkedIn Salary, then ask for 15–20% above the offer.","rose"))
+        tips.append(("📜", "Earn certifications", "AWS, Google Cloud, and PMP certifications add ₹10,000–₹25,000 to your annual salary. Many have free study resources.", "blue"))
+    if edu in ["High School", "Diploma", "Other"]:
+        tips.append(("🎓", "Upskill with online courses", "Online Master's degrees or professional diplomas can boost salary by 15–20%. Platforms like Coursera and edX are affordable.", "green"))
+    tips.append(("🌍", "Target remote / global roles", "Remote roles at global companies pay 2–4x Indian market rates. Explore Toptal, Turing, and Remote.com.", "amber"))
+    tips.append(("💬", "Negotiate your salary", "60% of professionals never negotiate. Research market rates on Glassdoor and LinkedIn Salary, then ask for 15–20% above the offer.", "rose"))
     return tips
 
 def get_skills_to_learn(job, current_skills):
@@ -428,292 +435,115 @@ def get_leaderboard():
     return lb[:10]
 
 
-# ══════════════════════════════════════════════════════════════════════
-# AUTH PAGES  — Full-page dark layout using st.columns
-# ══════════════════════════════════════════════════════════════════════
-
-AUTH_CSS = """
-<style>
-/* Override stApp background for auth pages */
-.stApp { background: #0e0a25 !important; }
-.stApp::before {
-    content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
-    background: radial-gradient(ellipse 90% 70% at 15% 10%, rgba(92,61,232,.5) 0%, transparent 55%),
-                radial-gradient(ellipse 60% 50% at 85% 85%, rgba(245,200,66,.12) 0%, transparent 55%),
-                #0e0a25;
-}
-/* Remove all padding so card fills screen nicely */
-.block-container { padding: 2rem 1rem !important; }
-[data-testid="stVerticalBlock"] { gap: 0 !important; }
-
-/* The two-column auth card */
-.auth-left {
-    background: linear-gradient(160deg,#7c5af0 0%,#5c3de8 55%,#4a2abf 100%);
-    border-radius: 20px 0 0 20px;
-    padding: 52px 40px 40px;
-    min-height: 560px;
-    position: relative;
-    overflow: hidden;
-    display: flex; flex-direction: column; justify-content: space-between;
-}
-.auth-left::before {
-    content:''; position:absolute; inset:0; pointer-events:none;
-    background: repeating-linear-gradient(-45deg,transparent,transparent 16px,rgba(255,255,255,.05) 16px,rgba(255,255,255,.05) 32px);
-}
-.auth-left-inner { position:relative; z-index:1; }
-.al-logo { font-family:'Syne',sans-serif; font-size:11px; font-weight:800; letter-spacing:2.5px; text-transform:uppercase; color:rgba(255,255,255,.5); margin-bottom:44px; }
-.al-logo em { color:#f5c842; font-style:normal; }
-.al-h2 { font-family:'Syne',sans-serif; font-size:38px; font-weight:800; color:#fff; line-height:1.15; margin-bottom:14px; }
-.al-p  { font-size:13.5px; color:rgba(255,255,255,.55); line-height:1.7; margin-bottom:28px; }
-.al-switch-lbl { font-size:12px; color:rgba(255,255,255,.38); margin-bottom:10px; }
-.al-stats { display:flex; gap:28px; padding-top:24px; border-top:1px solid rgba(255,255,255,.12); position:relative; z-index:1; }
-.al-stat-num { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; color:#f5c842; }
-.al-stat-lbl { font-size:10px; color:rgba(255,255,255,.38); text-transform:uppercase; letter-spacing:.7px; margin-top:2px; }
-
-/* Right white panel */
-.auth-right {
-    background: #fff;
-    border-radius: 0 20px 20px 0;
-    padding: 52px 44px 44px;
-    min-height: 560px;
-    display: flex; flex-direction: column; justify-content: center;
-}
-.ar-help  { font-size:12px; color:#94a3b8; text-align:right; margin-bottom:28px; }
-.ar-title { font-family:'Syne',sans-serif; font-size:26px; font-weight:800; color:#5c3de8; margin-bottom:4px; }
-.ar-sub   { font-size:13px; color:#94a3b8; margin-bottom:22px; }
-.auth-or  { text-align:center; color:#cbd5e1; font-size:11px; margin:10px 0; }
-.auth-footer { font-size:11px; color:#94a3b8; text-align:center; margin-top:14px; }
-.pw-track { height:3px; background:#e2e8f0; border-radius:99px; overflow:hidden; margin:4px 0 3px; }
-.pw-bar   { height:100%; border-radius:99px; }
-
-/* Card shadow wrapper */
-div[data-testid="column"]:has(.auth-left),
-div[data-testid="column"]:has(.auth-right) {
-    padding: 0 !important;
-}
-</style>
-"""
-
+# =========================
+# LOGIN
+# =========================
 def show_login():
-    st.markdown(AUTH_CSS, unsafe_allow_html=True)
+    st.markdown('<div class="auth-wrap">', unsafe_allow_html=True)
+    st.markdown("""
+    <div class="auth-panel">
+        <div class="auth-brand">💼 Salary<em>IQ</em> <span style="font-size:11px;color:#94a3b8;font-weight:400;margin-left:4px;">PRO</span></div>
+        <div class="auth-heading">Welcome<br><span>back.</span></div>
+        <div class="auth-sub">Sign in to your career intelligence dashboard</div>
+        <div class="auth-stats-row">
+            <div class="auth-stat"><div class="auth-stat-val">95%</div><div class="auth-stat-lbl">Accuracy</div></div>
+            <div class="auth-stat"><div class="auth-stat-val">50K+</div><div class="auth-stat-lbl">Predictions</div></div>
+            <div class="auth-stat"><div class="auth-stat-val">120+</div><div class="auth-stat-lbl">Job Roles</div></div>
+        </div>
+    </div>""", unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    # Center the card
-    _, center, _ = st.columns([1, 6, 1])
-    with center:
-        left_col, right_col = st.columns([2, 3], gap="small")
-
-        # ── LEFT PANEL ──────────────────────────────────────────────
-        with left_col:
-            st.markdown("""
-            <div class="auth-left">
-              <div class="auth-left-inner">
-                <div class="al-logo">Salary<em>IQ</em> Pro</div>
-                <div class="al-h2">Welcome<br>Back!</div>
-                <div class="al-p">Sign in to your career intelligence dashboard and discover your true market value.</div>
-                <div class="al-switch-lbl">Don't have an account?</div>
-              </div>
-              <div class="al-stats" style="position:relative;z-index:1;">
-                <div><div class="al-stat-num">95%</div><div class="al-stat-lbl">Accuracy</div></div>
-                <div><div class="al-stat-num">50K+</div><div class="al-stat-lbl">Predictions</div></div>
-                <div><div class="al-stat-num">120+</div><div class="al-stat-lbl">Job Roles</div></div>
-              </div>
-            </div>
-            """, unsafe_allow_html=True)
-            st.markdown('<div class="submit-wrap" style="margin-top:-32px;padding:0 40px 28px;background:linear-gradient(160deg,#7c5af0,#4a2abf);border-radius:0 0 0 20px;">', unsafe_allow_html=True)
-            if st.button("Create Account →", key="login_go_signup"):
-                st.session_state.auth_page = "signup"; st.rerun()
-            st.markdown('</div>', unsafe_allow_html=True)
-
-        # ── RIGHT PANEL ─────────────────────────────────────────────
-        with right_col:
-            st.markdown('<div class="auth-right">', unsafe_allow_html=True)
-            st.markdown('<div class="ar-help">Need help? <a href="#" style="color:#5c3de8;">Contact us</a></div>', unsafe_allow_html=True)
-            st.markdown('<div class="ar-title">Log in</div>', unsafe_allow_html=True)
-            st.markdown('<div class="ar-sub">Enter your credentials to continue</div>', unsafe_allow_html=True)
-
-            email    = st.text_input("Email address", placeholder="you@example.com",  key="login_email")
-            password = st.text_input("Password",      placeholder="Your password",    key="login_password", type="password")
-
-            st.markdown('<div style="height:8px"></div>', unsafe_allow_html=True)
-            st.markdown('<div class="submit-wrap">', unsafe_allow_html=True)
-            login_clicked = st.button("Log in →", key="login_btn")
-            st.markdown('</div>', unsafe_allow_html=True)
-
-            if login_clicked:
-                if not email or not password:
-                    st.error("Please fill in all fields.")
-                elif not is_valid_email(email):
-                    st.error("Please enter a valid email.")
+    _, col, _ = st.columns([1, 2, 1])
+    with col:
+        st.markdown("<div style='height:332px'></div>", unsafe_allow_html=True)
+        email    = st.text_input("Email address", placeholder="you@example.com", key="login_email")
+        password = st.text_input("Password", placeholder="Your password", key="login_password", type="password")
+        st.markdown("<div style='height:4px'></div>", unsafe_allow_html=True)
+        if st.button("Sign In →", key="login_btn"):
+            if not email or not password:
+                st.error("Please fill in all fields.")
+            elif not is_valid_email(email):
+                st.error("Please enter a valid email.")
+            else:
+                ok, result = login_user(email, password)
+                if ok:
+                    st.session_state.logged_in  = True
+                    st.session_state.user_name  = result
+                    st.session_state.user_email = email.lower()
+                    st.rerun()
                 else:
-                    ok, result = login_user(email, password)
-                    if ok:
-                        st.session_state.logged_in  = True
-                        st.session_state.user_name  = result
-                        st.session_state.user_email = email.lower()
-                        st.rerun()
-                    else:
-                        st.error(result)
-
-            st.markdown('<div class="auth-or">─── or ───</div>', unsafe_allow_html=True)
-            st.markdown('<div class="link-wrap">', unsafe_allow_html=True)
-            if st.button("New user? Create a free account", key="login_to_signup"):
-                st.session_state.auth_page = "signup"; st.rerun()
-            st.markdown('</div>', unsafe_allow_html=True)
-            st.markdown('<div class="auth-footer">🔒 Your data is private and never shared.</div>', unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)  # close auth-right
+                    st.error(result)
+        st.markdown('<div class="auth-or">or</div>', unsafe_allow_html=True)
+        if st.button("Create a free account →", key="goto_signup"):
+            st.session_state.auth_page = "signup"
+            st.rerun()
+        st.markdown("<p style='text-align:center;font-size:12px;color:#94a3b8;margin-top:16px;'>🔒 Your data is private and never shared.</p>", unsafe_allow_html=True)
 
 
+# =========================
+# SIGNUP
+# =========================
 def show_signup():
-    st.markdown(AUTH_CSS, unsafe_allow_html=True)
+    st.markdown('<div class="auth-wrap">', unsafe_allow_html=True)
+    st.markdown("""
+    <div class="auth-panel">
+        <div class="auth-brand">💼 Salary<em>IQ</em> <span style="font-size:11px;color:#94a3b8;font-weight:400;margin-left:4px;">PRO</span></div>
+        <div class="auth-heading">Create your<br><span>account.</span></div>
+        <div class="auth-sub">Join professionals discovering their true market value</div>
+    </div>""", unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    _, center, _ = st.columns([1, 6, 1])
-    with center:
-        left_col, right_col = st.columns([2, 3], gap="small")
+    _, col, _ = st.columns([1, 2, 1])
+    with col:
+        st.markdown("<div style='height:258px'></div>", unsafe_allow_html=True)
+        name     = st.text_input("Full Name",        placeholder="John Doe",             key="signup_name")
+        email    = st.text_input("Email Address",    placeholder="you@example.com",      key="signup_email")
+        password = st.text_input("Password",         placeholder="Min. 8 characters",    key="signup_password", type="password")
+        confirm  = st.text_input("Confirm Password", placeholder="Repeat your password", key="signup_confirm",  type="password")
 
-        # ── LEFT PANEL ──────────────────────────────────────────────
-        with left_col:
-            st.markdown("""
-            <div class="auth-left">
-              <div class="auth-left-inner">
-                <div class="al-logo">Salary<em>IQ</em> Pro</div>
-                <div class="al-h2">Get<br>Started!</div>
-                <div class="al-p">Join professionals discovering their true market value. Free forever, no credit card needed.</div>
-                <div class="al-switch-lbl">Already have an account?</div>
-              </div>
-              <div class="al-stats" style="position:relative;z-index:1;">
-                <div><div class="al-stat-num">Free</div><div class="al-stat-lbl">Forever</div></div>
-                <div><div class="al-stat-num">2 min</div><div class="al-stat-lbl">Setup</div></div>
-                <div><div class="al-stat-num">Safe</div><div class="al-stat-lbl">& Private</div></div>
-              </div>
-            </div>
-            """, unsafe_allow_html=True)
-            st.markdown('<div class="submit-wrap" style="margin-top:-32px;padding:0 40px 28px;background:linear-gradient(160deg,#7c5af0,#4a2abf);border-radius:0 0 0 20px;">', unsafe_allow_html=True)
-            if st.button("← Back to Login", key="signup_go_login"):
-                st.session_state.auth_page = "login"; st.rerun()
-            st.markdown('</div>', unsafe_allow_html=True)
+        if password:
+            s, hints = 0, []
+            if len(password) >= 8:                    s += 1
+            else:                                     hints.append("8+ chars")
+            if re.search(r"[A-Z]", password):         s += 1
+            else:                                     hints.append("uppercase")
+            if re.search(r"\d", password):            s += 1
+            else:                                     hints.append("number")
+            if re.search(r"[^A-Za-z0-9]", password): s += 1
+            else:                                     hints.append("symbol")
+            colors = ["#ef4444","#f97316","#eab308","#10b981"]
+            labels = ["Weak","Fair","Good","Strong"]
+            widths = [25,50,75,100]
+            idx    = min(s-1,3) if s>0 else 0
+            hint   = "" if s==4 else " · add " + ", ".join(hints[:2])
+            st.markdown(f"""
+            <div style='margin-top:-4px;margin-bottom:12px;'>
+              <div class='pw-track'><div class='pw-bar' style='width:{widths[idx]}%;background:{colors[idx]};'></div></div>
+              <span style='font-size:12px;color:{colors[idx]};font-weight:600;'>{labels[idx]}{hint}</span>
+            </div>""", unsafe_allow_html=True)
 
-        # ── RIGHT PANEL ─────────────────────────────────────────────
-        with right_col:
-            st.markdown('<div class="auth-right">', unsafe_allow_html=True)
-            st.markdown('<div class="ar-help">Need help? <a href="#" style="color:#5c3de8;">Contact us</a></div>', unsafe_allow_html=True)
-            st.markdown('<div class="ar-title">Create Account</div>', unsafe_allow_html=True)
-            st.markdown('<div class="ar-sub">Fill in your details to get started</div>', unsafe_allow_html=True)
-
-            name     = st.text_input("Full Name",        placeholder="John Doe",             key="signup_name")
-            email    = st.text_input("Email Address",    placeholder="you@example.com",      key="signup_email")
-            password = st.text_input("Password",         placeholder="Min. 8 characters",    key="signup_password",  type="password")
-            confirm  = st.text_input("Confirm Password", placeholder="Repeat your password", key="signup_confirm",   type="password")
-
-            # Password strength meter
-            if password:
-                s = 0
-                hints = []
-                if len(password) >= 8:                    s += 1
-                else:                                     hints.append("8+ chars")
-                if re.search(r"[A-Z]", password):         s += 1
-                else:                                     hints.append("uppercase")
-                if re.search(r"\d", password):            s += 1
-                else:                                     hints.append("number")
-                if re.search(r"[^A-Za-z0-9]", password): s += 1
-                else:                                     hints.append("symbol")
-                colors = ["#ef4444","#f97316","#eab308","#10b981"]
-                labels = ["Weak","Fair","Good","Strong"]
-                widths = [25, 50, 75, 100]
-                idx    = min(s - 1, 3) if s > 0 else 0
-                hint   = "" if s == 4 else " · add " + ", ".join(hints[:2])
-                st.markdown(f"""
-                <div style='margin-top:-10px;margin-bottom:12px;'>
-                  <div class='pw-track'><div class='pw-bar' style='width:{widths[idx]}%;background:{colors[idx]};'></div></div>
-                  <span style='font-size:12px;color:{colors[idx]};font-weight:600;'>{labels[idx]}{hint}</span>
-                </div>""", unsafe_allow_html=True)
-
-            st.markdown('<div style="height:6px"></div>', unsafe_allow_html=True)
-            st.markdown('<div class="submit-wrap">', unsafe_allow_html=True)
-            signup_clicked = st.button("Create Account →", key="signup_btn")
-            st.markdown('</div>', unsafe_allow_html=True)
-
-            if signup_clicked:
-                if not all([name, email, password, confirm]):
-                    st.error("Please fill in all fields.")
-                elif not is_valid_email(email):
-                    st.error("Invalid email address.")
-                elif len(password) < 8:
-                    st.error("Password must be at least 8 characters.")
-                elif password != confirm:
-                    st.error("Passwords do not match.")
+        if st.button("Create Account →", key="signup_btn"):
+            if not all([name, email, password, confirm]):
+                st.error("Please fill in all fields.")
+            elif not is_valid_email(email):
+                st.error("Invalid email address.")
+            elif len(password) < 8:
+                st.error("Password must be at least 8 characters.")
+            elif password != confirm:
+                st.error("Passwords do not match.")
+            else:
+                ok, msg = register_user(name.strip(), email.strip(), password)
+                if ok:
+                    st.session_state.logged_in  = True
+                    st.session_state.user_name  = name.strip()
+                    st.session_state.user_email = email.strip().lower()
+                    st.rerun()
                 else:
-                    ok, msg = register_user(name.strip(), email.strip(), password)
-                    if ok:
-                        st.session_state.logged_in  = True
-                        st.session_state.user_name  = name.strip()
-                        st.session_state.user_email = email.strip().lower()
-                        st.rerun()
-                    else:
-                        st.error(msg)
-
-            st.markdown('<div class="auth-or">─── or ───</div>', unsafe_allow_html=True)
-            st.markdown('<div class="link-wrap">', unsafe_allow_html=True)
-            if st.button("Already have an account? Sign In", key="signup_to_login"):
-                st.session_state.auth_page = "login"; st.rerun()
-            st.markdown('</div>', unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)  # close auth-right
-
-
-# =========================
-# SIDEBAR
-# =========================
-def show_sidebar():
-    users   = load_users()
-    email   = st.session_state.user_email
-    udata   = users.get(email, {})
-    preds   = udata.get("predictions", [])
-    name    = st.session_state.user_name
-    initials = get_initials(name)
-
-    best_sal = max([p["salary"] for p in preds], default=0)
-    total_p  = len(preds)
-    last_sal = preds[-1]["salary"] if preds else 0
-    last_job = preds[-1].get("job", "—") if preds else "—"
-    joined   = udata.get("created_at", "")[:10] if udata.get("created_at") else "—"
-
-    with st.sidebar:
-        st.markdown(f"""
-        <div class="sb-avatar-wrap">
-            <div class="sb-avatar">{initials}</div>
-            <div class="sb-name">{name}</div>
-            <div class="sb-email">{email}</div>
-            <span class="sb-badge">PRO Member</span>
-        </div>
-        <div class="sb-stats">
-            <div class="sb-stat"><div class="sb-stat-val">{total_p}</div><div class="sb-stat-lbl">Predictions</div></div>
-            <div class="sb-stat"><div class="sb-stat-val">{'₹'+f'{best_sal//1000}K' if best_sal else '—'}</div><div class="sb-stat-lbl">Best Salary</div></div>
-        </div>
-        <div class="sb-section">
-            <div class="sb-section-title">Profile Info</div>
-            <div class="sb-row"><span class="sb-row-label">Latest Role</span><span class="sb-row-val">{last_job[:16]+('…' if len(last_job)>16 else '')}</span></div>
-            <div class="sb-row"><span class="sb-row-label">Last Salary</span><span class="sb-row-val gold">{'₹'+f'{last_sal:,}' if last_sal else '—'}</span></div>
-            <div class="sb-row"><span class="sb-row-label">Member Since</span><span class="sb-row-val">{joined}</span></div>
-            <div class="sb-row"><span class="sb-row-label">Status</span><span class="sb-row-val green">● Active</span></div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        active = st.session_state.active_tab
-        nav_items = [
-            ("predict",     "🔍", "Predict Salary"),
-            ("insights",    "💡", "Career Insights"),
-            ("roadmap",     "🗺️", "Roadmap"),
-            ("dashboard",   "📊", "My Dashboard"),
-            ("compare",     "⚖️", "Compare"),
-            ("leaderboard", "🏆", "Leaderboard"),
-        ]
-        st.markdown('<div class="sb-nav"><div class="sb-section-title">Navigation</div>', unsafe_allow_html=True)
-        for key, icon, label in nav_items:
-            cls = "active-nav" if active == key else ""
-            st.markdown(f'<div class="sb-nav-item {cls}" style="pointer-events:none;">{icon} &nbsp;{label}</div>', unsafe_allow_html=True)
-            if st.button(label, key=f"sb_{key}"):
-                st.session_state.active_tab = key; st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-        st.markdown('<div class="sb-footer">SalaryIQ Pro · © 2025</div>', unsafe_allow_html=True)
+                    st.error(msg)
+        st.markdown('<div class="auth-or">or</div>', unsafe_allow_html=True)
+        if st.button("Already have an account? Sign In", key="goto_login"):
+            st.session_state.auth_page = "login"
+            st.rerun()
 
 
 # =========================
@@ -721,44 +551,37 @@ def show_sidebar():
 # =========================
 def show_nav():
     initials = get_initials(st.session_state.user_name)
-    active   = st.session_state.active_tab
-    nav_tabs = [
-        ("predict","Predict"), ("insights","Insights"), ("roadmap","Roadmap"),
-        ("dashboard","Dashboard"), ("compare","Compare"), ("leaderboard","Leaderboard"),
-    ]
-    links_html = "".join(
-        f'<span class="nav-link {"active" if active==k else ""}">{l}</span>'
-        for k, l in nav_tabs
-    )
     st.markdown(f"""
     <div class="top-nav">
-      <div class="nav-brand">💼 Salary<em>IQ</em></div>
-      <nav class="nav-links">{links_html}</nav>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <div class="nav-avatar">{initials}</div>
-        <span class="nav-name">{st.session_state.user_name}</span>
-      </div>
+        <div class="nav-brand">💼 Salary<em>IQ</em></div>
+        <div class="nav-user">
+            <div class="nav-avatar">{initials}</div>
+            <span class="nav-name">{st.session_state.user_name}</span>
+        </div>
     </div>""", unsafe_allow_html=True)
 
-    c1,c2,c3,c4,c5,c6,c7,c8 = st.columns([1,1,1,1,1,1,1,1])
-    for col, (key, label) in zip([c1,c2,c3,c4,c5,c6], nav_tabs):
+    c1,c2,c3,c4,c5,c6,c7 = st.columns(7)
+    tabs   = ["predict","insights","roadmap","dashboard","compare","leaderboard","signout"]
+    labels = ["🔍 Predict","💡 Insights","🗺️ Roadmap","📊 Dashboard","⚖️ Compare","🏆 Leaderboard","🚪 Sign Out"]
+    cols   = [c1,c2,c3,c4,c5,c6,c7]
+
+    for col, tab, label in zip(cols, tabs, labels):
         with col:
-            st.markdown('<div class="nav-tab-btn">', unsafe_allow_html=True)
-            if st.button(label, key=f"nav_{key}"):
-                st.session_state.active_tab = key; st.rerun()
-            st.markdown('</div>', unsafe_allow_html=True)
-    with c7:
-        st.markdown('<div class="nav-btn-primary">', unsafe_allow_html=True)
-        if st.button("🔍 Predict", key="nav_predict_cta"):
-            st.session_state.active_tab = "predict"; st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-    with c8:
-        st.markdown('<div class="nav-btn-logout">', unsafe_allow_html=True)
-        if st.button("Logout", key="nav_logout"):
-            for k in ["logged_in","user_name","user_email","last_prediction","last_inputs"]:
-                st.session_state[k] = False if k == "logged_in" else (None if k in ["last_prediction","last_inputs"] else "")
-            st.session_state.active_tab = "predict"; st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
+            if tab == "signout":
+                st.markdown('<div class="signout-btn">', unsafe_allow_html=True)
+                if st.button(label, key=f"nav_{tab}"):
+                    st.session_state.logged_in        = False
+                    st.session_state.user_name        = ""
+                    st.session_state.user_email       = ""
+                    st.session_state.active_tab       = "predict"
+                    st.session_state.last_prediction  = None
+                    st.session_state.last_inputs      = None
+                    st.rerun()
+                st.markdown('</div>', unsafe_allow_html=True)
+            else:
+                if st.button(label, key=f"nav_{tab}"):
+                    st.session_state.active_tab = tab
+                    st.rerun()
 
 
 # =========================
@@ -770,12 +593,14 @@ def show_predict():
     st.markdown('<div class="page-sub">Fill in your profile — our KNN model trained on 250,000 records will estimate your market salary instantly.</div>', unsafe_allow_html=True)
 
     col1, col2 = st.columns(2, gap="large")
+
     with col1:
         st.markdown('<div class="card"><div class="card-title">📊 Experience & Skills</div>', unsafe_allow_html=True)
         exp    = st.number_input("Years of Experience", 0, 30, key="exp")
         skills = st.number_input("Number of Skills",    1, 50, key="skills")
         cert   = st.number_input("Certifications",      0, 20, key="cert")
         st.markdown('</div>', unsafe_allow_html=True)
+
         st.markdown('<div class="card"><div class="card-title">🎓 Education & Role</div>', unsafe_allow_html=True)
         job = st.selectbox("Job Role",        job_options, key="job")
         edu = st.selectbox("Education Level", edu_options, key="edu")
@@ -788,10 +613,11 @@ def show_predict():
         company = st.selectbox("Company Size", company_options, key="company")
         remote  = st.selectbox("Remote Work",  remote_options,  key="remote")
         st.markdown('</div>', unsafe_allow_html=True)
+
         st.markdown("""
         <div class="card" style="background:linear-gradient(135deg,#eef2ff,#f5f3ff);border-color:#c7d2fe;">
             <div class="card-title" style="color:#4f46e5;">✨ What you'll get</div>
-            <div style="font-size:13px;color:#475569;line-height:1.8;">
+            <div style="font-size:13px;color:#475569;line-height:1.8;margin:0;">
                 💰 &nbsp;<strong>Instant salary prediction</strong><br>
                 💡 &nbsp;<strong>Personalised growth tips</strong><br>
                 🗺️ &nbsp;<strong>Step-by-step career roadmap</strong><br>
@@ -813,18 +639,21 @@ def show_predict():
         df = pd.DataFrame([input_dict])
         df["exp_squared"]    = df["experience_years"] ** 2
         df["skill_per_exp"]  = df["skills_count"] / (df["experience_years"] + 1)
-        df["cert_per_skill"] = df["certifications"] / (df["skills_count"] + 1)
+        df["cert_per_skill"] = df["certifications"]  / (df["skills_count"] + 1)
         df["seniority"]      = pd.cut(df["experience_years"], bins=[0,2,5,10,20], labels=["Fresher","Junior","Mid","Senior"])
         df = pd.get_dummies(df)
         df = df.reindex(columns=columns, fill_value=0)
         num_cols = ["experience_years","skills_count","certifications","exp_squared","skill_per_exp","cert_per_skill"]
         df[num_cols] = scaler.transform(df[num_cols])
+
         salary = int(model.predict(df)[0])
         st.session_state.last_prediction = salary
         st.session_state.last_inputs     = input_dict
         save_prediction(st.session_state.user_email, salary, job, exp, skills)
 
-        salary_fmt = f"₹{salary:,}"; monthly = f"₹{salary//12:,}"
+        salary_fmt = f"₹{salary:,}"
+        monthly    = f"₹{salary//12:,}"
+
         st.markdown(f"""
         <div class="result-hero">
             <div class="result-hero-label">Your Estimated Annual Salary</div>
@@ -832,19 +661,21 @@ def show_predict():
             <div class="result-hero-sub">≈ {monthly} / month &nbsp;·&nbsp; Powered by K-Nearest Neighbors</div>
         </div>""", unsafe_allow_html=True)
 
-        seniority  = "Fresher" if exp<=2 else ("Junior" if exp<=5 else ("Mid-Level" if exp<=10 else "Senior"))
-        potential  = f"₹{int(salary*1.35):,}"
-        percentile = min(95, max(30, int(30+(salary/220000)*65)))
+        seniority   = "Fresher" if exp<=2 else ("Junior" if exp<=5 else ("Mid-Level" if exp<=10 else "Senior"))
+        potential   = f"₹{int(salary*1.35):,}"
+        percentile  = min(95, max(30, int(30 + (salary/220000)*65)))
         m1,m2,m3,m4 = st.columns(4)
         with m1: st.markdown(f'<div class="metric-card"><div class="metric-label">Seniority Level</div><div class="metric-value" style="font-size:17px;">{seniority}</div></div>', unsafe_allow_html=True)
         with m2: st.markdown(f'<div class="metric-card"><div class="metric-label">Monthly Salary</div><div class="metric-value" style="font-size:17px;">{monthly}</div></div>', unsafe_allow_html=True)
         with m3: st.markdown(f'<div class="metric-card"><div class="metric-label">Growth Potential</div><div class="metric-value" style="font-size:17px;">{potential}</div><div class="metric-sub">↑ in 2–3 years</div></div>', unsafe_allow_html=True)
         with m4: st.markdown(f'<div class="metric-card"><div class="metric-label">Market Percentile</div><div class="metric-value" style="font-size:17px;">{percentile}th</div></div>', unsafe_allow_html=True)
+
         st.markdown("""
         <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:14px 20px;margin-top:8px;">
             <span style="font-size:14px;color:#15803d;font-weight:600;">✅ Prediction saved!</span>
-            <span style="font-size:13px;color:#166534;"> &nbsp;·&nbsp; Now explore your <strong>Insights</strong>, <strong>Roadmap</strong>, and <strong>Compare</strong> tabs.</span>
+            <span style="font-size:13px;color:#166534;"> &nbsp;·&nbsp; Now explore your <strong>Insights</strong>, <strong>Roadmap</strong>, and <strong>Compare</strong> tabs for your full career plan.</span>
         </div>""", unsafe_allow_html=True)
+
     st.markdown('</div>', unsafe_allow_html=True)
 
 
@@ -854,43 +685,75 @@ def show_predict():
 def show_insights():
     st.markdown('<div class="page-wrap">', unsafe_allow_html=True)
     st.markdown('<div class="page-title">Career Insights</div>', unsafe_allow_html=True)
+
     if not st.session_state.last_prediction:
-        st.markdown('<div style="text-align:center;padding:60px;"><div style="font-size:48px;">💡</div><div style="font-size:18px;font-weight:600;color:#0f172a;margin-top:12px;">Run a prediction first</div></div>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True); return
+        st.markdown('<div style="text-align:center;padding:60px;"><div style="font-size:48px;">💡</div><div style="font-size:18px;font-weight:600;color:#0f172a;margin-top:12px;">Run a prediction first</div><div style="font-size:14px;color:#64748b;margin-top:8px;">Go to Predict tab to get started.</div></div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+        return
 
     inp    = st.session_state.last_inputs
     salary = st.session_state.last_prediction
-    job    = inp["job_title"]; exp  = inp["experience_years"]
+    job    = inp["job_title"]; exp = inp["experience_years"]
     skills = inp["skills_count"]; cert = inp["certifications"]
     edu    = inp["education_level"]; ind = inp["industry"]
 
+    # Salary boost tips
     st.markdown('<div class="card"><div class="card-title">🚀 How to Increase Your Salary</div>', unsafe_allow_html=True)
     icon_map = {"blue":"insight-icon-blue","green":"insight-icon-green","amber":"insight-icon-amber","rose":"insight-icon-rose"}
     for icon, title, desc, color in salary_boost_tips(job, exp, skills, cert, edu):
-        st.markdown(f'<div class="insight-card"><div class="insight-icon {icon_map[color]}">{icon}</div><div><div class="insight-title">{title}</div><div class="insight-desc">{desc}</div></div></div>', unsafe_allow_html=True)
+        st.markdown(f"""
+        <div class="insight-card">
+            <div class="insight-icon {icon_map[color]}">{icon}</div>
+            <div><div class="insight-title">{title}</div><div class="insight-desc">{desc}</div></div>
+        </div>""", unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
     col_a, col_b = st.columns(2, gap="large")
     with col_a:
-        top_skills = list(zip(get_skills_to_learn(job, skills), ["+₹8K–15K","+₹10K–20K","+₹6K–12K","+₹12K–25K","+₹5K–10K","+₹15K–30K"]))
+        top_skills    = get_skills_to_learn(job, skills)
+        salary_boosts = ["+₹8K–15K","+₹10K–20K","+₹6K–12K","+₹12K–25K","+₹5K–10K","+₹15K–30K"]
         st.markdown('<div class="card"><div class="card-title">🛠️ Top Skills to Learn Next</div>', unsafe_allow_html=True)
-        for i, (sk, boost) in enumerate(top_skills):
-            pct = 90 - i * 10
-            st.markdown(f'<div class="compare-bar-wrap"><div class="compare-bar-label"><span style="font-size:13px;font-weight:500;color:#0f172a;">{sk}</span><span class="trend-up">{boost}/yr</span></div><div class="compare-bar-track"><div class="compare-bar-fill" style="width:{pct}%;background:linear-gradient(90deg,#6366f1,#8b5cf6);"></div></div></div>', unsafe_allow_html=True)
+        for i, (sk, boost) in enumerate(zip(top_skills, salary_boosts)):
+            pct = 90 - i*10
+            st.markdown(f"""
+            <div class="compare-bar-wrap">
+                <div class="compare-bar-label">
+                    <span style="font-size:13px;font-weight:500;color:#0f172a;">{sk}</span>
+                    <span class="trend-up">{boost}/yr</span>
+                </div>
+                <div class="compare-bar-track">
+                    <div class="compare-bar-fill" style="width:{pct}%;background:linear-gradient(90deg,#6366f1,#8b5cf6);"></div>
+                </div>
+            </div>""", unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
     with col_b:
         trend = get_industry_data(ind)
         st.markdown('<div class="card"><div class="card-title">📈 Industry Salary Trends</div>', unsafe_allow_html=True)
-        st.markdown(f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;"><div class="metric-card"><div class="metric-label">Industry Growth</div><div class="metric-value">{trend["growth"]}</div><div class="metric-sub">↑ YoY</div></div><div class="metric-card"><div class="metric-label">Job Demand</div><div class="metric-value" style="font-size:16px;">{trend["demand"]}</div></div><div class="metric-card"><div class="metric-label">Top Pay</div><div class="metric-value" style="font-size:16px;">{trend["top_pay"]}</div></div><div class="metric-card"><div class="metric-label">Outlook</div><div class="metric-value" style="font-size:16px;">{trend["outlook"]}</div></div></div><div style="background:#eef2ff;border-radius:10px;padding:14px 16px;"><div style="font-size:13px;color:#4f46e5;font-weight:600;">💡 {ind} sector insight</div><div style="font-size:13px;color:#475569;margin-top:6px;line-height:1.5;">Growing at <strong>{trend["growth"]}</strong> annually with <strong>{trend["demand"].lower()}</strong> talent demand. Top earners make <strong>{trend["top_pay"]}</strong>.</div></div>', unsafe_allow_html=True)
+        st.markdown(f"""
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+            <div class="metric-card"><div class="metric-label">Industry Growth</div><div class="metric-value">{trend['growth']}</div><div class="metric-sub">↑ YoY</div></div>
+            <div class="metric-card"><div class="metric-label">Job Demand</div><div class="metric-value" style="font-size:16px;">{trend['demand']}</div></div>
+            <div class="metric-card"><div class="metric-label">Top Pay</div><div class="metric-value" style="font-size:16px;">{trend['top_pay']}</div></div>
+            <div class="metric-card"><div class="metric-label">Outlook</div><div class="metric-value" style="font-size:16px;">{trend['outlook']}</div></div>
+        </div>
+        <div style="background:#eef2ff;border-radius:10px;padding:14px 16px;">
+            <div style="font-size:13px;color:#4f46e5;font-weight:600;">💡 {ind} sector insight</div>
+            <div style="font-size:13px;color:#475569;margin-top:6px;line-height:1.5;">
+                Growing at <strong>{trend['growth']}</strong> annually with <strong>{trend['demand'].lower()}</strong> talent demand. 
+                Top earners make <strong>{trend['top_pay']}</strong>. Now is an excellent time to upskill and negotiate confidently.
+            </div>
+        </div>""", unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
+    # What-If Simulator
     st.markdown('<div class="card"><div class="card-title">⚡ What-If Salary Simulator</div>', unsafe_allow_html=True)
-    s1, s2, s3 = st.columns(3)
+    st.markdown('<p style="font-size:13px;color:#64748b;margin-bottom:16px;">Drag the sliders to see how improving one factor changes your salary.</p>', unsafe_allow_html=True)
+    s1,s2,s3 = st.columns(3)
     with s1:
         extra_exp = st.slider("+ Years Experience", 0, 10, 2, key="sim_exp")
         sim_e = int(salary * (1 + extra_exp * 0.055))
-        st.markdown(f'<div class="metric-card"><div class="metric-label">+{extra_exp} yrs experience</div><div class="metric-value">₹{sim_e:,}</div><div class="metric-sub trend-up">+₹{sim_e-salary:,}</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card"><div class="metric-label">+{extra_exp} years experience</div><div class="metric-value">₹{sim_e:,}</div><div class="metric-sub trend-up">+₹{sim_e-salary:,}</div></div>', unsafe_allow_html=True)
     with s2:
         extra_sk = st.slider("+ Skills Added", 0, 10, 3, key="sim_skills")
         sim_s = int(salary * (1 + extra_sk * 0.028))
@@ -899,7 +762,8 @@ def show_insights():
         extra_c = st.slider("+ Certifications", 0, 5, 1, key="sim_cert")
         sim_c = int(salary * (1 + extra_c * 0.04))
         st.markdown(f'<div class="metric-card"><div class="metric-label">+{extra_c} certifications</div><div class="metric-value">₹{sim_c:,}</div><div class="metric-sub trend-up">+₹{sim_c-salary:,}</div></div>', unsafe_allow_html=True)
-    st.markdown('</div></div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
 
 # =========================
@@ -908,12 +772,14 @@ def show_insights():
 def show_roadmap():
     st.markdown('<div class="page-wrap">', unsafe_allow_html=True)
     st.markdown('<div class="page-title">Career Roadmap</div>', unsafe_allow_html=True)
+
     if not st.session_state.last_inputs:
         st.markdown('<div style="text-align:center;padding:60px;"><div style="font-size:48px;">🗺️</div><div style="font-size:18px;font-weight:600;color:#0f172a;margin-top:12px;">Run a prediction first</div></div>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True); return
+        st.markdown('</div>', unsafe_allow_html=True)
+        return
 
-    inp  = st.session_state.last_inputs
-    job  = inp["job_title"]; exp = inp["experience_years"]
+    inp   = st.session_state.last_inputs
+    job   = inp["job_title"]; exp = inp["experience_years"]
     steps = get_roadmap(job)
     current_step = 0 if exp<=2 else (1 if exp<=5 else (2 if exp<=10 else (3 if exp<=15 else 4)))
 
@@ -921,24 +787,52 @@ def show_roadmap():
     with col_r:
         salary_ranges = ["₹40K–70K","₹70K–1.1L","₹1.1L–1.6L","₹1.6L–2.0L","₹2.0L+"]
         exp_ranges    = ["0–2 yrs","2–5 yrs","5–10 yrs","10–15 yrs","15+ yrs"]
-        st.markdown(f'<div class="card"><div class="card-title">🗺️ Your Career Path — {job}</div>', unsafe_allow_html=True)
+        st.markdown('<div class="card"><div class="card-title">🗺️ Your Career Path — ' + job + '</div>', unsafe_allow_html=True)
         for i, step in enumerate(steps):
-            if i < current_step:    dot="step-dot-done"; badge="badge-done";    btxt="✓ Completed"
-            elif i == current_step: dot="step-dot-curr"; badge="badge-current"; btxt="📍 You are here"
-            else:                   dot="step-dot-next"; badge="badge-future";  btxt=f"Next · {exp_ranges[i]}"
-            st.markdown(f'<div class="roadmap-step"><div class="step-dot {dot}">{i+1}</div><div><div class="step-title">{step}</div><div class="step-sub">{exp_ranges[i]} · {salary_ranges[i]}</div><span class="step-badge {badge}">{btxt}</span></div></div>', unsafe_allow_html=True)
+            if i < current_step:
+                dot = "step-dot-done"; badge = "badge-done"; btxt = "✓ Completed"
+            elif i == current_step:
+                dot = "step-dot-curr"; badge = "badge-current"; btxt = "📍 You are here"
+            else:
+                dot = "step-dot-next"; badge = "badge-future"; btxt = f"Next · {exp_ranges[i]}"
+            st.markdown(f"""
+            <div class="roadmap-step">
+                <div class="step-dot {dot}">{i+1}</div>
+                <div>
+                    <div class="step-title">{step}</div>
+                    <div class="step-sub">{exp_ranges[i]} &nbsp;·&nbsp; {salary_ranges[i]}</div>
+                    <span class="step-badge {badge}">{btxt}</span>
+                </div>
+            </div>""", unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
     with col_i:
-        curr = steps[current_step]
-        nxt  = steps[min(current_step+1, len(steps)-1)]
-        sk   = get_skills_to_learn(job, 0)[:4]
-        st.markdown(f'<div class="card" style="background:linear-gradient(135deg,#eef2ff,#f5f3ff);border-color:#c7d2fe;margin-bottom:12px;"><div class="card-title" style="color:#4f46e5;">🎯 Your Next Goal</div><div style="font-size:19px;font-weight:700;color:#1e1b4b;margin-bottom:8px;">{nxt}</div><div style="font-size:13px;color:#4338ca;line-height:1.6;">Currently at <strong>{curr}</strong>. Build 1–2 impactful projects and apply for senior roles.</div></div>', unsafe_allow_html=True)
+        curr  = steps[current_step]
+        nxt   = steps[min(current_step+1, len(steps)-1)]
+        sk    = get_skills_to_learn(job, 0)[:4]
+        st.markdown(f"""
+        <div class="card" style="background:linear-gradient(135deg,#eef2ff,#f5f3ff);border-color:#c7d2fe;margin-bottom:12px;">
+            <div class="card-title" style="color:#4f46e5;">🎯 Your Next Goal</div>
+            <div style="font-size:19px;font-weight:700;color:#1e1b4b;margin-bottom:8px;">{nxt}</div>
+            <div style="font-size:13px;color:#4338ca;line-height:1.6;">
+                Currently at <strong>{curr}</strong>. Build 1–2 impactful projects, 
+                master the skills below, and apply for senior roles to make the leap.
+            </div>
+        </div>""", unsafe_allow_html=True)
         st.markdown('<div class="card"><div class="card-title">🛠️ Skills for Next Level</div>', unsafe_allow_html=True)
         for s in sk:
             st.markdown(f'<span style="display:inline-block;background:#eef2ff;color:#4f46e5;border-radius:99px;padding:5px 14px;font-size:13px;font-weight:500;margin:4px;border:1px solid #c7d2fe;">{s}</span>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
-        st.markdown(f'<div class="card"><div class="card-title">📅 Estimated Timeline</div><div style="font-size:13px;color:#475569;line-height:2.0;">🟣 &nbsp;<strong>Now:</strong> {steps[current_step]}<br>🟢 &nbsp;<strong>1–2 yrs:</strong> {steps[min(current_step+1,len(steps)-1)]}<br>🔵 &nbsp;<strong>3–5 yrs:</strong> {steps[min(current_step+2,len(steps)-1)]}<br>⭐ &nbsp;<strong>5–8 yrs:</strong> {steps[-1]}</div></div>', unsafe_allow_html=True)
+        st.markdown(f"""
+        <div class="card">
+            <div class="card-title">📅 Estimated Timeline</div>
+            <div style="font-size:13px;color:#475569;line-height:2.0;">
+                🟣 &nbsp;<strong>Now:</strong> {steps[current_step]}<br>
+                🟢 &nbsp;<strong>1–2 yrs:</strong> {steps[min(current_step+1,len(steps)-1)]}<br>
+                🔵 &nbsp;<strong>3–5 yrs:</strong> {steps[min(current_step+2,len(steps)-1)]}<br>
+                ⭐ &nbsp;<strong>5–8 yrs:</strong> {steps[-1]}
+            </div>
+        </div>""", unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
 
@@ -952,13 +846,16 @@ def show_dashboard():
 
     users = load_users()
     preds = users.get(st.session_state.user_email, {}).get("predictions", [])
+
     if not preds:
-        st.markdown('<div style="text-align:center;padding:60px;"><div style="font-size:48px;">📊</div><div style="font-size:18px;font-weight:600;color:#0f172a;margin-top:12px;">No predictions yet</div><div style="font-size:14px;color:#64748b;">Head to the Predict tab!</div></div>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True); return
+        st.markdown('<div style="text-align:center;padding:60px;"><div style="font-size:48px;">📊</div><div style="font-size:18px;font-weight:600;color:#0f172a;margin-top:12px;">No predictions yet</div><div style="font-size:14px;color:#64748b;">Head to the Predict tab to get started!</div></div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+        return
 
     salaries = [p["salary"] for p in preds]
-    avg_sal  = int(sum(salaries) / len(salaries))
+    avg_sal  = int(sum(salaries)/len(salaries))
     best_sal = max(salaries)
+
     m1,m2,m3,m4 = st.columns(4)
     with m1: st.markdown(f'<div class="metric-card"><div class="metric-label">Total Predictions</div><div class="metric-value">{len(preds)}</div></div>', unsafe_allow_html=True)
     with m2: st.markdown(f'<div class="metric-card"><div class="metric-label">Latest Salary</div><div class="metric-value" style="font-size:18px;">₹{salaries[-1]:,}</div></div>', unsafe_allow_html=True)
@@ -966,11 +863,28 @@ def show_dashboard():
     with m4: st.markdown(f'<div class="metric-card"><div class="metric-label">Best Prediction</div><div class="metric-value" style="font-size:18px;">₹{best_sal:,}</div><div class="metric-sub">↑ Your peak</div></div>', unsafe_allow_html=True)
 
     st.markdown('<div class="card" style="margin-top:12px;"><div class="card-title">📋 Prediction History</div>', unsafe_allow_html=True)
-    st.markdown('<div style="display:flex;gap:12px;padding:8px 0;border-bottom:1px solid #f1f5f9;"><span style="flex:.4;font-size:11px;font-weight:700;color:#94a3b8;">#</span><span style="flex:2;font-size:11px;font-weight:700;color:#94a3b8;">ROLE</span><span style="flex:1;font-size:11px;font-weight:700;color:#94a3b8;">EXP</span><span style="flex:1;font-size:11px;font-weight:700;color:#94a3b8;">SKILLS</span><span style="flex:1.5;font-size:11px;font-weight:700;color:#94a3b8;">SALARY</span><span style="flex:1.5;font-size:11px;font-weight:700;color:#94a3b8;">DATE</span></div>', unsafe_allow_html=True)
+    st.markdown("""
+    <div style="display:flex;gap:12px;padding:8px 0;border-bottom:1px solid #f1f5f9;margin-bottom:4px;">
+        <span style="flex:.4;font-size:11px;font-weight:700;color:#94a3b8;">#</span>
+        <span style="flex:2;font-size:11px;font-weight:700;color:#94a3b8;">ROLE</span>
+        <span style="flex:1;font-size:11px;font-weight:700;color:#94a3b8;">EXP</span>
+        <span style="flex:1;font-size:11px;font-weight:700;color:#94a3b8;">SKILLS</span>
+        <span style="flex:1.5;font-size:11px;font-weight:700;color:#94a3b8;">SALARY</span>
+        <span style="flex:1.5;font-size:11px;font-weight:700;color:#94a3b8;">DATE</span>
+    </div>""", unsafe_allow_html=True)
     for i, p in enumerate(reversed(preds[-10:]), 1):
         is_best = p["salary"] == best_sal
-        st.markdown(f'<div style="display:flex;gap:12px;padding:11px 0;border-bottom:1px solid #f8fafc;align-items:center;"><span style="flex:.4;font-size:13px;color:#94a3b8;">{i}</span><span style="flex:2;font-size:13px;font-weight:500;color:#0f172a;">{p.get("job","—")}</span><span style="flex:1;font-size:13px;color:#64748b;">{p.get("exp",0)} yrs</span><span style="flex:1;font-size:13px;color:#64748b;">{p.get("skills",0)}</span><span style="flex:1.5;font-size:14px;font-weight:700;color:#4f46e5;">₹{p["salary"]:,}{"&nbsp;⭐" if is_best else ""}</span><span style="flex:1.5;font-size:12px;color:#94a3b8;">{p.get("date","—")}</span></div>', unsafe_allow_html=True)
-    st.markdown('</div></div>', unsafe_allow_html=True)
+        st.markdown(f"""
+        <div style="display:flex;gap:12px;padding:11px 0;border-bottom:1px solid #f8fafc;align-items:center;">
+            <span style="flex:.4;font-size:13px;color:#94a3b8;">{i}</span>
+            <span style="flex:2;font-size:13px;font-weight:500;color:#0f172a;">{p.get('job','—')}</span>
+            <span style="flex:1;font-size:13px;color:#64748b;">{p.get('exp',0)} yrs</span>
+            <span style="flex:1;font-size:13px;color:#64748b;">{p.get('skills',0)}</span>
+            <span style="flex:1.5;font-size:14px;font-weight:700;color:#4f46e5;">₹{p['salary']:,}{'&nbsp;⭐' if is_best else ''}</span>
+            <span style="flex:1.5;font-size:12px;color:#94a3b8;">{p.get('date','—')}</span>
+        </div>""", unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
 
 # =========================
@@ -980,33 +894,144 @@ def show_compare():
     st.markdown('<div class="page-wrap">', unsafe_allow_html=True)
     st.markdown('<div class="page-title">Compare Yourself</div>', unsafe_allow_html=True)
     st.markdown('<div class="page-sub">See how your predicted salary stacks up against market benchmarks.</div>', unsafe_allow_html=True)
+
     if not st.session_state.last_prediction:
         st.markdown('<div style="text-align:center;padding:60px;"><div style="font-size:48px;">⚖️</div><div style="font-size:18px;font-weight:600;color:#0f172a;margin-top:12px;">Run a prediction first</div></div>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True); return
+        st.markdown('</div>', unsafe_allow_html=True)
+        return
 
     salary = st.session_state.last_prediction
     inp    = st.session_state.last_inputs
     job    = inp["job_title"]
-    base   = max(40000, salary - random.randint(10000, 20000))
-    top25  = int(salary * 1.22); top10 = int(salary * 1.48)
-    top5   = int(salary * 1.75); max_v = top5
+    base   = max(40000, salary - random.randint(10000,20000))
+    top25  = int(salary * 1.22); top10 = int(salary * 1.48); top5 = int(salary * 1.75)
+    max_v  = top5
+
     benchmarks = [
-        ("Entry Level (0–2 yrs)", int(base * 0.6),  "#e2e8f0"),
-        ("Mid Level (3–6 yrs)",   int(base * 0.85), "#c7d2fe"),
-        ("Your Salary",           salary,            "#6366f1"),
-        ("Top 25% in your role",  top25,             "#8b5cf6"),
-        ("Top 10% in your role",  top10,             "#7c3aed"),
-        ("Top 5% — Elite earner", top5,              "#4338ca"),
+        ("Entry Level (0–2 yrs)",  int(base * 0.6),  "#e2e8f0"),
+        ("Mid Level (3–6 yrs)",    int(base * 0.85), "#c7d2fe"),
+        ("Your Salary",            salary,            "#6366f1"),
+        ("Top 25% in your role",   top25,             "#8b5cf6"),
+        ("Top 10% in your role",   top10,             "#7c3aed"),
+        ("Top 5% — Elite earner",  top5,              "#4338ca"),
     ]
+
     col1, col2 = st.columns([3, 2], gap="large")
     with col1:
         st.markdown(f'<div class="card"><div class="card-title">📊 Salary Benchmarks — {job}</div>', unsafe_allow_html=True)
         for label, val, color in benchmarks:
             pct    = int((val / max_v) * 100)
             is_you = label == "Your Salary"
-            st.markdown(f'<div class="compare-bar-wrap" style="{"background:#eef2ff;border-radius:8px;padding:8px 10px;border:1px solid #c7d2fe;" if is_you else ""}"><div class="compare-bar-label"><span style="font-size:13px;font-weight:{"700" if is_you else "500"};color:{"#4f46e5" if is_you else "#374151"};">{"📍 " if is_you else ""}{label}</span><span style="font-size:13px;font-weight:600;color:{"#4f46e5" if is_you else "#0f172a"};">₹{val:,}</span></div><div class="compare-bar-track"><div class="compare-bar-fill" style="width:{pct}%;background:{color};"></div></div></div>', unsafe_allow_html=True)
+            st.markdown(f"""
+            <div class="compare-bar-wrap" style="{'background:#eef2ff;border-radius:8px;padding:8px 10px;border:1px solid #c7d2fe;' if is_you else ''}">
+                <div class="compare-bar-label">
+                    <span style="font-size:13px;font-weight:{'700' if is_you else '500'};color:{'#4f46e5' if is_you else '#374151'};">{'📍 ' if is_you else ''}{label}</span>
+                    <span style="font-size:13px;font-weight:600;color:{'#4f46e5' if is_you else '#0f172a'};">₹{val:,}</span>
+                </div>
+                <div class="compare-bar-track"><div class="compare-bar-fill" style="width:{pct}%;background:{color};"></div></div>
+            </div>""", unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
+
     with col2:
-        pct_rank = min(95, max(25, int(30 + (salary / top5) * 65)))
+        pct_rank = min(95, max(25, int(30 + (salary/top5)*65)))
         gap      = max(0, top10 - salary)
-        st.markdown(f'<div class="card" style="text-align:center;margin-bottom:12px;"><div class="card-title">🎯 Your Market Position</div><div style="font-size:52px;font-weight:800;font-family:\'Syne\',sans-serif;color:#6366f1;">{pct_rank}th</div><div style="font-size:14px;color:#64748b;">percentile in your field</div><div style="font-size:13px;color:#475569;margin-top:12px;line-height:1.6;">You earn more than <strong>{pct_rank}%</strong> of professionals in similar roles.</div></div><div class="card"><div class="card-title">💰 Gap to Top 10%</div><div style="font-size:24px;font-weight:800;color:#4f46e5;font-family:\'Syne\',sans-serif;">{"Already there! 🎉" if gap==0 else f"₹{gap:,}"}</div><div style="font-size:13px;color:#64748b;margin-top:6px;line-height:1.5;">{"You have already
+        st.markdown(f"""
+        <div class="card" style="text-align:center;margin-bottom:12px;">
+            <div class="card-title">🎯 Your Market Position</div>
+            <div style="font-size:52px;font-weight:800;font-family:'Syne',sans-serif;
+                        background:linear-gradient(135deg,#6366f1,#8b5cf6);
+                        -webkit-background-clip:text;-webkit-text-fill-color:transparent;">{pct_rank}th</div>
+            <div style="font-size:14px;color:#64748b;">percentile in your field</div>
+            <div style="font-size:13px;color:#475569;margin-top:12px;line-height:1.6;">
+                You earn more than <strong>{pct_rank}%</strong> of professionals in similar roles.
+                {'Focus on top skills to break into the top 10%.' if pct_rank < 90 else '🎉 You are among the elite earners!'}
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title">💰 Gap to Top 10%</div>
+            <div style="font-size:24px;font-weight:800;color:#4f46e5;font-family:'Syne',sans-serif;">{'Already there! 🎉' if gap==0 else f'₹{gap:,}'}</div>
+            <div style="font-size:13px;color:#64748b;margin-top:6px;line-height:1.5;">
+                {'You have already cracked the top 10% — excellent work!' if gap==0 else 'Add 2–3 high-demand skills and pursue senior roles to close this gap within 1–2 years.'}
+            </div>
+        </div>""", unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+
+# =========================
+# LEADERBOARD TAB
+# =========================
+def show_leaderboard():
+    st.markdown('<div class="page-wrap">', unsafe_allow_html=True)
+    st.markdown('<div class="page-title">Leaderboard</div>', unsafe_allow_html=True)
+    st.markdown('<div class="page-sub">Top predicted salaries across all SalaryIQ Pro users.</div>', unsafe_allow_html=True)
+
+    lb    = get_leaderboard()
+    users = load_users()
+    my_ps = users.get(st.session_state.user_email, {}).get("predictions", [])
+    my_b  = max([p["salary"] for p in my_ps], default=0)
+
+    if my_b:
+        my_rank = sum(1 for e in lb if e["salary"] > my_b) + 1
+        st.markdown(f"""
+        <div style="background:linear-gradient(135deg,#eef2ff,#f5f3ff);border:1px solid #c7d2fe;
+                    border-radius:14px;padding:18px 24px;margin-bottom:20px;
+                    display:flex;align-items:center;justify-content:space-between;">
+            <div>
+                <div style="font-size:11px;color:#6366f1;font-weight:700;text-transform:uppercase;letter-spacing:.8px;">Your Position</div>
+                <div style="font-size:22px;font-weight:800;color:#1e1b4b;font-family:'Syne',sans-serif;">
+                    #{my_rank} &nbsp;<span style="font-size:14px;color:#64748b;font-weight:400;">out of {len(lb)} users</span>
+                </div>
+            </div>
+            <div style="text-align:right;">
+                <div style="font-size:11px;color:#6366f1;font-weight:700;text-transform:uppercase;">Your Best</div>
+                <div style="font-size:22px;font-weight:800;color:#4f46e5;font-family:'Syne',sans-serif;">₹{my_b:,}</div>
+            </div>
+        </div>""", unsafe_allow_html=True)
+
+    if not lb:
+        st.markdown('<div style="text-align:center;padding:40px;color:#94a3b8;font-size:14px;">No predictions yet. Be the first!</div>', unsafe_allow_html=True)
+    else:
+        medals     = ["🥇","🥈","🥉"]
+        row_cls    = ["gold","silver","bronze"]
+        st.markdown('<div class="card"><div class="card-title">🏆 Top Earners</div>', unsafe_allow_html=True)
+        for i, entry in enumerate(lb):
+            medal  = medals[i] if i<3 else f"#{i+1}"
+            rcls   = row_cls[i] if i<3 else ""
+            is_me  = entry["name"] == st.session_state.user_name
+            you_badge = '&nbsp;<span style="font-size:11px;background:#eef2ff;color:#4f46e5;padding:2px 8px;border-radius:99px;font-weight:600;">You</span>' if is_me else ""
+            st.markdown(f"""
+            <div class="lb-row {rcls}" style="{'border:2px solid #6366f1;' if is_me else ''}">
+                <div class="lb-rank">{medal}</div>
+                <div style="flex:1;">
+                    <div class="lb-name">{entry['name']}{you_badge}</div>
+                    <div class="lb-role">{entry['job']} &nbsp;·&nbsp; {entry['exp']} yrs exp</div>
+                </div>
+                <div class="lb-salary">₹{entry['salary']:,}</div>
+            </div>""", unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+
+# =========================
+# MAIN APP
+# =========================
+def show_app():
+    show_nav()
+    tab = st.session_state.active_tab
+    if   tab == "predict":     show_predict()
+    elif tab == "insights":    show_insights()
+    elif tab == "roadmap":     show_roadmap()
+    elif tab == "dashboard":   show_dashboard()
+    elif tab == "compare":     show_compare()
+    elif tab == "leaderboard": show_leaderboard()
+
+
+# =========================
+# ENTRY POINT
+# =========================
+if st.session_state.logged_in:
+    show_app()
+elif st.session_state.auth_page == "signup":
+    show_signup()
+else:
+    show_login()
