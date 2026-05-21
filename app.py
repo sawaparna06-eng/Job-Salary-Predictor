@@ -1217,8 +1217,3 @@ else:
     elif tab == "dashboard":   show_dashboard()
     elif tab == "compare":     show_compare()
     elif tab == "leaderboard": show_leaderboard()
-PYEOF
-echo "Done"
-Output
-
-Done
