@@ -57,8 +57,8 @@ def save_users(users):
     with open(USERS_FILE, "w") as f:
         json.dump(users, f, indent=2)
 
-def hash_password(password):
-    return hashlib.sha256(password.encode()).hexdigest()
+def hash_password(pw):
+    return hashlib.sha256(pw.encode()).hexdigest()
 
 def register_user(name, email, password):
     users = load_users()
@@ -68,7 +68,9 @@ def register_user(name, email, password):
         "name": name, "email": email.lower(),
         "password": hash_password(password),
         "created_at": datetime.now().isoformat(),
-        "predictions": []
+        "predictions": [],
+        "bio": "", "phone": "", "location_city": "", "linkedin": "",
+        "profile_color": random.choice(["#6366f1","#8b5cf6","#ec4899","#06b6d4","#10b981","#f59e0b"]),
     }
     save_users(users)
     return True, "Account created!"
@@ -84,17 +86,37 @@ def login_user(email, password):
 def save_prediction(email, salary, job, exp, skills):
     users = load_users()
     if email.lower() in users:
-        if "predictions" not in users[email.lower()]:
-            users[email.lower()]["predictions"] = []
-        users[email.lower()]["predictions"].append({
+        users[email.lower()].setdefault("predictions", []).append({
             "salary": salary, "job": job, "exp": exp,
             "skills": skills, "date": datetime.now().strftime("%d %b %Y")
         })
         save_users(users)
 
+def update_user_profile(email, name, bio, phone, location_city, linkedin):
+    users = load_users()
+    if email.lower() in users:
+        u = users[email.lower()]
+        u["name"] = name; u["bio"] = bio; u["phone"] = phone
+        u["location_city"] = location_city; u["linkedin"] = linkedin
+        save_users(users)
+        return True
+    return False
+
+def update_user_password(email, old_pw, new_pw):
+    users = load_users()
+    if email.lower() not in users:
+        return False, "User not found."
+    if users[email.lower()]["password"] != hash_password(old_pw):
+        return False, "Current password is incorrect."
+    users[email.lower()]["password"] = hash_password(new_pw)
+    save_users(users)
+    return True, "Password updated!"
+
+def get_user_data(email):
+    return load_users().get(email.lower(), {})
+
 def is_valid_email(email):
     return re.match(r"^[\w\.\-]+@[\w\.\-]+\.\w{2,}$", email) is not None
-
 # =========================
 # CAREER DATA
 # =========================
