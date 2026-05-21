@@ -4,51 +4,118 @@
 import streamlit as st
 import pickle
 import pandas as pd
-import numpy as np
+import hashlib
+import json
 import os
+import re
 import random
-import urllib.parse
 from datetime import datetime
 
 # =========================
 # PAGE CONFIG
 # =========================
 st.set_page_config(
-    page_title="SalaryIQ — Know Your Worth",
+    page_title="SalaryIQ Pro — Know Your Worth",
     page_icon="💼",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
 # =========================
-# USER DATABASE
+# LOAD MODEL FILES
 # =========================
-USER_FILE = "users.pkl"
-
-def load_users():
-    if os.path.exists(USER_FILE):
-        with open(USER_FILE, "rb") as f:
-            return pickle.load(f)
-    return {"admin": {"password": "1234", "name": "Admin User", "email": "admin@example.com",
-                      "phone": "", "city": "", "linkedin": "", "bio": "", "joined": "20 May 2026"}}
-
-def save_users(users):
-    with open(USER_FILE, "wb") as f:
-        pickle.dump(users, f)
+model   = pickle.load(open("knn_model.pkl", "rb"))
+scaler  = pickle.load(open("scaler.pkl",    "rb"))
+columns = pickle.load(open("columns.pkl",   "rb"))
 
 # =========================
-# LOAD MODEL
+# HELPER: EXTRACT OPTIONS
 # =========================
-@st.cache_resource
-def load_model():
-    model   = pickle.load(open("knn_model.pkl", "rb"))
-    scaler  = pickle.load(open("scaler.pkl",    "rb"))
-    columns = pickle.load(open("columns.pkl",   "rb"))
-    return model, scaler, columns
-
-def get_options(columns, prefix):
+def get_options(prefix):
     opts = [col.replace(prefix, "") for col in columns if col.startswith(prefix)]
     return sorted(list(set(opts)))
+
+job_options     = ["Other"] + get_options("job_title_")
+edu_options     = ["Other"] + get_options("education_level_")
+loc_options     = ["Other"] + get_options("location_")
+ind_options     = ["Other"] + get_options("industry_")
+company_options = ["Other"] + get_options("company_size_")
+remote_options  = ["Other"] + get_options("remote_work_")
+
+# =========================
+# USER STORAGE
+# =========================
+USERS_FILE = "users.json"
+
+def load_users():
+    if os.path.exists(USERS_FILE):
+        with open(USERS_FILE, "r") as f:
+            return json.load(f)
+    return {}
+
+def save_users(users):
+    with open(USERS_FILE, "w") as f:
+        json.dump(users, f, indent=2)
+
+def hash_password(pw):
+    return hashlib.sha256(pw.encode()).hexdigest()
+
+def register_user(name, email, password):
+    users = load_users()
+    if email.lower() in users:
+        return False, "An account with this email already exists."
+    users[email.lower()] = {
+        "name": name, "email": email.lower(),
+        "password": hash_password(password),
+        "created_at": datetime.now().isoformat(),
+        "predictions": [],
+        "bio": "", "phone": "", "location_city": "", "linkedin": "",
+    }
+    save_users(users)
+    return True, "Account created!"
+
+def login_user(email, password):
+    users = load_users()
+    if email.lower() not in users:
+        return False, "No account found with this email."
+    if users[email.lower()]["password"] != hash_password(password):
+        return False, "Incorrect password."
+    return True, users[email.lower()]["name"]
+
+def save_prediction(email, salary, job, exp, skills):
+    users = load_users()
+    if email.lower() in users:
+        users[email.lower()].setdefault("predictions", []).append({
+            "salary": salary, "job": job, "exp": exp,
+            "skills": skills, "date": datetime.now().strftime("%d %b %Y")
+        })
+        save_users(users)
+
+def update_user_profile(email, name, bio, phone, location_city, linkedin):
+    users = load_users()
+    if email.lower() in users:
+        u = users[email.lower()]
+        u["name"] = name; u["bio"] = bio; u["phone"] = phone
+        u["location_city"] = location_city; u["linkedin"] = linkedin
+        save_users(users)
+        return True
+    return False
+
+def update_user_password(email, old_pw, new_pw):
+    users = load_users()
+    if email.lower() not in users:
+        return False, "User not found."
+    if users[email.lower()]["password"] != hash_password(old_pw):
+        return False, "Current password is incorrect."
+    users[email.lower()]["password"] = hash_password(new_pw)
+    save_users(users)
+    return True, "Password updated!"
+
+def get_user_data(email):
+    return load_users().get(email.lower(), {})
+
+def is_valid_email(email):
+    return re.match(r"^[\w\.\-]+@[\w\.\-]+\.\w{2,}$", email) is not None
 
 # =========================
 # CAREER DATA
@@ -97,694 +164,717 @@ INDUSTRY_TRENDS = {
     "Other":         {"growth":"10%","outlook":"Moderate", "top_pay":"₹1,00,000","demand":"Moderate"},
 }
 
-
 # =========================
-# INJECT CSS
+# SESSION STATE
 # =========================
-st.markdown(f"""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800;900&display=swap');
-
-*,*::before,*::after{{box-sizing:border-box;margin:0;padding:0;}}
-html,body,[class*="css"]{{font-family:'Inter',sans-serif!important;}}
-#MainMenu,footer,header{{visibility:hidden!important;display:none!important;}}
-.block-container{{padding:0!important;max-width:100%!important;}}
-
-/* ── APP BG ── */
-.stApp{{background:{BG}!important;transition:all 0.4s ease;}}
-
-/* ── SIDEBAR ── */
-section[data-testid="stSidebar"]{{
-  background:{SIDEBAR_BG}!important;
-  border-right:1px solid {CARD_BORDER}!important;
-  min-width:270px!important; max-width:270px!important;
-  transition:all 0.3s;
-}}
-section[data-testid="stSidebar"]>div{{padding:0!important;}}
-section[data-testid="stSidebar"] *{{color:{TEXT1}!important;}}
-
-/* ── PROFILE HEADER ── */
-.profile-card{{
-  background:{PROFILE_BG};padding:28px 20px 18px;text-align:center;
-  position:relative;overflow:hidden;
-}}
-.profile-card::before{{
-  content:'';position:absolute;top:-30px;right:-30px;
-  width:120px;height:120px;border-radius:50%;
-  background:rgba(255,255,255,0.05);
-}}
-.profile-card::after{{
-  content:'';position:absolute;bottom:-20px;left:-20px;
-  width:80px;height:80px;border-radius:50%;
-  background:rgba(255,255,255,0.04);
-}}
-.profile-avatar{{
-  width:76px;height:76px;border-radius:50%;
-  background:rgba(255,255,255,0.2);
-  margin:0 auto 12px;display:flex;align-items:center;justify-content:center;
-  font-size:28px;font-weight:800;color:#fff!important;
-  border:3px solid rgba(255,255,255,0.5);
-  box-shadow:0 4px 20px rgba(0,0,0,0.3);
-  position:relative;z-index:1;
-}}
-.profile-name{{
-  font-family:'Plus Jakarta Sans',sans-serif!important;
-  font-size:17px;font-weight:800;color:#fff!important;
-  position:relative;z-index:1;
-}}
-.profile-email{{font-size:11px;color:rgba(255,255,255,0.65)!important;margin-top:3px;position:relative;z-index:1;}}
-.profile-since{{font-size:10px;color:rgba(255,255,255,0.45)!important;margin-top:2px;position:relative;z-index:1;}}
-.profile-stats{{
-  display:flex;margin-top:16px;border-top:1px solid rgba(255,255,255,0.12);
-  padding-top:14px;position:relative;z-index:1;
-}}
-.profile-stat{{flex:1;text-align:center;border-right:1px solid rgba(255,255,255,0.12);}}
-.profile-stat:last-child{{border-right:none;}}
-.profile-stat-val{{font-family:'Plus Jakarta Sans',sans-serif!important;font-size:16px;font-weight:800;color:#fff!important;}}
-.profile-stat-lbl{{font-size:9px;color:rgba(255,255,255,0.55)!important;margin-top:2px;text-transform:uppercase;letter-spacing:.5px;}}
-
-/* ── SIDEBAR INNER ── */
-.sidebar-inner{{padding:12px 14px;}}
-.sb-section-title{{
-  font-size:10px;font-weight:700;color:{TEXT3}!important;
-  text-transform:uppercase;letter-spacing:1.2px;
-  margin:14px 0 7px;padding:0 2px;
-}}
-.contact-item{{
-  display:flex;align-items:flex-start;gap:10px;
-  padding:8px 2px;border-bottom:1px solid {DIVIDER};
-}}
-.contact-item:last-child{{border-bottom:none;}}
-.contact-icon{{font-size:14px;width:20px;text-align:center;flex-shrink:0;margin-top:1px;}}
-.contact-label{{font-size:9px;color:{TEXT3}!important;text-transform:uppercase;letter-spacing:.5px;}}
-.contact-val{{font-size:12px;color:{TEXT1}!important;font-weight:500;margin-top:1px;word-break:break-all;}}
-
-/* ── SIGN OUT ── */
-.signout-wrap{{padding:8px 14px 16px;}}
-.signout-wrap .stButton>button{{
-  background:rgba(239,68,68,0.08)!important;color:#ef4444!important;
-  border:1.5px solid rgba(239,68,68,0.25)!important;
-  height:40px!important;font-size:13px!important;font-weight:600!important;
-  box-shadow:none!important;border-radius:10px!important;
-}}
-.signout-wrap .stButton>button:hover{{background:rgba(239,68,68,0.18)!important;}}
-
-/* ── THEME BTN SIDEBAR ── */
-.theme-sb .stButton>button{{
-  background:{ACCENT_SOFT}!important;color:{ACCENT}!important;
-  border:1.5px solid {ACCENT_BORDER}!important;
-  height:38px!important;font-size:13px!important;font-weight:600!important;
-  box-shadow:none!important;border-radius:9px!important;
-}}
-
-/* ── TOP HEADER ── */
-.top-header{{
-  background:{NAV_BG};border-bottom:1px solid {CARD_BORDER};
-  padding:0 28px;display:flex;align-items:center;justify-content:space-between;
-  height:60px;box-shadow:{GLOW};position:sticky;top:0;z-index:100;
-}}
-.top-logo{{
-  font-family:'Plus Jakarta Sans',sans-serif!important;
-  font-size:22px;font-weight:900;color:{TEXT1}!important;
-  display:flex;align-items:center;gap:10px;letter-spacing:-0.5px;
-}}
-.top-logo em{{
-  background:linear-gradient(135deg,{ACCENT},{ACCENT2});
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  background-clip:text;font-style:normal;
-}}
-.top-badge{{
-  font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;
-  background:{ACCENT_SOFT};color:{ACCENT}!important;
-  border:1px solid {ACCENT_BORDER};letter-spacing:.5px;text-transform:uppercase;
-}}
-.top-right{{display:flex;align-items:center;gap:12px;}}
-.top-avatar{{
-  width:34px;height:34px;border-radius:50%;
-  background:linear-gradient(135deg,{ACCENT},{ACCENT2});
-  display:flex;align-items:center;justify-content:center;
-  font-size:13px;font-weight:700;color:#fff!important;
-  box-shadow:0 2px 8px rgba(99,102,241,0.35);
-}}
-.top-username{{font-size:13px;font-weight:600;color:{TEXT1}!important;}}
-
-/* ── NAV TABS ── */
-.nav-tabs-outer{{
-  background:{NAV_BG};border-bottom:1px solid {DIVIDER};padding:6px 20px;
-}}
-
-/* ── PAGE ── */
-.page-wrap{{padding:26px 28px 40px;max-width:1120px;margin:0 auto;}}
-.page-title{{
-  font-family:'Plus Jakarta Sans',sans-serif!important;
-  font-size:24px;font-weight:900;color:{TEXT1}!important;
-  margin-bottom:5px;letter-spacing:-0.3px;
-}}
-.page-sub{{font-size:14px;color:{TEXT2}!important;margin-bottom:22px;line-height:1.6;}}
-
-/* ── SECTION HEADING ── */
-.section-heading{{
-  font-family:'Plus Jakarta Sans',sans-serif!important;
-  font-size:13px;font-weight:700;color:{ACCENT}!important;
-  text-transform:uppercase;letter-spacing:1.2px;margin-bottom:14px;
-  display:flex;align-items:center;gap:6px;
-}}
-
-/* ── CARDS ── */
-.card{{
-  background:{CARD_BG};border-radius:18px;
-  border:1px solid {CARD_BORDER};padding:22px;
-  box-shadow:{GLOW};margin-bottom:16px;
-  transition:all 0.3s;
-}}
-.card:hover{{box-shadow:0 8px 32px rgba(99,102,241,0.18);}}
-.card-title{{
-  font-size:10px;font-weight:700;color:{ACCENT}!important;
-  text-transform:uppercase;letter-spacing:1.2px;margin-bottom:14px;
-  padding-bottom:10px;border-bottom:1px solid {DIVIDER};
-}}
-
-/* ── METRIC CARDS ── */
-.metric-card{{
-  background:{METRIC_BG};border:1px solid {CARD_BORDER};
-  border-radius:14px;padding:16px 14px;
-  box-shadow:{GLOW};transition:all 0.3s;
-}}
-.metric-label{{font-size:10px;color:{TEXT3}!important;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px;}}
-.metric-value{{font-size:20px;font-weight:800;color:{TEXT1}!important;font-family:'Plus Jakarta Sans',sans-serif!important;}}
-.metric-sub{{font-size:11px;color:#10b981!important;font-weight:600;margin-top:4px;}}
-
-/* ── RESULT HERO ── */
-.result-hero{{
-  background:{HERO_BG};border-radius:22px;
-  padding:38px 32px;text-align:center;margin-bottom:22px;
-  box-shadow:0 16px 48px rgba(99,102,241,0.35),0 4px 16px rgba(0,0,0,0.15);
-  position:relative;overflow:hidden;
-}}
-.result-hero::before{{
-  content:'';position:absolute;top:-40px;right:-40px;
-  width:180px;height:180px;border-radius:50%;
-  background:rgba(255,255,255,0.06);
-}}
-.result-hero::after{{
-  content:'';position:absolute;bottom:-30px;left:-30px;
-  width:120px;height:120px;border-radius:50%;
-  background:rgba(255,255,255,0.04);
-}}
-.result-hero-label{{font-size:11px;color:rgba(255,255,255,0.7)!important;letter-spacing:2px;text-transform:uppercase;position:relative;z-index:1;}}
-.result-hero-amount{{font-size:58px;font-weight:900;color:#fff!important;margin:10px 0;font-family:'Plus Jakarta Sans',sans-serif!important;position:relative;z-index:1;text-shadow:0 2px 20px rgba(0,0,0,0.2);}}
-.result-hero-sub{{font-size:13px;color:rgba(255,255,255,0.65)!important;position:relative;z-index:1;}}
-
-/* ── INSIGHT CARDS ── */
-.insight-card{{
-  background:{CARD_BG};border-radius:14px;border:1px solid {CARD_BORDER};
-  padding:16px 18px;margin-bottom:10px;display:flex;gap:14px;align-items:flex-start;
-  transition:all 0.2s;
-}}
-.insight-card:hover{{border-color:{ACCENT_BORDER};box-shadow:0 4px 16px rgba(99,102,241,0.12);}}
-.insight-icon{{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}}
-.insight-icon-blue  {{background:{'rgba(99,102,241,0.15)' if dm else '#eef2ff'};}}
-.insight-icon-green {{background:{'rgba(16,185,129,0.15)' if dm else '#f0fdf4'};}}
-.insight-icon-amber {{background:{'rgba(245,158,11,0.15)'  if dm else '#fffbeb'};}}
-.insight-icon-rose  {{background:{'rgba(244,63,94,0.15)'   if dm else '#fff1f2'};}}
-.insight-title{{font-size:14px;font-weight:700;color:{TEXT1}!important;margin-bottom:4px;}}
-.insight-desc{{font-size:13px;color:{TEXT2}!important;line-height:1.6;}}
-
-/* ── ROADMAP ── */
-.roadmap-step{{display:flex;gap:14px;align-items:flex-start;padding:18px 0;border-bottom:1px solid {DIVIDER};}}
-.roadmap-step:last-child{{border-bottom:none;}}
-.step-dot{{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;margin-top:2px;}}
-.step-dot-done{{background:{ACCENT};color:#fff;}}
-.step-dot-curr{{background:linear-gradient(135deg,{ACCENT},{ACCENT2});color:#fff;box-shadow:0 0 0 5px {ACCENT_SOFT};}}
-.step-dot-next{{background:{STEP_NEXT_BG};color:{STEP_NEXT_C}!important;border:2px dashed {STEP_NEXT_B};}}
-.step-title{{font-size:15px;font-weight:700;color:{TEXT1}!important;}}
-.step-sub{{font-size:12px;color:{TEXT2}!important;margin-top:3px;}}
-.step-badge{{display:inline-block;font-size:10px;font-weight:700;padding:3px 10px;border-radius:99px;margin-top:6px;letter-spacing:.3px;}}
-.badge-current{{background:{ACCENT_SOFT};color:{ACCENT}!important;}}
-.badge-done{{background:{'rgba(16,185,129,0.15)' if dm else '#dcfce7'};color:#10b981!important;}}
-.badge-future{{background:{'rgba(30,41,59,0.4)' if dm else '#f1f5f9'};color:{TEXT3}!important;}}
-
-/* ── COMPARE BARS ── */
-.compare-bar-wrap{{margin-bottom:14px;}}
-.compare-bar-label{{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;}}
-.compare-bar-track{{height:8px;background:{BAR_TRACK};border-radius:99px;overflow:hidden;}}
-.compare-bar-fill{{height:100%;border-radius:99px;}}
-
-/* ── LEADERBOARD ── */
-.lb-row{{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:14px;margin-bottom:8px;border:1px solid {CARD_BORDER};transition:all 0.2s;background:{CARD_BG};}}
-.lb-row:hover{{background:{ACCENT_SOFT};border-color:{ACCENT_BORDER};transform:translateX(3px);}}
-.lb-row.gold  {{background:{LB_GOLD};border-color:{'rgba(245,158,11,0.3)' if dm else '#fde68a'};}}
-.lb-row.silver{{background:{LB_SILVER};}}
-.lb-row.bronze{{background:{LB_BRONZE};border-color:{'rgba(180,83,9,0.3)' if dm else '#fed7aa'};}}
-.lb-rank{{font-size:16px;font-weight:800;min-width:28px;color:{TEXT1}!important;}}
-.lb-name{{flex:1;font-size:13px;font-weight:700;color:{TEXT1}!important;}}
-.lb-role{{font-size:11px;color:{TEXT2}!important;margin-top:2px;}}
-.lb-salary{{font-size:16px;font-weight:800;color:{ACCENT}!important;font-family:'Plus Jakarta Sans',sans-serif!important;}}
-
-/* ── WHATSAPP CARD ── */
-.wa-card{{
-  background:{WA_BG};border:1.5px solid {WA_BORDER};
-  border-radius:16px;padding:20px;margin-top:18px;
-}}
-.wa-title{{font-size:14px;font-weight:700;color:{WA_COLOR}!important;margin-bottom:8px;display:flex;align-items:center;gap:8px;}}
-.wa-desc{{font-size:13px;color:{TEXT2}!important;line-height:1.6;margin-bottom:14px;}}
-.wa-btn a{{
-  display:inline-flex;align-items:center;gap:8px;
-  background:linear-gradient(135deg,#25D366,#128C7E);
-  color:#fff!important;font-weight:700;font-size:14px;
-  padding:12px 24px;border-radius:12px;text-decoration:none;
-  box-shadow:0 4px 16px rgba(37,211,102,0.3);transition:all 0.2s;
-}}
-.wa-btn a:hover{{box-shadow:0 6px 24px rgba(37,211,102,0.45);transform:translateY(-1px);}}
-
-/* ── HOME CARDS ── */
-.feature-card{{
-  background:{CARD_BG};border:1px solid {CARD_BORDER};
-  padding:26px 20px;border-radius:20px;text-align:center;
-  transition:all 0.3s;box-shadow:{GLOW};
-}}
-.feature-card:hover{{transform:translateY(-5px);box-shadow:0 16px 40px rgba(99,102,241,0.18);border-color:{ACCENT_BORDER};}}
-.feature-icon{{font-size:36px;margin-bottom:12px;}}
-.feature-title{{font-family:'Plus Jakarta Sans',sans-serif!important;font-size:15px;font-weight:800;color:{TEXT1}!important;margin-bottom:6px;}}
-.feature-desc{{font-size:13px;color:{TEXT2}!important;line-height:1.5;}}
-
-/* ── STAT STRIP ── */
-.stat-strip{{
-  background:{CARD_BG};border:1px solid {CARD_BORDER};border-radius:16px;
-  display:flex;padding:20px 0;margin-bottom:24px;box-shadow:{GLOW};
-}}
-.stat-strip-item{{flex:1;text-align:center;border-right:1px solid {DIVIDER};}}
-.stat-strip-item:last-child{{border-right:none;}}
-.stat-strip-val{{font-family:'Plus Jakarta Sans',sans-serif!important;font-size:24px;font-weight:900;background:linear-gradient(135deg,{ACCENT},{ACCENT2});-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}}
-.stat-strip-lbl{{font-size:11px;color:{TEXT2}!important;margin-top:3px;font-weight:500;}}
-
-/* ── LOGIN ── */
-.login-card{{
-  background:{CARD_BG};border:1px solid {CARD_BORDER};
-  padding:32px;border-radius:22px;box-shadow:{GLOW};
-}}
-.login-heading{{font-family:'Plus Jakarta Sans',sans-serif!important;font-size:26px;font-weight:900;color:{TEXT1}!important;margin-bottom:6px;}}
-.login-sub{{font-size:14px;color:{TEXT2}!important;margin-bottom:24px;}}
-
-/* ── FOOTER ── */
-.footer{{text-align:center;color:{TEXT3}!important;padding:24px;font-size:12px;border-top:1px solid {DIVIDER};margin-top:20px;}}
-
-/* ── MISC ── */
-.trend-up{{color:#10b981!important;font-weight:700;font-size:12px;}}
-.pill{{display:inline-block;background:{ACCENT_SOFT};color:{ACCENT}!important;border-radius:99px;padding:5px 14px;font-size:12px;font-weight:600;margin:3px;border:1px solid {ACCENT_BORDER};}}
-h1,h2,h3{{font-family:'Plus Jakarta Sans',sans-serif!important;color:{TEXT1}!important;}}
-p,li{{color:{TEXT2}!important;}}
-
-/* ── INPUTS ── */
-.stTextInput input,.stNumberInput input{{
-  background:{INPUT_BG}!important;border:1.5px solid {CARD_BORDER}!important;
-  border-radius:11px!important;color:{TEXT1}!important;font-size:14px!important;padding:10px 14px!important;
-}}
-.stTextInput input:focus,.stNumberInput input:focus{{border-color:{ACCENT}!important;box-shadow:0 0 0 3px {ACCENT_SOFT}!important;}}
-.stTextInput label,.stNumberInput label,.stSelectbox label{{color:{TEXT2}!important;font-size:12px!important;font-weight:600!important;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}}
-.stTextInput textarea{{background:{INPUT_BG}!important;border:1.5px solid {CARD_BORDER}!important;border-radius:11px!important;color:{TEXT1}!important;font-size:14px!important;}}
-.stSelectbox>div>div{{background:{INPUT_BG}!important;border:1.5px solid {CARD_BORDER}!important;border-radius:11px!important;}}
-[data-baseweb="popover"],[data-baseweb="menu"],[role="listbox"]{{background:{OPT_BG}!important;border:1px solid {CARD_BORDER}!important;border-radius:14px!important;box-shadow:0 8px 32px rgba(0,0,0,0.15)!important;}}
-[data-baseweb="menu"] li,[role="option"]{{background:{OPT_BG}!important;color:{OPT_C}!important;font-size:14px!important;}}
-[data-baseweb="menu"] li:hover,[role="option"]:hover,[role="option"][aria-selected="true"]{{background:{OPT_H}!important;color:{OPT_CH}!important;}}
-
-/* ── BUTTONS ── */
-.stButton>button{{
-  background:linear-gradient(135deg,{ACCENT},{ACCENT2})!important;
-  color:#fff!important;border:none!important;border-radius:11px!important;
-  height:46px!important;font-size:14px!important;font-weight:700!important;
-  box-shadow:0 4px 16px rgba(99,102,241,0.3)!important;transition:all 0.2s!important;
-  width:100%!important;letter-spacing:.2px;
-}}
-.stButton>button:hover{{transform:translateY(-1px)!important;box-shadow:0 8px 24px rgba(99,102,241,0.45)!important;}}
-
-/* ── SLIDER ── */
-.stSlider>div>div>div>div{{background:linear-gradient(90deg,{ACCENT},{ACCENT2})!important;}}
-</style>
-""", unsafe_allow_html=True)
+for k, v in [("logged_in",False),("user_name",""),("user_email",""),
+             ("auth_page","login"),("active_tab","predict"),
+             ("last_prediction",None),("last_inputs",None),
+             ("sidebar_section","info")]:
+    if k not in st.session_state:
+        st.session_state[k] = v
 
 # =========================
 # HELPERS
 # =========================
 def get_initials(name):
     parts = name.strip().split()
-    return (parts[0][0] + (parts[1][0] if len(parts) > 1 else "")).upper()
-
-def get_user_data(username):
-    users = st.session_state.users
-    u = users.get(username)
-    if isinstance(u, dict):
-        return u
-    return {"password": u, "name": username, "email": "", "phone": "", "city": "", "linkedin": "", "bio": "", "joined": "2026"}
+    return (parts[0][0] + (parts[1][0] if len(parts)>1 else "")).upper()
 
 def salary_boost_tips(job, exp, skills, cert, edu):
     tips = []
-    if exp < 3:    tips.append(("🚀","Build a strong portfolio","Create 3–5 GitHub projects. At junior levels, real projects matter more than years of experience.","blue"))
-    if 3<=exp<7:   tips.append(("📈","Apply for senior roles now","Senior roles pay 35–50% more. Rewrite your resume highlighting impact and measurable outcomes.","green"))
-    if exp >= 7:   tips.append(("🏆","Move into leadership","Lead/Manager roles pay 50–80% more. Your 7+ years positions you perfectly for this leap.","amber"))
-    if skills < 8: tips.append(("🛠️","Expand your skill set","10+ in-demand skills earn 28% more. Focus on cloud, data pipelines, or AI tools in your domain.","rose"))
-    if cert < 2:   tips.append(("📜","Earn certifications","AWS, Google Cloud, PMP add ₹10K–₹25K to your annual salary. Many offer free study materials.","blue"))
-    if edu in ["High School","Diploma","Other"]: tips.append(("🎓","Upskill with online courses","Online Master's or professional diplomas can boost salary by 15–20% via Coursera or edX.","green"))
-    tips.append(("🌍","Target remote / global roles","Remote global companies pay 2–4x Indian market rates. Explore Toptal, Turing, and Remote.com.","amber"))
-    tips.append(("💬","Negotiate your offer","60% of professionals never negotiate. Research market rates and ask for 15–20% above the offer.","rose"))
+    if exp < 3:   tips.append(("🚀","Build a strong portfolio","Create 3–5 GitHub projects. At junior levels, projects matter more than years of experience.","blue"))
+    if 3<=exp<7:  tips.append(("📈","Apply for senior roles now","Senior roles pay 35–50% more. Highlight impact and outcomes on your resume.","green"))
+    if exp >= 7:  tips.append(("🏆","Move into leadership","Lead/Manager roles pay 50–80% more than individual contributor positions.","amber"))
+    if skills<8:  tips.append(("🛠️","Expand your skill set","Professionals with 10+ skills earn 28% more. Focus on cloud, data, or AI tools.","rose"))
+    if cert < 2:  tips.append(("📜","Earn certifications","AWS, Google Cloud, PMP add ₹10K–₹25K to your annual salary.","blue"))
+    if edu in ["High School","Diploma","Other"]:
+        tips.append(("🎓","Upskill with online courses","Online Master's or diplomas boost salary 15–20%. Try Coursera or edX.","green"))
+    tips.append(("🌍","Target remote / global roles","Remote roles at global companies pay 2–4x Indian market rates.","amber"))
+    tips.append(("💬","Negotiate your salary","60% of professionals never negotiate. Ask for 15–20% above the offer.","rose"))
     return tips
 
-def build_whatsapp_message(inp, salary):
-    job=inp.get("job_title","N/A"); exp=inp.get("experience_years",0)
-    skills=inp.get("skills_count",0); cert=inp.get("certifications",0)
-    edu=inp.get("education_level","N/A"); ind=inp.get("industry","N/A")
-    monthly = salary // 12
-    sen = "Fresher" if exp<=2 else ("Junior" if exp<=5 else ("Mid-Level" if exp<=10 else "Senior"))
-    top_skills = SKILLS_BY_ROLE.get(job, SKILLS_BY_ROLE["Other"])[:4]
-    roadmap    = ROADMAP_BY_ROLE.get(job, ROADMAP_BY_ROLE["Other"])
-    trend      = INDUSTRY_TRENDS.get(ind, INDUSTRY_TRENDS["Other"])
-    cs         = 0 if exp<=2 else (1 if exp<=5 else (2 if exp<=10 else (3 if exp<=15 else 4)))
-    curr_role  = roadmap[cs]
-    next_role  = roadmap[min(cs+1, len(roadmap)-1)]
+def get_skills_to_learn(job, _):    return SKILLS_BY_ROLE.get(job, SKILLS_BY_ROLE["Other"])[:6]
+def get_roadmap(job):               return ROADMAP_BY_ROLE.get(job, ROADMAP_BY_ROLE["Other"])
+def get_industry_data(ind):         return INDUSTRY_TRENDS.get(ind, INDUSTRY_TRENDS["Other"])
 
-    msg = f"""💼 *SalaryIQ — Career Insights Report*
-━━━━━━━━━━━━━━━━━━━
-👤 *Profile Summary*
-• Role: {job}
-• Experience: {exp} years ({sen})
-• Skills: {skills} | Certifications: {cert}
-• Education: {edu}
-• Industry: {ind}
-
-💰 *Salary Prediction*
-• Annual: ₹{salary:,}
-• Monthly: ₹{monthly:,}
-
-📈 *Career Roadmap*
-• Current: {curr_role}
-• Next Goal: {next_role}
-
-🛠️ *Top Skills to Learn*
-{chr(10).join(f"  ✅ {s}" for s in top_skills)}
-
-🏭 *{ind} Industry Trend*
-• Growth: {trend['growth']} YoY
-• Job Demand: {trend['demand']}
-• Top Pay in Field: {trend['top_pay']}
-
-🚀 *Quick Tips*
-• Earn 1–2 certifications → +₹15K–25K/yr
-• Add 3–5 skills → +₹20K–35K/yr
-• Target remote jobs → 2–4x salary boost
-• Always negotiate — ask 15% above offer!
-
-━━━━━━━━━━━━━━━━━━━
-_Powered by SalaryIQ AI Platform_ 🤖"""
-    return msg
+def get_leaderboard():
+    users = load_users(); lb = []
+    for email, data in users.items():
+        preds = data.get("predictions",[])
+        if preds:
+            best = max(preds, key=lambda x: x["salary"])
+            lb.append({"name":data["name"],"salary":best["salary"],
+                       "job":best.get("job","Professional"),"exp":best.get("exp",0)})
+    lb.sort(key=lambda x: x["salary"], reverse=True)
+    return lb[:10]
 
 # =========================
-# LOGIN PAGE
+# GLOBAL CSS
 # =========================
+st.markdown("""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Syne:wght@700;800&display=swap');
+
+html, body, [class*="css"] { font-family:'Plus Jakarta Sans',sans-serif !important; }
+#MainMenu, footer, header, .stDeployButton { visibility:hidden !important; display:none !important; }
+
+/* ── remove ALL default top padding so auth card sits at top ── */
+.block-container {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    max-width: 100% !important;
+}
+[data-testid="stAppViewContainer"] > section > div:first-child { padding-top: 0 !important; }
+
+.stApp { background: #f0f2f8 !important; }
+
+/* ── Auth full-page wrapper ── */
+.auth-bg {
+    min-height: 100vh;
+    background: linear-gradient(135deg,#eef0fb 0%,#f4f0ff 55%,#edfaf3 100%);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 48px 20px 40px;
+}
+.auth-card {
+    background: #fff;
+    border-radius: 24px;
+    padding: 40px 40px 32px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.04), 0 20px 60px rgba(99,102,241,0.12);
+    border: 1px solid rgba(99,102,241,0.10);
+}
+.auth-brand {
+    font-family:'Syne',sans-serif !important;
+    font-size:18px; font-weight:800; color:#1e1b4b;
+    margin-bottom:22px; display:flex; align-items:center; gap:8px;
+}
+.auth-brand em { color:#6366f1; font-style:normal; }
+.auth-title {
+    font-family:'Syne',sans-serif !important;
+    font-size:28px; font-weight:800; color:#0f172a;
+    line-height:1.2; margin-bottom:6px;
+}
+.auth-title span {
+    background:linear-gradient(135deg,#6366f1,#8b5cf6);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+}
+.auth-sub { font-size:13px; color:#64748b; margin-bottom:22px; }
+.auth-stats {
+    display:flex; border-radius:12px; overflow:hidden;
+    border:1px solid #e2e8f0; margin-bottom:24px;
+}
+.auth-stat {
+    flex:1; text-align:center; padding:12px 8px;
+    border-right:1px solid #e2e8f0; background:#f8fafc;
+}
+.auth-stat:last-child { border-right:none; }
+.auth-stat-v {
+    font-family:'Syne',sans-serif !important; font-size:17px; font-weight:800;
+    background:linear-gradient(135deg,#6366f1,#8b5cf6);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+}
+.auth-stat-l { font-size:10px; color:#94a3b8; text-transform:uppercase; letter-spacing:.6px; margin-top:2px; }
+.auth-divider {
+    text-align:center; color:#cbd5e1; font-size:12px;
+    margin:12px 0; position:relative;
+}
+.auth-divider::before,.auth-divider::after {
+    content:''; position:absolute; top:50%;
+    width:calc(50% - 20px); height:1px; background:#e2e8f0;
+}
+.auth-divider::before { left:0; } .auth-divider::after { right:0; }
+
+/* ── Inputs ── */
+.stTextInput>div>div {
+    background:#f8fafc !important; border:1.5px solid #e2e8f0 !important; border-radius:10px !important;
+}
+.stTextInput>div>div:focus-within {
+    border-color:#6366f1 !important; box-shadow:0 0 0 3px rgba(99,102,241,.12) !important; background:#fff !important;
+}
+.stTextInput input { color:#0f172a !important; background:transparent !important; font-size:14px !important; box-shadow:none !important; -webkit-box-shadow:none !important; }
+.stTextInput input::placeholder { color:#94a3b8 !important; }
+.stTextInput label { color:#475569 !important; font-size:13px !important; font-weight:500 !important; }
+
+.stNumberInput>div>div { background:#f8fafc !important; border:1.5px solid #e2e8f0 !important; border-radius:10px !important; }
+.stNumberInput>div>div:focus-within { border-color:#6366f1 !important; box-shadow:0 0 0 3px rgba(99,102,241,.12) !important; }
+.stNumberInput input { color:#0f172a !important; background:transparent !important; font-size:14px !important; box-shadow:none !important; }
+.stNumberInput label { color:#475569 !important; font-size:13px !important; font-weight:500 !important; }
+.stNumberInput button { color:#6366f1 !important; }
+
+.stSelectbox>div>div { background:#f8fafc !important; border:1.5px solid #e2e8f0 !important; border-radius:10px !important; }
+.stSelectbox>div>div:focus-within { border-color:#6366f1 !important; box-shadow:0 0 0 3px rgba(99,102,241,.12) !important; }
+.stSelectbox [data-baseweb="select"]>div,
+.stSelectbox [data-baseweb="select"] span { color:#0f172a !important; background:transparent !important; }
+.stSelectbox label { color:#475569 !important; font-size:13px !important; font-weight:500 !important; }
+[data-baseweb="popover"],[data-baseweb="menu"],[role="listbox"] {
+    background:#fff !important; border:1px solid #e2e8f0 !important;
+    border-radius:12px !important; box-shadow:0 8px 32px rgba(0,0,0,.12) !important;
+}
+[data-baseweb="menu"] li,[role="option"] { background:#fff !important; color:#1e293b !important; font-size:14px !important; }
+[data-baseweb="menu"] li:hover,[role="option"]:hover,[role="option"][aria-selected="true"] { background:#eef2ff !important; color:#4f46e5 !important; }
+
+.stTextArea>div>div { background:#f8fafc !important; border:1.5px solid #e2e8f0 !important; border-radius:10px !important; }
+.stTextArea>div>div:focus-within { border-color:#6366f1 !important; box-shadow:0 0 0 3px rgba(99,102,241,.12) !important; }
+.stTextArea textarea { color:#0f172a !important; background:transparent !important; font-size:14px !important; }
+.stTextArea label { color:#475569 !important; font-size:13px !important; font-weight:500 !important; }
+
+/* ── Buttons ── */
+.stButton>button {
+    width:100% !important;
+    background:linear-gradient(135deg,#6366f1,#8b5cf6) !important;
+    color:#fff !important; border:none !important; border-radius:10px !important;
+    padding:12px 20px !important; font-family:'Plus Jakarta Sans',sans-serif !important;
+    font-size:14px !important; font-weight:600 !important;
+    box-shadow:0 4px 14px rgba(99,102,241,.3) !important; transition:all .2s !important;
+}
+.stButton>button:hover { transform:translateY(-1px) !important; box-shadow:0 6px 20px rgba(99,102,241,.4) !important; }
+
+.signout-btn>button {
+    background:#fff1f2 !important; color:#ef4444 !important;
+    border:1.5px solid #fecaca !important; box-shadow:none !important;
+    font-size:13px !important; padding:8px 16px !important;
+}
+.ghost-btn>button {
+    background:#fff !important; color:#475569 !important;
+    border:1.5px solid #e2e8f0 !important; box-shadow:none !important;
+    font-size:14px !important;
+}
+.ghost-btn>button:hover { background:#f8fafc !important; }
+
+/* ── Top nav ── */
+.top-nav {
+    background:#fff; border-bottom:1px solid #e2e8f0;
+    padding:0 28px; display:flex; align-items:center; justify-content:space-between;
+    height:56px; box-shadow:0 1px 4px rgba(0,0,0,.05);
+}
+.nav-brand { font-family:'Syne',sans-serif !important; font-size:18px; font-weight:800; color:#1e1b4b; }
+.nav-brand em { color:#6366f1; font-style:normal; }
+.nav-right { display:flex; align-items:center; gap:10px; }
+.nav-avatar {
+    width:36px; height:36px; border-radius:50%;
+    background:linear-gradient(135deg,#6366f1,#8b5cf6);
+    display:flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:700; color:#fff;
+    box-shadow:0 2px 8px rgba(99,102,241,.35);
+}
+.nav-name { font-size:13px; font-weight:600; color:#334155; }
+
+/* ── Page ── */
+.page-wrap { padding:28px 36px; max-width:1200px; margin:0 auto; }
+.page-title { font-family:'Syne',sans-serif !important; font-size:24px; font-weight:800; color:#0f172a; margin-bottom:4px; }
+.page-sub   { font-size:14px; color:#64748b; margin-bottom:24px; }
+
+/* ── Cards ── */
+.card { background:#fff; border-radius:16px; border:1px solid #e2e8f0; padding:22px; box-shadow:0 1px 3px rgba(0,0,0,.04); margin-bottom:16px; }
+.card-title { font-size:11px; font-weight:700; color:#6366f1; text-transform:uppercase; letter-spacing:1px; margin-bottom:16px; }
+.metric-card { background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:18px 16px; box-shadow:0 1px 3px rgba(0,0,0,.04); }
+.metric-label { font-size:12px; color:#94a3b8; font-weight:500; margin-bottom:6px; }
+.metric-value { font-family:'Syne',sans-serif !important; font-size:22px; font-weight:800; color:#0f172a; }
+.metric-sub   { font-size:12px; color:#10b981; font-weight:500; margin-top:4px; }
+.result-hero { background:linear-gradient(135deg,#6366f1 0%,#8b5cf6 100%); border-radius:20px; padding:36px 32px; text-align:center; margin-bottom:20px; box-shadow:0 8px 32px rgba(99,102,241,.3); }
+.result-hero-label  { font-size:12px; color:rgba(255,255,255,.7); letter-spacing:1.5px; text-transform:uppercase; }
+.result-hero-amount { font-family:'Syne',sans-serif !important; font-size:56px; font-weight:800; color:#fff; margin:8px 0; }
+.result-hero-sub    { font-size:13px; color:rgba(255,255,255,.6); }
+.insight-card { background:#fff; border-radius:12px; border:1px solid #e2e8f0; padding:18px; margin-bottom:10px; display:flex; gap:14px; align-items:flex-start; }
+.insight-icon { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+.insight-icon-blue  { background:#eef2ff; } .insight-icon-green { background:#f0fdf4; }
+.insight-icon-amber { background:#fffbeb; } .insight-icon-rose  { background:#fff1f2; }
+.insight-title { font-size:14px; font-weight:600; color:#0f172a; margin-bottom:4px; }
+.insight-desc  { font-size:13px; color:#64748b; line-height:1.5; }
+.roadmap-step { display:flex; gap:16px; align-items:flex-start; padding:18px 0; border-bottom:1px solid #f1f5f9; }
+.roadmap-step:last-child { border-bottom:none; }
+.step-dot { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; flex-shrink:0; margin-top:2px; }
+.step-dot-done { background:#6366f1; color:#fff; }
+.step-dot-curr { background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff; box-shadow:0 0 0 4px rgba(99,102,241,.2); }
+.step-dot-next { background:#f1f5f9; color:#94a3b8; border:2px dashed #cbd5e1; }
+.step-title { font-size:15px; font-weight:600; color:#0f172a; }
+.step-sub   { font-size:13px; color:#64748b; margin-top:3px; }
+.step-badge { display:inline-block; font-size:11px; font-weight:600; padding:2px 10px; border-radius:99px; margin-top:6px; }
+.badge-current { background:#eef2ff; color:#4f46e5; }
+.badge-done    { background:#f0fdf4; color:#15803d; }
+.badge-future  { background:#f8fafc; color:#94a3b8; }
+.lb-row { display:flex; align-items:center; gap:14px; padding:14px 16px; border-radius:12px; margin-bottom:8px; background:#f8fafc; border:1px solid #f1f5f9; transition:all .15s; }
+.lb-row:hover { background:#eef2ff; border-color:#c7d2fe; }
+.lb-row.gold   { background:linear-gradient(135deg,#fffbeb,#fef3c7); border-color:#fde68a; }
+.lb-row.silver { background:linear-gradient(135deg,#f8fafc,#f1f5f9); border-color:#e2e8f0; }
+.lb-row.bronze { background:linear-gradient(135deg,#fff7ed,#ffedd5); border-color:#fed7aa; }
+.lb-rank   { font-family:'Syne',sans-serif !important; font-size:16px; font-weight:800; min-width:28px; }
+.lb-name   { flex:1; font-size:14px; font-weight:600; color:#0f172a; }
+.lb-role   { font-size:12px; color:#64748b; }
+.lb-salary { font-family:'Syne',sans-serif !important; font-size:16px; font-weight:800; color:#4f46e5; }
+.compare-bar-wrap  { margin-bottom:14px; }
+.compare-bar-label { display:flex; justify-content:space-between; font-size:13px; margin-bottom:5px; }
+.compare-bar-track { height:8px; background:#f1f5f9; border-radius:99px; overflow:hidden; }
+.compare-bar-fill  { height:100%; border-radius:99px; }
+.trend-up { color:#10b981; font-weight:600; font-size:13px; }
+.pw-track { height:4px; background:#e2e8f0; border-radius:99px; overflow:hidden; margin-bottom:6px; }
+.pw-bar   { height:100%; border-radius:99px; transition:width .3s,background .3s; }
+
+/* ── Sidebar: fixed position, full height, internal scroll ── */
+section[data-testid="stSidebar"] {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    height: 100vh !important;
+    width: 280px !important;
+    min-width: 280px !important;
+    max-width: 280px !important;
+    background: #ffffff !important;
+    border-right: 1px solid #e2e8f0 !important;
+    box-shadow: 4px 0 24px rgba(0,0,0,.08) !important;
+    z-index: 200 !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+/* The inner scrollable wrapper Streamlit creates */
+section[data-testid="stSidebar"] > div:first-child {
+    height: 100vh !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+/* Remove ALL default gap/padding from vertical blocks inside sidebar */
+section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
+    gap: 0 !important;
+    padding: 0 !important;
+}
+/* Hide collapse button */
+[data-testid="stSidebarCollapseButton"],
+button[data-testid="baseButton-headerNoPadding"],
+[data-testid="collapsedControl"] {
+    display: none !important;
+    visibility: hidden !important;
+}
+/* Push main content right so it doesn't hide behind fixed sidebar */
+section[data-testid="stMain"],
+[data-testid="stAppViewContainer"] > section.main {
+    margin-left: 280px !important;
+}
+section[data-testid="stSidebar"] .stMarkdown { margin: 0 !important; }
+section[data-testid="stSidebar"] .stButton  { margin: 2px 0 !important; }
+/* Thin scrollbar inside sidebar */
+section[data-testid="stSidebar"] > div:first-child::-webkit-scrollbar { width: 4px; }
+section[data-testid="stSidebar"] > div:first-child::-webkit-scrollbar-track { background: #f8fafc; }
+section[data-testid="stSidebar"] > div:first-child::-webkit-scrollbar-thumb { background: #c7d2fe; border-radius: 99px; }
+
+h1,h2,h3 { font-family:'Syne',sans-serif !important; color:#0f172a !important; }
+p,li { color:#475569; }
+</style>
+""", unsafe_allow_html=True)
+
+
+# =====================================================
+# AUTH PAGES  —  card rendered inside a centered column
+# so HTML card header and Streamlit inputs are TOGETHER
+# =====================================================
+
 def show_login():
-    st.markdown('<div class="login-card">', unsafe_allow_html=True)
-    st.markdown(f'<div class="login-heading">Welcome back 👋</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="login-sub">Sign in to your career intelligence dashboard</div>', unsafe_allow_html=True)
-    u = st.text_input("Username", placeholder="Enter your username", key="li_u")
-    p = st.text_input("Password", type="password", placeholder="Enter your password", key="li_p")
-    st.markdown("<div style='height:4px'></div>", unsafe_allow_html=True)
-    if st.button("Sign In →", key="li_btn"):
-        users = st.session_state.users
-        udata = get_user_data(u) if u in users else None
-        if udata and udata.get("password") == p:
-            st.session_state.logged_in = True
-            st.session_state.username  = u
-            st.session_state.active_tab = "home"
-            st.success(f"Welcome {udata.get('name', u)} 🎉"); st.rerun()
-        else:
-            st.error("Invalid username or password")
-    st.markdown('</div>', unsafe_allow_html=True)
+    # Full-page gradient background via fixed div
+    st.markdown("""
+    <div style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:-1;
+         background:linear-gradient(135deg,#eef0fb 0%,#f4f0ff 55%,#edfaf3 100%);"></div>
+    """, unsafe_allow_html=True)
+
+    # Tight centered column — max ~420 px wide
+    gap, col, gap2 = st.columns([1, 1.5, 1])
+    with col:
+        # Card header (pure HTML — no interactive elements)
+        st.markdown("""
+        <div class="auth-card">
+            <div class="auth-brand">💼 Salary<em>IQ</em>
+                <span style="font-size:11px;color:#94a3b8;font-weight:400;margin-left:2px;">PRO</span>
+            </div>
+            <div class="auth-title">Welcome<br><span>back.</span></div>
+            <div class="auth-sub">Sign in to your career intelligence dashboard</div>
+            <div class="auth-stats">
+                <div class="auth-stat"><div class="auth-stat-v">95%</div><div class="auth-stat-l">Accuracy</div></div>
+                <div class="auth-stat"><div class="auth-stat-v">50K+</div><div class="auth-stat-l">Predictions</div></div>
+                <div class="auth-stat"><div class="auth-stat-v">120+</div><div class="auth-stat-l">Job Roles</div></div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # Streamlit inputs rendered immediately below — visually inside card area
+        email    = st.text_input("Email address", placeholder="you@example.com", key="login_email")
+        password = st.text_input("Password",      placeholder="Your password",    key="login_pw", type="password")
+
+        if st.button("Sign In →", key="login_btn"):
+            if not email or not password:
+                st.error("Please fill in all fields.")
+            elif not is_valid_email(email):
+                st.error("Please enter a valid email address.")
+            else:
+                ok, result = login_user(email, password)
+                if ok:
+                    st.session_state.logged_in  = True
+                    st.session_state.user_name  = result
+                    st.session_state.user_email = email.lower()
+                    st.rerun()
+                else:
+                    st.error(result)
+
+        st.markdown('<div class="auth-divider">or</div>', unsafe_allow_html=True)
+
+        st.markdown('<div class="ghost-btn">', unsafe_allow_html=True)
+        if st.button("Create a free account →", key="goto_signup"):
+            st.session_state.auth_page = "signup"; st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+        st.markdown("<p style='text-align:center;font-size:12px;color:#94a3b8;margin-top:12px;'>🔒 Your data is private and never shared.</p>", unsafe_allow_html=True)
+
 
 def show_signup():
-    st.markdown('<div class="login-card">', unsafe_allow_html=True)
-    st.markdown(f'<div class="login-heading">Create account 🚀</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="login-sub">Join thousands discovering their true market value</div>', unsafe_allow_html=True)
-    name  = st.text_input("Full Name",        placeholder="John Doe",          key="su_name")
-    email = st.text_input("Email",            placeholder="you@example.com",   key="su_email")
-    u     = st.text_input("Username",         placeholder="Choose a username", key="su_u")
-    p     = st.text_input("Password",         type="password", placeholder="Min. 6 characters", key="su_p")
-    cp    = st.text_input("Confirm Password", type="password", placeholder="Repeat password",   key="su_cp")
-    if st.button("Create Account →", key="su_btn"):
-        if u in st.session_state.users: st.warning("Username already exists")
-        elif p != cp: st.warning("Passwords do not match")
-        elif len(p) < 6: st.warning("Password must be at least 6 characters")
-        elif not u: st.warning("Please fill all fields")
-        else:
-            st.session_state.users[u] = {"password":p,"name":name or u,"email":email,
-                "phone":"","city":"","linkedin":"","bio":"","joined":datetime.now().strftime("%d %b %Y")}
-            save_users(st.session_state.users)
-            st.success("Account created! Please login ✅")
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown("""
+    <div style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:-1;
+         background:linear-gradient(135deg,#eef0fb 0%,#f4f0ff 55%,#edfaf3 100%);"></div>
+    """, unsafe_allow_html=True)
 
-# =========================
-# SIDEBAR
-# =========================
-def show_sidebar():
-    u     = st.session_state.username
-    udata = get_user_data(u)
-    name  = udata.get("name", u)
-    email = udata.get("email","")
-    phone = udata.get("phone","")
-    city  = udata.get("city","")
-    lnkd  = udata.get("linkedin","")
-    bio   = udata.get("bio","")
-    joined= udata.get("joined","2026")
-    initials = get_initials(name)
-    pred_count = 1 if st.session_state.last_prediction else 0
-    best_salary = st.session_state.last_prediction or 0
-    best_fmt = f"₹{best_salary//1000}K" if best_salary else "—"
+    gap, col, gap2 = st.columns([1, 1.5, 1])
+    with col:
+        st.markdown("""
+        <div class="auth-card">
+            <div class="auth-brand">💼 Salary<em>IQ</em>
+                <span style="font-size:11px;color:#94a3b8;font-weight:400;margin-left:2px;">PRO</span>
+            </div>
+            <div class="auth-title">Create your<br><span>account.</span></div>
+            <div class="auth-sub">Join professionals discovering their true market value</div>
+        </div>
+        """, unsafe_allow_html=True)
 
-    st.sidebar.markdown(f"""
-    <div class="profile-card">
-      <div class="profile-avatar">{initials}</div>
-      <div class="profile-name">{name}</div>
-      <div class="profile-email">{email or '—'}</div>
-      <div class="profile-since">Member since {joined}</div>
-      <div class="profile-stats">
-        <div class="profile-stat"><div class="profile-stat-val">{pred_count}</div><div class="profile-stat-lbl">Predictions</div></div>
-        <div class="profile-stat"><div class="profile-stat-val">{best_fmt}</div><div class="profile-stat-lbl">Best Salary</div></div>
-        <div class="profile-stat"><div class="profile-stat-val">1</div><div class="profile-stat-lbl">Badges</div></div>
-      </div>
-    </div>""", unsafe_allow_html=True)
+        name    = st.text_input("Full Name",        placeholder="John Doe",             key="su_name")
+        email   = st.text_input("Email Address",    placeholder="you@example.com",      key="su_email")
+        pw      = st.text_input("Password",         placeholder="Min. 8 characters",    key="su_pw",   type="password")
+        confirm = st.text_input("Confirm Password", placeholder="Repeat your password", key="su_conf", type="password")
 
-    st.sidebar.markdown('<div class="sidebar-inner">', unsafe_allow_html=True)
+        if pw:
+            s, hints = 0, []
+            if len(pw)>=8:                    s+=1
+            else:                             hints.append("8+ chars")
+            if re.search(r"[A-Z]",pw):        s+=1
+            else:                             hints.append("uppercase")
+            if re.search(r"\d",pw):           s+=1
+            else:                             hints.append("number")
+            if re.search(r"[^A-Za-z0-9]",pw): s+=1
+            else:                             hints.append("symbol")
+            cols=["#ef4444","#f97316","#eab308","#10b981"]; lbs=["Weak","Fair","Good","Strong"]; ws=[25,50,75,100]
+            idx=min(s-1,3) if s>0 else 0
+            hint="" if s==4 else " · add "+(", ".join(hints[:2]))
+            st.markdown(f"""<div style='margin-top:-4px;margin-bottom:10px;'>
+              <div class='pw-track'><div class='pw-bar' style='width:{ws[idx]}%;background:{cols[idx]};'></div></div>
+              <span style='font-size:12px;color:{cols[idx]};font-weight:600;'>{lbs[idx]}{hint}</span>
+            </div>""", unsafe_allow_html=True)
 
-    sec = st.session_state.profile_section
-    c1, c2, c3 = st.sidebar.columns([1, 1, 1.5], gap="small")
-    with c1:
-        if st.button("Info",     key="sb_info", use_container_width=True):
-            st.session_state.profile_section="info"; st.rerun()
-    with c2:
-        if st.button("Edit",     key="sb_edit", use_container_width=True):
-            st.session_state.profile_section="edit"; st.rerun()
-    with c3:
-        if st.button("Security", key="sb_sec",  use_container_width=True):
-            st.session_state.profile_section="security"; st.rerun()
-
-    st.sidebar.markdown(f'<div style="height:1px;background:{DIVIDER};margin:10px 0;"></div>', unsafe_allow_html=True)
-
-    if sec == "info":
-        st.sidebar.markdown(f'<div class="sb-section-title">About</div>', unsafe_allow_html=True)
-        st.sidebar.markdown(f'<div style="font-size:12px;color:{TEXT2};padding:4px 2px;line-height:1.6;">{bio or "No bio added yet."}</div>', unsafe_allow_html=True)
-        st.sidebar.markdown(f'<div class="sb-section-title">Contact</div>', unsafe_allow_html=True)
-        for icon,label,val in [("📞","Phone",phone or "—"),("🏙️","City",city or "—"),("🔗","LinkedIn",lnkd or "—"),("📧","Email",email or "—")]:
-            st.sidebar.markdown(f'<div class="contact-item"><div class="contact-icon">{icon}</div><div><div class="contact-label">{label}</div><div class="contact-val">{val}</div></div></div>', unsafe_allow_html=True)
-
-    elif sec == "edit":
-        st.sidebar.markdown(f'<div class="sb-section-title">Edit Profile</div>', unsafe_allow_html=True)
-        nn = st.sidebar.text_input("Full Name",  value=name,  key="en")
-        ne = st.sidebar.text_input("Email",      value=email, key="ee")
-        np_ = st.sidebar.text_input("Phone",     value=phone, key="ep")
-        nc = st.sidebar.text_input("City",       value=city,  key="ec")
-        nl = st.sidebar.text_input("LinkedIn",   value=lnkd,  key="el")
-        nb = st.sidebar.text_area("Bio",         value=bio,   key="eb", height=70)
-        if st.sidebar.button("💾 Save", key="save_p"):
-            ud = get_user_data(u); ud.update({"name":nn,"email":ne,"phone":np_,"city":nc,"linkedin":nl,"bio":nb})
-            st.session_state.users[u]=ud; save_users(st.session_state.users)
-            st.session_state.profile_section="info"; st.sidebar.success("Saved ✅"); st.rerun()
-
-    elif sec == "security":
-        st.sidebar.markdown(f'<div class="sb-section-title">Change Password</div>', unsafe_allow_html=True)
-        op  = st.sidebar.text_input("Current Password", type="password", key="sec_o")
-        np1 = st.sidebar.text_input("New Password",     type="password", key="sec_n1")
-        np2 = st.sidebar.text_input("Confirm New",      type="password", key="sec_n2")
-        if st.sidebar.button("🔒 Update", key="upd_pwd"):
-            ud = get_user_data(u)
-            if ud["password"] != op: st.sidebar.error("Wrong current password")
-            elif np1 != np2:         st.sidebar.error("Passwords don't match")
-            elif len(np1) < 6:       st.sidebar.error("Min 6 characters")
+        if st.button("Create Account →", key="su_btn"):
+            if not all([name,email,pw,confirm]):   st.error("Please fill in all fields.")
+            elif not is_valid_email(email):        st.error("Invalid email address.")
+            elif len(pw)<8:                        st.error("Password must be at least 8 characters.")
+            elif pw != confirm:                    st.error("Passwords do not match.")
             else:
-                ud["password"]=np1; st.session_state.users[u]=ud; save_users(st.session_state.users)
-                st.sidebar.success("Password updated ✅")
+                ok, msg = register_user(name.strip(), email.strip(), pw)
+                if ok:
+                    st.session_state.logged_in  = True
+                    st.session_state.user_name  = name.strip()
+                    st.session_state.user_email = email.strip().lower()
+                    st.rerun()
+                else:
+                    st.error(msg)
 
-    st.sidebar.markdown('</div>', unsafe_allow_html=True)
-    st.sidebar.markdown(f'<div style="height:1px;background:{DIVIDER};margin:4px 0;"></div>', unsafe_allow_html=True)
-
-    # Theme toggle
-    st.sidebar.markdown(f'<div style="padding:8px 14px 4px;"><div class="sb-section-title" style="margin:0 0 8px;">🎨 Appearance</div></div>', unsafe_allow_html=True)
-    st.sidebar.markdown('<div class="theme-sb" style="padding:0 14px 8px;">', unsafe_allow_html=True)
-    if st.sidebar.button(TOGGLE_LBL, key="theme_toggle"):
-        st.session_state.dark_mode = not st.session_state.dark_mode; st.rerun()
-    st.sidebar.markdown('</div>', unsafe_allow_html=True)
-
-    # Sign out
-    st.sidebar.markdown(f'<div style="height:1px;background:{DIVIDER};margin:4px 0;"></div>', unsafe_allow_html=True)
-    st.sidebar.markdown('<div class="signout-wrap">', unsafe_allow_html=True)
-    if st.sidebar.button("🚪 Sign Out", key="signout"):
-        st.session_state.logged_in=False; st.session_state.last_prediction=None; st.session_state.last_inputs=None; st.rerun()
-    st.sidebar.markdown('</div>', unsafe_allow_html=True)
-
-# =========================
-# TOP BAR + NAV TABS
-# =========================
-def show_topbar():
-    u = st.session_state.username
-    udata = get_user_data(u)
-    name = udata.get("name", u)
-    initials = get_initials(name)
-    st.markdown(f"""
-    <div class="top-header">
-      <div class="top-logo">💼 Salary<em>IQ</em> <span class="top-badge">PRO</span></div>
-      <div class="top-right">
-        <div class="top-user" style="display:flex;align-items:center;gap:8px;">
-          <div class="top-avatar">{initials}</div>
-          <span class="top-username">{name}</span>
-        </div>
-      </div>
-    </div>""", unsafe_allow_html=True)
-
-    tabs   = ["home","predict","insights","roadmap","dashboard","compare","leaderboard"]
-    labels = ["🏠 Home","🔍 Predict","💡 Insights","🗺️ Roadmap","📊 Dashboard","⚖️ Compare","🏆 Leaderboard"]
-    active = st.session_state.active_tab
-    cols   = st.columns(len(tabs))
-    for i,(col,tab,label) in enumerate(zip(cols,tabs,labels)):
-        with col:
-            is_act = tab == active
-            st.markdown(f"""<style>
-            div[data-testid="stHorizontalBlock"]>div:nth-child({i+1}) .stButton>button{{
-              background:{'linear-gradient(135deg,' + ACCENT + ',' + ACCENT2 + ')' if is_act else BTN_INACTIVE}!important;
-              color:{'#ffffff' if is_act else TEXT2}!important;
-              border:1px solid {ACCENT if is_act else BTN_BORDER}!important;
-              height:38px!important;font-size:12px!important;font-weight:{'700' if is_act else '500'}!important;
-              border-radius:9px!important;
-              box-shadow:{'0 4px 12px rgba(99,102,241,0.28)' if is_act else 'none'}!important;
-            }}
-            </style>""", unsafe_allow_html=True)
-            if st.button(label, key=f"nav_{tab}"):
-                st.session_state.active_tab=tab; st.rerun()
-    st.markdown(f'<div style="height:1px;background:{DIVIDER};"></div>', unsafe_allow_html=True)
-
-# =========================
-# HOME PAGE
-# =========================
-def show_home():
-    st.markdown('<div class="page-wrap">', unsafe_allow_html=True)
-
-    # Hero section
-    st.markdown(f"""
-    <div style="background:{HERO_BG};border-radius:24px;padding:48px 40px;margin-bottom:28px;
-                position:relative;overflow:hidden;box-shadow:0 16px 48px rgba(99,102,241,0.3);">
-      <div style="position:absolute;top:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,0.05);"></div>
-      <div style="position:absolute;bottom:-30px;left:200px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,0.04);"></div>
-      <div style="position:relative;z-index:1;max-width:600px;">
-        <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.7);text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;">💼 AI-Powered Career Intelligence</div>
-        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:38px;font-weight:900;color:#fff;line-height:1.15;margin-bottom:16px;">
-          Welcome to<br><em style="font-style:normal;opacity:0.9;">Salary Prediction App</em>
-        </div>
-        <div style="font-size:15px;color:rgba(255,255,255,0.75);line-height:1.7;margin-bottom:24px;">
-          Predict your market salary using Machine Learning based on your experience,<br>education, certifications, skills, and industry — instantly.
-        </div>
-        <div style="display:flex;gap:12px;flex-wrap:wrap;">
-          <span style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff!important;padding:8px 18px;border-radius:99px;font-size:13px;font-weight:600;">✅ 95% Accuracy</span>
-          <span style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff!important;padding:8px 18px;border-radius:99px;font-size:13px;font-weight:600;">⚡ Instant Results</span>
-          <span style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff!important;padding:8px 18px;border-radius:99px;font-size:13px;font-weight:600;">📱 WhatsApp Insights</span>
-        </div>
-      </div>
-    </div>""", unsafe_allow_html=True)
-
-    # Stats strip
-    st.markdown(f"""
-    <div class="stat-strip">
-      <div class="stat-strip-item"><div class="stat-strip-val">50K+</div><div class="stat-strip-lbl">Predictions Made</div></div>
-      <div class="stat-strip-item"><div class="stat-strip-val">95%</div><div class="stat-strip-lbl">Model Accuracy</div></div>
-      <div class="stat-strip-item"><div class="stat-strip-val">120+</div><div class="stat-strip-lbl">Job Roles</div></div>
-      <div class="stat-strip-item"><div class="stat-strip-val">10K+</div><div class="stat-strip-lbl">Active Users</div></div>
-    </div>""", unsafe_allow_html=True)
-
-    # Feature cards
-    f1,f2,f3,f4 = st.columns(4)
-    cards = [("🎯","Accurate","KNN model trained on 250K+ real salary records across industries."),
-             ("⚡","Instant","Get your salary prediction in under 1 second — no waiting."),
-             ("📊","Full Analytics","Dashboard, roadmap, benchmarks and industry trend reports."),
-             ("📱","WhatsApp Send","Export your full career insights report directly to WhatsApp.")]
-    for col,(icon,title,desc) in zip([f1,f2,f3,f4],cards):
-        with col:
-            st.markdown(f'<div class="feature-card"><div class="feature-icon">{icon}</div><div class="feature-title">{title}</div><div class="feature-desc">{desc}</div></div>', unsafe_allow_html=True)
-
-    # How it works
-    st.markdown(f'<br><div class="section-heading">🔄 How It Works</div>', unsafe_allow_html=True)
-    h1,h2,h3,h4 = st.columns(4)
-    steps = [("1️⃣","Fill Profile","Enter your experience, skills, education, and job details"),
-             ("2️⃣","Run Prediction","Our KNN model instantly calculates your market salary"),
-             ("3️⃣","Get Insights","See career roadmap, benchmarks, and growth tips"),
-             ("4️⃣","Share via WhatsApp","Send your full report to yourself on WhatsApp")]
-    for col,(num,title,desc) in zip([h1,h2,h3,h4],steps):
-        with col:
-            st.markdown(f'<div class="card" style="text-align:center;padding:20px;"><div style="font-size:28px;margin-bottom:10px;">{num}</div><div style="font-size:14px;font-weight:700;color:{TEXT1};margin-bottom:6px;">{title}</div><div style="font-size:12px;color:{TEXT2};line-height:1.5;">{desc}</div></div>', unsafe_allow_html=True)
-
-    st.markdown('</div>', unsafe_allow_html=True)
-
-# =========================
-# PREDICT PAGE
-# =========================
-def show_predict(model, scaler, columns):
-    jo = ["Other"]+get_options(columns,"job_title_")
-    eo = ["Other"]+get_options(columns,"education_level_")
-    lo = ["Other"]+get_options(columns,"location_")
-    io = ["Other"]+get_options(columns,"industry_")
-    co = ["Other"]+get_options(columns,"company_size_")
-    ro = ["Other"]+get_options(columns,"remote_work_")
-
-    st.markdown('<div class="page-wrap">', unsafe_allow_html=True)
-    st.markdown('<div class="page-title">🔍 Salary Prediction</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="page-sub">Fill in your details — our KNN model trained on 250,000+ records will estimate your market salary instantly.</div>', unsafe_allow_html=True)
-
-    col1,col2 = st.columns(2,gap="large")
-    with col1:
-        st.markdown(f'<div class="card"><div class="card-title">📊 Experience & Skills</div>', unsafe_allow_html=True)
-        exp    = st.number_input("Years of Experience",0,30,key="exp")
-        skills = st.number_input("Number of Skills",  1,50, key="skills")
-        cert   = st.number_input("Certifications",    0,20, key="cert")
-        st.markdown('</div>', unsafe_allow_html=True)
-        st.markdown(f'<div class="card"><div class="card-title">🎓 Education & Role</div>', unsafe_allow_html=True)
-        job = st.selectbox("Job Role",        jo, key="job")
-        edu = st.selectbox("Education Level", eo, key="edu")
+        st.markdown('<div class="auth-divider">or</div>', unsafe_allow_html=True)
+        st.markdown('<div class="ghost-btn">', unsafe_allow_html=True)
+        if st.button("Already have an account? Sign In", key="goto_login"):
+            st.session_state.auth_page = "login"; st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
-    with col2:
-        st.markdown(f'<div class="card"><div class="card-title">🏢 Company & Location</div>', unsafe_allow_html=True)
-        loc     = st.selectbox("Location",     lo, key="loc")
-        ind     = st.selectbox("Industry",     io, key="ind")
-        company = st.selectbox("Company Size", co, key="company")
-        remote  = st.selectbox("Remote Work",  ro, key="remote")
-        st.markdown('</div>', unsafe_allow_html=True)
+
+# =====================================================
+# NATIVE SIDEBAR  —  always rendered via st.sidebar
+# =====================================================
+def show_sidebar():
+    user_data = get_user_data(st.session_state.user_email)
+    initials  = get_initials(st.session_state.user_name)
+    preds     = user_data.get("predictions", [])
+    best_sal  = max([p["salary"] for p in preds], default=0)
+    since     = user_data.get("created_at","")[:10] or "—"
+    section   = st.session_state.sidebar_section
+
+    with st.sidebar:
+        # Remove every layer of default Streamlit padding inside the sidebar
+        st.markdown("""
+        <style>
+        section[data-testid="stSidebar"] > div:first-child > div {
+            padding: 0 !important; margin: 0 !important;
+        }
+        section[data-testid="stSidebar"] > div:first-child > div > div {
+            padding: 0 !important; margin: 0 !important;
+        }
+        section[data-testid="stSidebar"] > div:first-child > div > div > div {
+            padding: 0 !important;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
+        # ── Avatar header ──
         st.markdown(f"""
-        <div class="card" style="background:{ACCENT_SOFT};border-color:{ACCENT_BORDER};">
-          <div class="card-title">✨ What You'll Get</div>
-          <div style="font-size:13px;color:{TEXT2};line-height:2;">
-            💰 <strong style="color:{TEXT1};">Predicted annual salary</strong><br>
-            💡 <strong style="color:{TEXT1};">Personalised growth tips</strong><br>
-            🗺️ <strong style="color:{TEXT1};">Step-by-step career roadmap</strong><br>
-            📈 <strong style="color:{TEXT1};">Industry benchmarks & trends</strong><br>
-            📱 <strong style="color:{TEXT1};">Send report to WhatsApp</strong>
-          </div>
+        <div style="background:linear-gradient(135deg,#6366f1,#8b5cf6);
+                    padding:28px 20px 22px 20px; width:100%; box-sizing:border-box;">
+            <div style="width:58px;height:58px;border-radius:50%;background:rgba(255,255,255,.22);
+                        display:flex;align-items:center;justify-content:center;
+                        font-size:21px;font-weight:800;color:#fff;
+                        border:2.5px solid rgba(255,255,255,.45);
+                        margin-bottom:12px;">{initials}</div>
+            <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:#fff;
+                        word-break:break-word;">{user_data.get("name","—")}</div>
+            <div style="font-size:12px;color:rgba(255,255,255,.75);margin-top:4px;
+                        word-break:break-all;">{user_data.get("email","—")}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:3px;">
+                Member since {since}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # ── Stats row ──
+        st.markdown(f"""
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:14px 16px;
+                    background:#fff;border-bottom:1px solid #f1f5f9;">
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px 6px;text-align:center;">
+                <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:#4f46e5;">{len(preds)}</div>
+                <div style="font-size:9px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-top:2px;">Predictions</div>
+            </div>
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px 6px;text-align:center;">
+                <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:#4f46e5;">{'₹'+str(best_sal//1000)+'K' if best_sal else '—'}</div>
+                <div style="font-size:9px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-top:2px;">Best Sal.</div>
+            </div>
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px 6px;text-align:center;">
+                <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:#4f46e5;">{len(set(p.get('job','') for p in preds)) if preds else 0}</div>
+                <div style="font-size:9px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-top:2px;">Roles</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # ── Section tab buttons — scoped to sidebar only ──
+        info_active = "background:#eef2ff;color:#4f46e5;border:1.5px solid #c7d2fe;" if section=="info" else "background:#f8fafc;color:#64748b;border:1.5px solid #e2e8f0;"
+        edit_active = "background:#eef2ff;color:#4f46e5;border:1.5px solid #c7d2fe;" if section=="edit" else "background:#f8fafc;color:#64748b;border:1.5px solid #e2e8f0;"
+        sec_active  = "background:#eef2ff;color:#4f46e5;border:1.5px solid #c7d2fe;" if section=="security" else "background:#f8fafc;color:#64748b;border:1.5px solid #e2e8f0;"
+
+        st.markdown("""
+        <style>
+        /* Sidebar tab buttons — compact, not full-width purple */
+        div[data-testid="stSidebar"] .sb-tab-btn > button {
+            width: auto !important;
+            background: #f8fafc !important;
+            color: #64748b !important;
+            border: 1.5px solid #e2e8f0 !important;
+            box-shadow: none !important;
+            font-size: 12px !important;
+            font-weight: 600 !important;
+            padding: 7px 6px !important;
+            border-radius: 8px !important;
+            transform: none !important;
+        }
+        div[data-testid="stSidebar"] .sb-tab-btn > button:hover {
+            background: #eef2ff !important;
+            color: #4f46e5 !important;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        /* Sign out button in sidebar */
+        div[data-testid="stSidebar"] .sb-signout > button {
+            background: #fff1f2 !important; color: #ef4444 !important;
+            border: 1.5px solid #fecaca !important; box-shadow: none !important;
+            font-size: 13px !important; padding: 9px 16px !important;
+            margin: 0 16px !important; width: calc(100% - 32px) !important;
+            transform: none !important;
+        }
+        /* Save / Update buttons in sidebar */
+        div[data-testid="stSidebar"] .sb-save > button {
+            background: linear-gradient(135deg,#6366f1,#8b5cf6) !important;
+            color: #fff !important; border: none !important;
+            box-shadow: 0 3px 10px rgba(99,102,241,.3) !important;
+            font-size: 13px !important; padding: 10px 16px !important;
+            margin: 4px 16px !important; width: calc(100% - 32px) !important;
+            border-radius: 9px !important;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
+        st.markdown("<div style='padding:10px 12px 6px;'>", unsafe_allow_html=True)
+        tc1, tc2, tc3 = st.columns(3)
+        with tc1:
+            st.markdown(f'<style>div[data-testid="stSidebar"] .sb-tab-btn.active-tab > button{{background:#eef2ff !important;color:#4f46e5 !important;border:1.5px solid #c7d2fe !important;}}</style>', unsafe_allow_html=True)
+            st.markdown(f'<div class="sb-tab-btn{" active-tab" if section=="info" else ""}">', unsafe_allow_html=True)
+            if st.button("👤 Info", key="sb_info"):
+                st.session_state.sidebar_section = "info"; st.rerun()
+            st.markdown("</div>", unsafe_allow_html=True)
+        with tc2:
+            st.markdown(f'<div class="sb-tab-btn{" active-tab" if section=="edit" else ""}">', unsafe_allow_html=True)
+            if st.button("✏️ Edit", key="sb_edit"):
+                st.session_state.sidebar_section = "edit"; st.rerun()
+            st.markdown("</div>", unsafe_allow_html=True)
+        with tc3:
+            st.markdown(f'<div class="sb-tab-btn{" active-tab" if section=="security" else ""}">', unsafe_allow_html=True)
+            if st.button("🔒 Security", key="sb_sec"):
+                st.session_state.sidebar_section = "security"; st.rerun()
+            st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+
+        st.markdown("<div style='height:1px;background:#e2e8f0;'></div>", unsafe_allow_html=True)
+
+        # ── INFO section ──
+        if section == "info":
+            bio   = user_data.get("bio","")           or "No bio added yet."
+            phone = user_data.get("phone","")         or "—"
+            loc_c = user_data.get("location_city","") or "—"
+            li    = user_data.get("linkedin","")      or "—"
+            st.markdown(f"""
+            <div style="padding:16px 16px 8px;">
+                <div style="font-size:10px;font-weight:700;color:#6366f1;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">About</div>
+                <div style="font-size:13px;color:#475569;line-height:1.6;background:#f8fafc;border-radius:10px;
+                            padding:11px 13px;border:1px solid #f1f5f9;margin-bottom:16px;">{bio}</div>
+                <div style="font-size:10px;font-weight:700;color:#6366f1;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Contact</div>
+            </div>
+            """, unsafe_allow_html=True)
+            for icon, label, val in [("📱","Phone",phone),("📍","City",loc_c),("🔗","LinkedIn",li),("✉️","Email",user_data.get("email","—"))]:
+                st.markdown(f"""
+                <div style="display:flex;gap:10px;padding:9px 16px;border-top:1px solid #f8fafc;">
+                    <span style="font-size:15px;min-width:20px;">{icon}</span>
+                    <div>
+                        <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;font-weight:600;">{label}</div>
+                        <div style="font-size:13px;color:#0f172a;font-weight:500;margin-top:1px;">{val}</div>
+                    </div>
+                </div>""", unsafe_allow_html=True)
+
+        # ── EDIT section ──
+        elif section == "edit":
+            st.markdown("<div style='padding:14px 16px 0;font-size:10px;font-weight:700;color:#6366f1;text-transform:uppercase;letter-spacing:1px;'>Edit Profile</div>", unsafe_allow_html=True)
+            new_name  = st.text_input("Full Name",    value=user_data.get("name",""),          key="e_name")
+            new_bio   = st.text_area( "Bio",          value=user_data.get("bio",""),   height=80, key="e_bio",   placeholder="A short intro about yourself…")
+            new_phone = st.text_input("Phone",        value=user_data.get("phone",""),          key="e_phone",  placeholder="+91 98765 43210")
+            new_loc   = st.text_input("City",         value=user_data.get("location_city",""),  key="e_loc",    placeholder="Bangalore, India")
+            new_li    = st.text_input("LinkedIn URL", value=user_data.get("linkedin",""),       key="e_li",     placeholder="linkedin.com/in/yourname")
+            st.markdown('<div class="sb-save">', unsafe_allow_html=True)
+            if st.button("💾  Save Changes", key="save_profile"):
+                if not new_name.strip():
+                    st.error("Name cannot be empty.")
+                else:
+                    if update_user_profile(st.session_state.user_email, new_name.strip(),
+                                           new_bio.strip(), new_phone.strip(), new_loc.strip(), new_li.strip()):
+                        st.session_state.user_name = new_name.strip()
+                        st.success("✅ Profile updated!")
+                        st.rerun()
+            st.markdown('</div>', unsafe_allow_html=True)
+
+        # ── SECURITY section ──
+        elif section == "security":
+            st.markdown("<div style='padding:14px 16px 0;font-size:10px;font-weight:700;color:#6366f1;text-transform:uppercase;letter-spacing:1px;'>Change Password</div>", unsafe_allow_html=True)
+            old_pw  = st.text_input("Current Password", type="password", key="sec_old",  placeholder="Your current password")
+            new_pw  = st.text_input("New Password",     type="password", key="sec_new",  placeholder="Min. 8 characters")
+            conf_pw = st.text_input("Confirm New",      type="password", key="sec_conf", placeholder="Repeat new password")
+            st.markdown('<div class="sb-save">', unsafe_allow_html=True)
+            if st.button("🔒  Update Password", key="upd_pw"):
+                if not all([old_pw, new_pw, conf_pw]):
+                    st.error("Fill in all fields.")
+                elif len(new_pw) < 8:
+                    st.error("New password must be 8+ characters.")
+                elif new_pw != conf_pw:
+                    st.error("Passwords don't match.")
+                else:
+                    ok, msg = update_user_password(st.session_state.user_email, old_pw, new_pw)
+                    st.success("✅ "+msg) if ok else st.error(msg)
+            st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown("""
+            <div style="margin:12px 16px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px 14px;">
+                <div style="font-size:11px;font-weight:700;color:#92400e;margin-bottom:6px;">🔐 Security Tips</div>
+                <div style="font-size:12px;color:#78350f;line-height:1.8;">
+                    • Use 12+ characters<br>• Mix uppercase, numbers & symbols<br>
+                    • Never reuse passwords<br>• Change every 6 months
+                </div>
+            </div>""", unsafe_allow_html=True)
+
+        # ── Sign out button at bottom ──
+        st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
+        st.markdown('<div class="sb-signout">', unsafe_allow_html=True)
+        if st.button("🚪  Sign Out", key="sb_signout"):
+            for k,v in [("logged_in",False),("user_name",""),("user_email",""),
+                        ("active_tab","predict"),("last_prediction",None),("last_inputs",None)]:
+                st.session_state[k] = v
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+
+# =====================================================
+# TOP NAV  (no sidebar toggle needed — sidebar always visible when logged in)
+# =====================================================
+def show_nav():
+    initials = get_initials(st.session_state.user_name)
+    st.markdown(f"""
+    <div class="top-nav">
+        <div class="nav-brand">💼 Salary<em>IQ</em></div>
+        <div class="nav-right">
+            <div class="nav-avatar">{initials}</div>
+            <span class="nav-name">{st.session_state.user_name}</span>
+        </div>
+    </div>""", unsafe_allow_html=True)
+
+    c1,c2,c3,c4,c5,c6 = st.columns(6)
+    tabs   = ["predict","insights","roadmap","dashboard","compare","leaderboard"]
+    labels = ["🔍 Predict","💡 Insights","🗺️ Roadmap","📊 Dashboard","⚖️ Compare","🏆 Leaderboard"]
+    for col, tab, label in zip([c1,c2,c3,c4,c5,c6], tabs, labels):
+        with col:
+            if st.button(label, key=f"nav_{tab}"):
+                st.session_state.active_tab = tab; st.rerun()
+
+
+# =====================================================
+# CONTENT TABS
+# =====================================================
+def show_predict():
+    st.markdown('<div class="page-wrap">', unsafe_allow_html=True)
+    st.markdown('<div class="page-title">Salary Prediction</div>', unsafe_allow_html=True)
+    st.markdown('<div class="page-sub">Fill in your profile — our KNN model trained on 250,000 records will estimate your market salary instantly.</div>', unsafe_allow_html=True)
+    col1,col2 = st.columns(2, gap="large")
+    with col1:
+        st.markdown('<div class="card"><div class="card-title">📊 Experience & Skills</div>', unsafe_allow_html=True)
+        exp    = st.number_input("Years of Experience", 0, 30, key="exp")
+        skills = st.number_input("Number of Skills",    1, 50, key="skills")
+        cert   = st.number_input("Certifications",      0, 20, key="cert")
+        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown('<div class="card"><div class="card-title">🎓 Education & Role</div>', unsafe_allow_html=True)
+        job = st.selectbox("Job Role",        job_options, key="job")
+        edu = st.selectbox("Education Level", edu_options, key="edu")
+        st.markdown('</div>', unsafe_allow_html=True)
+    with col2:
+        st.markdown('<div class="card"><div class="card-title">🏢 Company & Location</div>', unsafe_allow_html=True)
+        loc     = st.selectbox("Location",     loc_options,     key="loc")
+        ind     = st.selectbox("Industry",     ind_options,     key="ind")
+        company = st.selectbox("Company Size", company_options, key="company")
+        remote  = st.selectbox("Remote Work",  remote_options,  key="remote")
+        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="card" style="background:linear-gradient(135deg,#eef2ff,#f5f3ff);border-color:#c7d2fe;">
+            <div class="card-title" style="color:#4f46e5;">✨ What you'll get</div>
+            <div style="font-size:13px;color:#475569;line-height:1.9;">
+                💰 &nbsp;<strong>Instant salary prediction</strong><br>
+                💡 &nbsp;<strong>Personalised growth tips</strong><br>
+                🗺️ &nbsp;<strong>Step-by-step career roadmap</strong><br>
+                📈 &nbsp;<strong>Industry trends & benchmarks</strong><br>
+                ⚖️ &nbsp;<strong>Compare vs market salaries</strong>
+            </div>
         </div>""", unsafe_allow_html=True)
 
-    if st.button("🔍  Predict My Salary", key="predict_btn"):
+    _, bc, _ = st.columns([1,2,1])
+    with bc:
+        clicked = st.button("🔍  Predict My Salary", key="predict_btn")
+
+    if clicked:
         inp = {"experience_years":exp,"skills_count":skills,"certifications":cert,
                "job_title":job,"education_level":edu,"location":loc,
                "industry":ind,"company_size":company,"remote_work":remote}
@@ -793,277 +883,155 @@ def show_predict(model, scaler, columns):
         df["skill_per_exp"]  = df["skills_count"]/(df["experience_years"]+1)
         df["cert_per_skill"] = df["certifications"]/(df["skills_count"]+1)
         df["seniority"]      = pd.cut(df["experience_years"],bins=[0,2,5,10,20],labels=["Fresher","Junior","Mid","Senior"])
-        df = pd.get_dummies(df)
-        df = df.reindex(columns=columns,fill_value=0)
-        nc = [c for c in ["experience_years","skills_count","certifications","exp_squared","skill_per_exp","cert_per_skill"] if c in df.columns]
-        if nc: df[nc] = scaler.transform(df[nc])
+        df = pd.get_dummies(df).reindex(columns=columns, fill_value=0)
+        num_cols = ["experience_years","skills_count","certifications","exp_squared","skill_per_exp","cert_per_skill"]
+        df[num_cols] = scaler.transform(df[num_cols])
         salary = int(model.predict(df)[0])
         st.session_state.last_prediction = salary
         st.session_state.last_inputs     = inp
-
-        sf  = f"₹{salary:,}"
-        mon = f"₹{salary//12:,}"
+        save_prediction(st.session_state.user_email, salary, job, exp, skills)
+        monthly = f"₹{salary//12:,}"
         st.markdown(f"""
         <div class="result-hero">
-          <div class="result-hero-label">Your Estimated Annual Salary</div>
-          <div class="result-hero-amount">{sf}</div>
-          <div class="result-hero-sub">≈ {mon} / month &nbsp;·&nbsp; Powered by K-Nearest Neighbors AI</div>
+            <div class="result-hero-label">Your Estimated Annual Salary</div>
+            <div class="result-hero-amount">₹{salary:,}</div>
+            <div class="result-hero-sub">≈ {monthly} / month &nbsp;·&nbsp; Powered by K-Nearest Neighbors</div>
         </div>""", unsafe_allow_html=True)
-
-        sen = "Fresher" if exp<=2 else ("Junior" if exp<=5 else ("Mid-Level" if exp<=10 else "Senior"))
-        pot = f"₹{int(salary*1.35):,}"; pct = min(95,max(30,int(30+(salary/220000)*65)))
+        seniority  = "Fresher" if exp<=2 else ("Junior" if exp<=5 else ("Mid-Level" if exp<=10 else "Senior"))
+        potential  = f"₹{int(salary*1.35):,}"
+        percentile = min(95, max(30, int(30+(salary/220000)*65)))
         m1,m2,m3,m4 = st.columns(4)
-        with m1: st.markdown(f'<div class="metric-card"><div class="metric-label">Seniority</div><div class="metric-value" style="font-size:16px;">{sen}</div></div>', unsafe_allow_html=True)
-        with m2: st.markdown(f'<div class="metric-card"><div class="metric-label">Monthly</div><div class="metric-value" style="font-size:16px;">{mon}</div></div>', unsafe_allow_html=True)
-        with m3: st.markdown(f'<div class="metric-card"><div class="metric-label">Growth Potential</div><div class="metric-value" style="font-size:16px;">{pot}</div><div class="metric-sub">↑ 2–3 years</div></div>', unsafe_allow_html=True)
-        with m4: st.markdown(f'<div class="metric-card"><div class="metric-label">Percentile</div><div class="metric-value" style="font-size:16px;">{pct}th</div></div>', unsafe_allow_html=True)
+        with m1: st.markdown(f'<div class="metric-card"><div class="metric-label">Seniority Level</div><div class="metric-value" style="font-size:17px;">{seniority}</div></div>', unsafe_allow_html=True)
+        with m2: st.markdown(f'<div class="metric-card"><div class="metric-label">Monthly Salary</div><div class="metric-value" style="font-size:17px;">{monthly}</div></div>', unsafe_allow_html=True)
+        with m3: st.markdown(f'<div class="metric-card"><div class="metric-label">Growth Potential</div><div class="metric-value" style="font-size:17px;">{potential}</div><div class="metric-sub">↑ in 2–3 years</div></div>', unsafe_allow_html=True)
+        with m4: st.markdown(f'<div class="metric-card"><div class="metric-label">Market Percentile</div><div class="metric-value" style="font-size:17px;">{percentile}th</div></div>', unsafe_allow_html=True)
+        st.markdown("""<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:14px 20px;margin-top:8px;">
+            <span style="font-size:14px;color:#15803d;font-weight:600;">✅ Prediction saved!</span>
+            <span style="font-size:13px;color:#166534;"> &nbsp;·&nbsp; Explore <strong>Insights</strong>, <strong>Roadmap</strong> and <strong>Compare</strong> for your full career plan.</span>
+        </div>""", unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-        st.markdown(f'<div style="background:{SUCCESS_BG};border:1px solid {SUCCESS_B};border-radius:12px;padding:14px 18px;margin-top:12px;"><span style="font-size:14px;color:#10b981;font-weight:700;">✅ Prediction saved!</span><span style="font-size:13px;color:{TEXT2};"> Go to 💡 Insights to get tips and send to WhatsApp.</span></div>', unsafe_allow_html=True)
-        st.balloons()
-     
 
-# =========================
-# INSIGHTS PAGE (with WhatsApp)
-# =========================
 def show_insights():
     st.markdown('<div class="page-wrap">', unsafe_allow_html=True)
-    st.markdown('<div class="page-title">💡 Career Insights</div>', unsafe_allow_html=True)
+    st.markdown('<div class="page-title">Career Insights</div>', unsafe_allow_html=True)
     if not st.session_state.last_prediction:
-        st.markdown(f'<div style="text-align:center;padding:70px 20px;"><div style="font-size:56px;margin-bottom:16px;">💡</div><div style="font-size:20px;font-weight:800;color:{TEXT1};margin-bottom:8px;">Run a prediction first</div><div style="font-size:14px;color:{TEXT2};">Go to 🔍 Predict tab to get started.</div></div>', unsafe_allow_html=True)
+        st.markdown('<div style="text-align:center;padding:60px;"><div style="font-size:48px;">💡</div><div style="font-size:18px;font-weight:600;color:#0f172a;margin-top:12px;">Run a prediction first</div></div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True); return
-
     inp=st.session_state.last_inputs; salary=st.session_state.last_prediction
-    job=inp["job_title"]; exp=inp["experience_years"]; sc=inp["skills_count"]
+    job=inp["job_title"]; exp=inp["experience_years"]; skills=inp["skills_count"]
     cert=inp["certifications"]; edu=inp["education_level"]; ind=inp["industry"]
-    icon_map={"blue":"insight-icon-blue","green":"insight-icon-green","amber":"insight-icon-amber","rose":"insight-icon-rose"}
-
-    # ── Boost Tips ──
-    st.markdown(f'<div class="card"><div class="card-title">🚀 How to Boost Your Salary</div>', unsafe_allow_html=True)
-    for icon,title,desc,color in salary_boost_tips(job,exp,sc,cert,edu):
-        st.markdown(f'<div class="insight-card"><div class="insight-icon {icon_map[color]}">{icon}</div><div><div class="insight-title">{title}</div><div class="insight-desc">{desc}</div></div></div>', unsafe_allow_html=True)
+    st.markdown('<div class="card"><div class="card-title">🚀 How to Increase Your Salary</div>', unsafe_allow_html=True)
+    im={"blue":"insight-icon-blue","green":"insight-icon-green","amber":"insight-icon-amber","rose":"insight-icon-rose"}
+    for icon,title,desc,color in salary_boost_tips(job,exp,skills,cert,edu):
+        st.markdown(f'<div class="insight-card"><div class="insight-icon {im[color]}">{icon}</div><div><div class="insight-title">{title}</div><div class="insight-desc">{desc}</div></div></div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
-
-    ca,cb = st.columns(2,gap="large")
+    ca,cb = st.columns(2, gap="large")
     with ca:
-        top_skills = SKILLS_BY_ROLE.get(job,SKILLS_BY_ROLE["Other"])[:6]
-        boosts     = ["+₹8K–15K","+₹10K–20K","+₹6K–12K","+₹12K–25K","+₹5K–10K","+₹15K–30K"]
-        st.markdown(f'<div class="card"><div class="card-title">🛠️ Top Skills to Learn</div>', unsafe_allow_html=True)
+        top_skills=get_skills_to_learn(job,skills); boosts=["+₹8K–15K","+₹10K–20K","+₹6K–12K","+₹12K–25K","+₹5K–10K","+₹15K–30K"]
+        st.markdown('<div class="card"><div class="card-title">🛠️ Top Skills to Learn</div>', unsafe_allow_html=True)
         for i,(sk,b) in enumerate(zip(top_skills,boosts)):
             pct=90-i*10
-            st.markdown(f'<div class="compare-bar-wrap"><div class="compare-bar-label"><span style="font-size:13px;font-weight:500;color:{TEXT1};">{sk}</span><span class="trend-up">{b}/yr</span></div><div class="compare-bar-track"><div class="compare-bar-fill" style="width:{pct}%;background:linear-gradient(90deg,{ACCENT},{ACCENT2});"></div></div></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="compare-bar-wrap"><div class="compare-bar-label"><span style="font-size:13px;font-weight:500;color:#0f172a;">{sk}</span><span class="trend-up">{b}/yr</span></div><div class="compare-bar-track"><div class="compare-bar-fill" style="width:{pct}%;background:linear-gradient(90deg,#6366f1,#8b5cf6);"></div></div></div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
     with cb:
-        trend = INDUSTRY_TRENDS.get(ind,INDUSTRY_TRENDS["Other"])
-        st.markdown(f'<div class="card"><div class="card-title">📈 Industry Trends — {ind}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;"><div class="metric-card"><div class="metric-label">Growth</div><div class="metric-value">{trend["growth"]}</div><div class="metric-sub">↑ YoY</div></div><div class="metric-card"><div class="metric-label">Demand</div><div class="metric-value" style="font-size:15px;">{trend["demand"]}</div></div><div class="metric-card"><div class="metric-label">Top Pay</div><div class="metric-value" style="font-size:15px;">{trend["top_pay"]}</div></div><div class="metric-card"><div class="metric-label">Outlook</div><div class="metric-value" style="font-size:15px;">{trend["outlook"]}</div></div></div><div style="background:{ACCENT_SOFT};border-radius:12px;padding:12px 14px;border:1px solid {ACCENT_BORDER};"><div style="font-size:12px;color:{ACCENT};font-weight:700;margin-bottom:4px;">💡 Key Insight</div><div style="font-size:12px;color:{TEXT2};line-height:1.6;">Growing <strong style="color:{TEXT1};">{trend["growth"]}</strong>/yr. Top talent earns <strong style="color:{TEXT1};">{trend["top_pay"]}</strong>. Strong time to upskill and negotiate.</div></div></div>', unsafe_allow_html=True)
-
-    # ── What-If Simulator ──
-    st.markdown(f'<div class="card"><div class="card-title">⚡ What-If Salary Simulator</div><p style="font-size:13px;color:{TEXT2};margin-bottom:16px;">Drag sliders to see the salary impact of each improvement.</p>', unsafe_allow_html=True)
-    s1,s2,s3 = st.columns(3)
-    with s1:
-        xe=st.slider("+Experience yrs",0,10,2,key="sim_exp"); se=int(salary*(1+xe*0.055))
-        st.markdown(f'<div class="metric-card"><div class="metric-label">+{xe} yrs exp</div><div class="metric-value">₹{se:,}</div><div class="metric-sub trend-up">+₹{se-salary:,}</div></div>', unsafe_allow_html=True)
-    with s2:
-        xs=st.slider("+Skills",0,10,3,key="sim_skills"); ss=int(salary*(1+xs*0.028))
-        st.markdown(f'<div class="metric-card"><div class="metric-label">+{xs} skills</div><div class="metric-value">₹{ss:,}</div><div class="metric-sub trend-up">+₹{ss-salary:,}</div></div>', unsafe_allow_html=True)
-    with s3:
-        xc=st.slider("+Certifications",0,5,1,key="sim_cert"); sc_=int(salary*(1+xc*0.04))
-        st.markdown(f'<div class="metric-card"><div class="metric-label">+{xc} certs</div><div class="metric-value">₹{sc_:,}</div><div class="metric-sub trend-up">+₹{sc_-salary:,}</div></div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-
-    # ── WhatsApp Feature ──
-    st.markdown(f"""
-    <div class="wa-card">
-      <div class="wa-title">📱 Send Insights to WhatsApp</div>
-      <div class="wa-desc">
-        Get your complete career insights report — salary prediction, growth tips, skill roadmap, and industry trends — delivered directly to your WhatsApp. Enter your number below and click the button.
-      </div>
-    </div>""", unsafe_allow_html=True)
-
-    wa_col1, wa_col2 = st.columns([2,1], gap="medium")
-    with wa_col1:
-        wa_number = st.text_input(
-            "📞 WhatsApp Number (with country code)",
-            placeholder="e.g. 919876543210  (91 for India)",
-            key="wa_number",
-            help="Enter your number with country code, no + or spaces. Example: 919876543210"
-        )
-    with wa_col2:
-        st.markdown("<div style='height:28px'></div>", unsafe_allow_html=True)
-        if st.button("📤 Generate WhatsApp Link", key="wa_btn"):
-            if not wa_number or not wa_number.strip().isdigit():
-                st.error("Please enter a valid number (digits only, with country code).")
-            else:
-                msg     = build_whatsapp_message(inp, salary)
-                encoded = urllib.parse.quote(msg)
-                wa_url  = f"https://wa.me/{wa_number.strip()}?text={encoded}"
-                st.session_state["wa_link"] = wa_url
-                st.session_state["wa_ready"] = True
-
-    if st.session_state.get("wa_ready"):
-        wa_url = st.session_state.get("wa_link","")
-        st.markdown(f"""
-        <div style="background:{SUCCESS_BG};border:1px solid {SUCCESS_B};border-radius:14px;padding:18px 20px;margin-top:12px;">
-          <div style="font-size:14px;font-weight:700;color:#10b981;margin-bottom:8px;">✅ WhatsApp link ready!</div>
-          <div style="font-size:13px;color:{TEXT2};margin-bottom:14px;line-height:1.6;">
-            Click the button below to open WhatsApp with your pre-filled career insights report. 
-            It will open WhatsApp Web or the app on your device.
-          </div>
-          <div class="wa-btn"><a href="{wa_url}" target="_blank">📱 Open WhatsApp & Send Report</a></div>
-          <div style="margin-top:12px;font-size:11px;color:{TEXT3};">ℹ️ Opens WhatsApp with your full report pre-filled. Just press Send!</div>
+        trend=get_industry_data(ind)
+        st.markdown('<div class="card"><div class="card-title">📈 Industry Salary Trends</div>', unsafe_allow_html=True)
+        st.markdown(f"""<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+            <div class="metric-card"><div class="metric-label">Industry Growth</div><div class="metric-value">{trend['growth']}</div><div class="metric-sub">↑ YoY</div></div>
+            <div class="metric-card"><div class="metric-label">Job Demand</div><div class="metric-value" style="font-size:16px;">{trend['demand']}</div></div>
+            <div class="metric-card"><div class="metric-label">Top Pay</div><div class="metric-value" style="font-size:16px;">{trend['top_pay']}</div></div>
+            <div class="metric-card"><div class="metric-label">Outlook</div><div class="metric-value" style="font-size:16px;">{trend['outlook']}</div></div>
+        </div>
+        <div style="background:#eef2ff;border-radius:10px;padding:14px 16px;">
+            <div style="font-size:13px;color:#4f46e5;font-weight:600;">💡 {ind} sector insight</div>
+            <div style="font-size:13px;color:#475569;margin-top:6px;line-height:1.5;">Growing at <strong>{trend['growth']}</strong> with <strong>{trend['demand'].lower()}</strong> demand. Top earners make <strong>{trend['top_pay']}</strong>.</div>
         </div>""", unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('<div class="card"><div class="card-title">⚡ What-If Salary Simulator</div>', unsafe_allow_html=True)
+    s1,s2,s3=st.columns(3)
+    with s1:
+        ee=st.slider("+ Years Experience",0,10,2,key="sim_exp"); se=int(salary*(1+ee*.055))
+        st.markdown(f'<div class="metric-card"><div class="metric-label">+{ee} yrs experience</div><div class="metric-value">₹{se:,}</div><div class="metric-sub trend-up">+₹{se-salary:,}</div></div>', unsafe_allow_html=True)
+    with s2:
+        es=st.slider("+ Skills Added",0,10,3,key="sim_sk"); ss=int(salary*(1+es*.028))
+        st.markdown(f'<div class="metric-card"><div class="metric-label">+{es} skills</div><div class="metric-value">₹{ss:,}</div><div class="metric-sub trend-up">+₹{ss-salary:,}</div></div>', unsafe_allow_html=True)
+    with s3:
+        ec=st.slider("+ Certifications",0,5,1,key="sim_c"); sc=int(salary*(1+ec*.04))
+        st.markdown(f'<div class="metric-card"><div class="metric-label">+{ec} certifications</div><div class="metric-value">₹{sc:,}</div><div class="metric-sub trend-up">+₹{sc-salary:,}</div></div>', unsafe_allow_html=True)
+    st.markdown('</div></div>', unsafe_allow_html=True)
 
-    st.markdown('</div>', unsafe_allow_html=True)
 
-# =========================
-# ROADMAP PAGE
-# =========================
 def show_roadmap():
     st.markdown('<div class="page-wrap">', unsafe_allow_html=True)
-    st.markdown('<div class="page-title">🗺️ Career Roadmap</div>', unsafe_allow_html=True)
+    st.markdown('<div class="page-title">Career Roadmap</div>', unsafe_allow_html=True)
     if not st.session_state.last_inputs:
-        st.markdown(f'<div style="text-align:center;padding:70px;"><div style="font-size:56px;margin-bottom:16px;">🗺️</div><div style="font-size:20px;font-weight:800;color:{TEXT1};margin-bottom:8px;">Run a prediction first</div></div>', unsafe_allow_html=True)
+        st.markdown('<div style="text-align:center;padding:60px;"><div style="font-size:48px;">🗺️</div><div style="font-size:18px;font-weight:600;color:#0f172a;margin-top:12px;">Run a prediction first</div></div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True); return
-
     inp=st.session_state.last_inputs; job=inp["job_title"]; exp=inp["experience_years"]
-    steps=ROADMAP_BY_ROLE.get(job,ROADMAP_BY_ROLE["Other"])
-    cs=0 if exp<=2 else (1 if exp<=5 else (2 if exp<=10 else (3 if exp<=15 else 4)))
-    sr=["₹40K–70K","₹70K–1.1L","₹1.1L–1.6L","₹1.6L–2.0L","₹2.0L+"]; er=["0–2 yrs","2–5 yrs","5–10 yrs","10–15 yrs","15+ yrs"]
-
-    cr,ci = st.columns([3,2],gap="large")
+    steps=get_roadmap(job); cs=0 if exp<=2 else(1 if exp<=5 else(2 if exp<=10 else(3 if exp<=15 else 4)))
+    cr,ci=st.columns([3,2],gap="large")
     with cr:
-        st.markdown(f'<div class="card"><div class="card-title">🗺️ Career Path — {job}</div>', unsafe_allow_html=True)
+        sr=["₹40K–70K","₹70K–1.1L","₹1.1L–1.6L","₹1.6L–2.0L","₹2.0L+"]; er=["0–2 yrs","2–5 yrs","5–10 yrs","10–15 yrs","15+ yrs"]
+        st.markdown('<div class="card"><div class="card-title">🗺️ Career Path — '+job+'</div>', unsafe_allow_html=True)
         for i,step in enumerate(steps):
-            if i<cs:    dot,badge,btxt="step-dot-done","badge-done","✓ Completed"
+            if i<cs:   dot,badge,btxt="step-dot-done","badge-done","✓ Completed"
             elif i==cs: dot,badge,btxt="step-dot-curr","badge-current","📍 You are here"
             else:       dot,badge,btxt="step-dot-next","badge-future",f"Next · {er[i]}"
             st.markdown(f'<div class="roadmap-step"><div class="step-dot {dot}">{i+1}</div><div><div class="step-title">{step}</div><div class="step-sub">{er[i]} &nbsp;·&nbsp; {sr[i]}</div><span class="step-badge {badge}">{btxt}</span></div></div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
     with ci:
-        curr=steps[cs]; nxt=steps[min(cs+1,len(steps)-1)]; sk=SKILLS_BY_ROLE.get(job,SKILLS_BY_ROLE["Other"])[:4]
-        st.markdown(f'<div class="card" style="background:{ACCENT_SOFT};border-color:{ACCENT_BORDER};margin-bottom:12px;"><div class="card-title">🎯 Your Next Goal</div><div style="font-size:18px;font-weight:800;color:{TEXT1};margin-bottom:8px;font-family:\'Plus Jakarta Sans\',sans-serif;">{nxt}</div><div style="font-size:13px;color:{TEXT2};line-height:1.6;">Currently at <strong style="color:{TEXT1};">{curr}</strong>. Build 1–2 impactful projects, master the skills below, and apply for senior roles.</div></div>', unsafe_allow_html=True)
-        st.markdown(f'<div class="card"><div class="card-title">🛠️ Skills for Next Level</div>', unsafe_allow_html=True)
-        for s in sk: st.markdown(f'<span class="pill">{s}</span>', unsafe_allow_html=True)
+        curr=steps[cs]; nxt=steps[min(cs+1,len(steps)-1)]; sk=get_skills_to_learn(job,0)[:4]
+        st.markdown(f'<div class="card" style="background:linear-gradient(135deg,#eef2ff,#f5f3ff);border-color:#c7d2fe;margin-bottom:12px;"><div class="card-title" style="color:#4f46e5;">🎯 Your Next Goal</div><div style="font-size:19px;font-weight:700;color:#1e1b4b;margin-bottom:8px;">{nxt}</div><div style="font-size:13px;color:#4338ca;line-height:1.6;">Currently at <strong>{curr}</strong>. Build 1–2 impactful projects, master these skills, then apply for the next level.</div></div>', unsafe_allow_html=True)
+        st.markdown('<div class="card"><div class="card-title">🛠️ Skills for Next Level</div>', unsafe_allow_html=True)
+        for s in sk:
+            st.markdown(f'<span style="display:inline-block;background:#eef2ff;color:#4f46e5;border-radius:99px;padding:5px 14px;font-size:13px;font-weight:500;margin:4px;border:1px solid #c7d2fe;">{s}</span>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
-        st.markdown(f'<div class="card"><div class="card-title">📅 Estimated Timeline</div><div style="font-size:13px;color:{TEXT2};line-height:2.4;">🟣 <strong style="color:{TEXT1};">Now:</strong> {steps[cs]}<br>🟢 <strong style="color:{TEXT1};">1–2 yrs:</strong> {steps[min(cs+1,len(steps)-1)]}<br>🔵 <strong style="color:{TEXT1};">3–5 yrs:</strong> {steps[min(cs+2,len(steps)-1)]}<br>⭐ <strong style="color:{TEXT1};">5+ yrs:</strong> {steps[-1]}</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="card"><div class="card-title">📅 Estimated Timeline</div><div style="font-size:13px;color:#475569;line-height:2.0;">🟣 &nbsp;<strong>Now:</strong> {steps[cs]}<br>🟢 &nbsp;<strong>1–2 yrs:</strong> {steps[min(cs+1,len(steps)-1)]}<br>🔵 &nbsp;<strong>3–5 yrs:</strong> {steps[min(cs+2,len(steps)-1)]}<br>⭐ &nbsp;<strong>5–8 yrs:</strong> {steps[-1]}</div></div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-# =========================
-# DASHBOARD PAGE
-# =========================
+
 def show_dashboard():
     st.markdown('<div class="page-wrap">', unsafe_allow_html=True)
-    st.markdown('<div class="page-title">📊 Dashboard</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="page-sub">Platform statistics and salary growth trends.</div>', unsafe_allow_html=True)
-    m1,m2,m3,m4 = st.columns(4)
-    with m1: st.markdown(f'<div class="metric-card"><div class="metric-label">Total Users</div><div class="metric-value">10K+</div><div class="metric-sub">↑ Growing daily</div></div>', unsafe_allow_html=True)
-    with m2: st.markdown(f'<div class="metric-card"><div class="metric-label">Predictions Made</div><div class="metric-value">50K+</div><div class="metric-sub">↑ This month</div></div>', unsafe_allow_html=True)
-    with m3: st.markdown(f'<div class="metric-card"><div class="metric-label">Model Accuracy</div><div class="metric-value">95%</div><div class="metric-sub">↑ KNN Model</div></div>', unsafe_allow_html=True)
-    with m4: st.markdown(f'<div class="metric-card"><div class="metric-label">Job Roles Covered</div><div class="metric-value">120+</div><div class="metric-sub">↑ Updated 2026</div></div>', unsafe_allow_html=True)
-    st.markdown("---")
-    cd = pd.DataFrame({"Experience":[0,1,2,3,4,5,6,7,8,9,10],"Salary":[20000,26000,34000,44000,58000,72000,92000,115000,138000,158000,175000]})
-    c1,c2 = st.columns(2,gap="large")
-    with c1:
-        st.subheader("📈 Salary Growth by Experience")
-        st.line_chart(cd,x="Experience",y="Salary",height=280)
-    with c2:
-        st.subheader("🌊 Cumulative Salary Trend")
-        st.area_chart(cd.set_index("Experience"),height=280)
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('<div class="page-title">My Dashboard</div><div class="page-sub">Your personal prediction history and statistics.</div>', unsafe_allow_html=True)
+    users=load_users(); preds=users.get(st.session_state.user_email,{}).get("predictions",[])
+    if not preds:
+        st.markdown('<div style="text-align:center;padding:60px;"><div style="font-size:48px;">📊</div><div style="font-size:18px;font-weight:600;color:#0f172a;margin-top:12px;">No predictions yet</div></div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True); return
+    sals=[p["salary"] for p in preds]; avg_sal=int(sum(sals)/len(sals)); best_sal=max(sals)
+    m1,m2,m3,m4=st.columns(4)
+    with m1: st.markdown(f'<div class="metric-card"><div class="metric-label">Total Predictions</div><div class="metric-value">{len(preds)}</div></div>', unsafe_allow_html=True)
+    with m2: st.markdown(f'<div class="metric-card"><div class="metric-label">Latest Salary</div><div class="metric-value" style="font-size:18px;">₹{sals[-1]:,}</div></div>', unsafe_allow_html=True)
+    with m3: st.markdown(f'<div class="metric-card"><div class="metric-label">Average Salary</div><div class="metric-value" style="font-size:18px;">₹{avg_sal:,}</div></div>', unsafe_allow_html=True)
+    with m4: st.markdown(f'<div class="metric-card"><div class="metric-label">Best Prediction</div><div class="metric-value" style="font-size:18px;">₹{best_sal:,}</div><div class="metric-sub">↑ Your peak</div></div>', unsafe_allow_html=True)
+    st.markdown('<div class="card" style="margin-top:12px;"><div class="card-title">📋 Prediction History</div>', unsafe_allow_html=True)
+    st.markdown('<div style="display:flex;gap:12px;padding:8px 0;border-bottom:1px solid #f1f5f9;"><span style="flex:.4;font-size:11px;font-weight:700;color:#94a3b8;">#</span><span style="flex:2;font-size:11px;font-weight:700;color:#94a3b8;">ROLE</span><span style="flex:1;font-size:11px;font-weight:700;color:#94a3b8;">EXP</span><span style="flex:1;font-size:11px;font-weight:700;color:#94a3b8;">SKILLS</span><span style="flex:1.5;font-size:11px;font-weight:700;color:#94a3b8;">SALARY</span><span style="flex:1.5;font-size:11px;font-weight:700;color:#94a3b8;">DATE</span></div>', unsafe_allow_html=True)
+    for i,p in enumerate(reversed(preds[-10:]),1):
+        ib=p["salary"]==best_sal
+        st.markdown(f'<div style="display:flex;gap:12px;padding:11px 0;border-bottom:1px solid #f8fafc;align-items:center;"><span style="flex:.4;font-size:13px;color:#94a3b8;">{i}</span><span style="flex:2;font-size:13px;font-weight:500;color:#0f172a;">{p.get("job","—")}</span><span style="flex:1;font-size:13px;color:#64748b;">{p.get("exp",0)} yrs</span><span style="flex:1;font-size:13px;color:#64748b;">{p.get("skills",0)}</span><span style="flex:1.5;font-size:14px;font-weight:700;color:#4f46e5;">₹{p["salary"]:,}{"&nbsp;⭐" if ib else ""}</span><span style="flex:1.5;font-size:12px;color:#94a3b8;">{p.get("date","—")}</span></div>', unsafe_allow_html=True)
+    st.markdown('</div></div>', unsafe_allow_html=True)
 
-# =========================
-# COMPARE PAGE
-# =========================
+
 def show_compare():
     st.markdown('<div class="page-wrap">', unsafe_allow_html=True)
-    st.markdown('<div class="page-title">⚖️ Compare Yourself</div>', unsafe_allow_html=True)
+    st.markdown('<div class="page-title">Compare Yourself</div><div class="page-sub">See how your predicted salary stacks up against market benchmarks.</div>', unsafe_allow_html=True)
     if not st.session_state.last_prediction:
-        st.markdown(f'<div style="text-align:center;padding:70px;"><div style="font-size:56px;margin-bottom:16px;">⚖️</div><div style="font-size:20px;font-weight:800;color:{TEXT1};margin-bottom:8px;">Run a prediction first</div></div>', unsafe_allow_html=True)
+        st.markdown('<div style="text-align:center;padding:60px;"><div style="font-size:48px;">⚖️</div><div style="font-size:18px;font-weight:600;color:#0f172a;margin-top:12px;">Run a prediction first</div></div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True); return
-
     salary=st.session_state.last_prediction; inp=st.session_state.last_inputs; job=inp["job_title"]
     base=max(40000,salary-random.randint(10000,20000))
-    top25=int(salary*1.22); top10=int(salary*1.48); top5=int(salary*1.75); mx=top5
-    bm=[("Entry Level (0–2 yrs)",int(base*0.6),"#94a3b8"),("Mid Level (3–6 yrs)",int(base*0.85),"#0ea5e9"),
-        ("📍 Your Salary",salary,ACCENT),("Top 25%",top25,ACCENT2),("Top 10%",top10,"#7c3aed"),("Top 5% — Elite",top5,"#9333ea")]
-    c1,c2 = st.columns([3,2],gap="large")
+    top25=int(salary*1.22); top10=int(salary*1.48); top5=int(salary*1.75); mv=top5
+    benchmarks=[("Entry Level (0–2 yrs)",int(base*.6),"#e2e8f0"),("Mid Level (3–6 yrs)",int(base*.85),"#c7d2fe"),
+                ("Your Salary",salary,"#6366f1"),("Top 25% in your role",top25,"#8b5cf6"),
+                ("Top 10% in your role",top10,"#7c3aed"),("Top 5% — Elite earner",top5,"#4338ca")]
+    c1,c2=st.columns([3,2],gap="large")
     with c1:
-        st.markdown(f'<div class="card"><div class="card-title">📊 Market Benchmarks — {job}</div>', unsafe_allow_html=True)
-        for label,val,color in bm:
-            pct=int((val/mx)*100); iy="Your Salary" in label
-            yb=f"background:{ACCENT_SOFT};border-radius:10px;padding:10px 12px;border:1px solid {ACCENT_BORDER};" if iy else ""
-            st.markdown(f'<div class="compare-bar-wrap" style="{yb}"><div class="compare-bar-label"><span style="font-size:13px;font-weight:{"700" if iy else "500"};color:{ACCENT if iy else TEXT1};">{label}</span><span style="font-size:13px;font-weight:700;color:{ACCENT if iy else TEXT1};">₹{val:,}</span></div><div class="compare-bar-track"><div class="compare-bar-fill" style="width:{pct}%;background:{color};"></div></div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="card"><div class="card-title">📊 Salary Benchmarks — {job}</div>', unsafe_allow_html=True)
+        for label,val,color in benchmarks:
+            pct=int((val/mv)*100); iy=label=="Your Salary"
+            st.markdown(f'<div class="compare-bar-wrap" style="{"background:#eef2ff;border-radius:8px;padding:8px 10px;border:1px solid #c7d2fe;" if iy else ""}"><div class="compare-bar-label"><span style="font-size:13px;font-weight:{"700" if iy else "500"};color:{"#4f46e5" if iy else "#374151"};"> {"📍 " if iy else ""}{label}</span><span style="font-size:13px;font-weight:600;color:{"#4f46e5" if iy else "#0f172a"};">₹{val:,}</span></div><div class="compare-bar-track"><div class="compare-bar-fill" style="width:{pct}%;background:{color};"></div></div></div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
     with c2:
         pr=min(95,max(25,int(30+(salary/top5)*65))); gap=max(0,top10-salary)
-        st.markdown(f'<div class="card" style="text-align:center;margin-bottom:14px;"><div class="card-title">🎯 Your Market Position</div><div style="font-size:52px;font-weight:900;background:linear-gradient(135deg,{ACCENT},{ACCENT2});-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-family:\'Plus Jakarta Sans\',sans-serif;">{pr}th</div><div style="font-size:13px;color:{TEXT2};margin-top:4px;">percentile in your field</div><div style="font-size:13px;color:{TEXT2};margin-top:12px;line-height:1.6;">You earn more than <strong style="color:{TEXT1};">{pr}%</strong> of similar professionals.{"" if pr>=90 else " Upskill to break into the top 10%!"}</div></div>', unsafe_allow_html=True)
-        st.markdown(f'<div class="card"><div class="card-title">💰 Gap to Top 10%</div><div style="font-size:22px;font-weight:800;color:{ACCENT};font-family:\'Plus Jakarta Sans\',sans-serif;">{"Already there! 🎉" if gap==0 else f"₹{gap:,}"}</div><div style="font-size:13px;color:{TEXT2};margin-top:8px;line-height:1.6;">{"You\'ve cracked the top 10% — exceptional!" if gap==0 else "Add 2–3 high-demand skills and apply for senior roles to close this gap in 1–2 years."}</div></div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-
-# =========================
-# LEADERBOARD PAGE
-# =========================
-def show_leaderboard():
-    st.markdown('<div class="page-wrap">', unsafe_allow_html=True)
-    st.markdown('<div class="page-title">🏆 Leaderboard</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="page-sub">Top predicted salaries across all SalaryIQ users.</div>', unsafe_allow_html=True)
-    if st.session_state.last_prediction:
-        s=st.session_state.last_prediction; j=st.session_state.last_inputs.get("job_title","Professional") if st.session_state.last_inputs else "Professional"; e=st.session_state.last_inputs.get("experience_years",0) if st.session_state.last_inputs else 0
-        st.markdown(f'<div style="background:{ACCENT_SOFT};border:1.5px solid {ACCENT_BORDER};border-radius:16px;padding:18px 22px;margin-bottom:22px;display:flex;align-items:center;justify-content:space-between;"><div><div style="font-size:10px;color:{ACCENT};font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Your Best Prediction</div><div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-size:20px;font-weight:800;color:{TEXT1};">{st.session_state.username} <span style="font-size:13px;color:{TEXT2};font-weight:400;">· {j} · {e} yrs</span></div></div><div style="text-align:right;"><div style="font-size:10px;color:{ACCENT};font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Predicted</div><div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-size:22px;font-weight:900;color:{ACCENT};">₹{s:,}</div></div></div>', unsafe_allow_html=True)
-    lb=[{"name":"Rahul S.","job":"AI Engineer","exp":8,"salary":195000},
-        {"name":"Priya M.","job":"Data Scientist","exp":6,"salary":175000},
-        {"name":"Arjun K.","job":"Cloud Engineer","exp":10,"salary":168000},
-        {"name":"Sneha R.","job":"Software Engineer","exp":7,"salary":155000},
-        {"name":"Vikram T.","job":"DevOps Engineer","exp":9,"salary":148000},
-        {"name":"Meera J.","job":"Product Manager","exp":8,"salary":142000},
-        {"name":"Kiran P.","job":"ML Engineer","exp":5,"salary":135000}]
-    medals=["🥇","🥈","🥉"]; rcls=["gold","silver","bronze"]
-    st.markdown(f'<div class="card"><div class="card-title">🏆 Top Earners — This Month</div>', unsafe_allow_html=True)
-    for i,e in enumerate(lb):
-        m=medals[i] if i<3 else f"#{i+1}"; c=rcls[i] if i<3 else ""
-        st.markdown(f'<div class="lb-row {c}"><div class="lb-rank">{m}</div><div style="flex:1;"><div class="lb-name">{e["name"]}</div><div class="lb-role">{e["job"]} &nbsp;·&nbsp; {e["exp"]} yrs exp</div></div><div class="lb-salary">₹{e["salary"]:,}</div></div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-
-# =========================
-# ENTRY POINT
-# =========================
-if not st.session_state.logged_in:
-    # auth theme toggle
-    st.sidebar.markdown('<div class="theme-sb" style="padding:16px 14px 8px;">', unsafe_allow_html=True)
-    if st.sidebar.button(TOGGLE_LBL, key="auth_theme"):
-        st.session_state.dark_mode = not st.session_state.dark_mode; st.rerun()
-    st.sidebar.markdown('</div>', unsafe_allow_html=True)
-
-    # Top navbar for auth
-    st.markdown(f'<div style="background:{HERO_BG};padding:18px 28px;border-radius:16px;text-align:center;font-family:\'Plus Jakarta Sans\',sans-serif;font-size:26px;font-weight:900;color:#fff;margin-bottom:24px;box-shadow:0 8px 32px rgba(99,102,241,0.3);">💼 SalaryIQ — Know Your Worth</div>', unsafe_allow_html=True)
-
-    menu = st.sidebar.radio("", ["🔐 Login","📝 Sign Up"], label_visibility="collapsed")
-    if "Login" in menu: show_login()
-    else:               show_signup()
-
-else:
-    try:
-        model, scaler, columns = load_model()
-        model_loaded = True
-    except:
-        model_loaded = False
-
-    if "wa_ready" not in st.session_state:
-        st.session_state["wa_ready"] = False
-
-    show_sidebar()
-    show_topbar()
-
-    tab = st.session_state.active_tab
-    if   tab == "home":        show_home()
-    elif tab == "predict":
-        if model_loaded: show_predict(model, scaler, columns)
-        else: st.error("⚠️ Model files not found. Please add knn_model.pkl, scaler.pkl, columns.pkl.")
-    elif tab == "insights":    show_insights()
-    elif tab == "roadmap":     show_roadmap()
-    elif tab == "dashboard":   show_dashboard()
-    elif tab == "compare":     show_compare()
-    elif tab == "leaderboard": show_leaderboard()
-
-# FOOTER
-st.markdown(f'<div class="footer">💼 SalaryIQ Pro &nbsp;·&nbsp; Made with ❤️ using Streamlit &nbsp;·&nbsp; AI-Powered Career Intelligence</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="card" style="text-align:center;margin-bottom:12px;"><div class="card-title">🎯 Your Market Position</div><div style="font-size:52px;font-weight:800;font-family:\'Syne\',sans-serif;background:linear-gradient(135deg,#6366f1,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">{pr}th</div><div style="font-size:14px;color:#64748b;">percentile in your field</div><div style="font-size:13px;color:#475569;margin-top:12px;line-height:1.6;">You earn more than <strong>{pr}%</strong> of professionals in similar roles. {"Focus on top skills to break into the top 10%." if pr<90 else "🎉 You are among the elite earners!"}</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="card"><div class="card-title">💰 Gap to Top 10%</div><div style="font-size:24px;font-weight:800;color:#4f46e5;font-family:\'Syne\',sans-serif;">{"Already there! 🎉" if gap==0 else f"₹{gap:,}"}</div><div style="font-size:13px;color:#64748b;margin-top:6px;line-heigh
