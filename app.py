@@ -104,6 +104,7 @@ defaults = {
     "logged_in": False, "username": "", "active_tab": "home",
     "last_prediction": None, "last_inputs": None,
     "dark_mode": True, "profile_section": "info", "edit_mode": False,
+    "show_public_home": True,
 }
 for k, v in defaults.items():
     if k not in st.session_state:
@@ -198,18 +199,6 @@ else:
     WA_BORDER     = "rgba(37,211,102,0.25)"
     WA_COLOR      = "#16a34a"
 
-# Sidebar state initialize
-if "show_profile" not in st.session_state:
-    st.session_state.show_profile = True
-
-# Toggle button exactly where arrow was
-toggle_col1, toggle_col2 = st.columns([1, 10])
-
-with toggle_col1:
-    if st.button("☰"):   # button icon
-        st.session_state.show_profile = not st.session_state.show_profile
-
-
 # =========================
 # INJECT CSS
 # =========================
@@ -221,26 +210,19 @@ html,body,[class*="css"]{{font-family:'Inter',sans-serif!important;}}
 #MainMenu,footer{{visibility:hidden!important;display:none!important;}}
 .block-container{{padding:0!important;max-width:100%!important;}}
 
-/* ── APP BG ── */
 .stApp{{background:{BG}!important;transition:all 0.4s ease;}}
 
+div {{color:#38BDF8!important;font-size:16px;}}
 
-/* Text Visibility */
-  div {{color:#38BDF8!important;font-size: 16px;
-}}
-
-/* ── SIDEBAR ── */
 section[data-testid="stSidebar"]{{
   background:{SIDEBAR_BG}!important;
   border-right:1px solid {CARD_BORDER}!important;
   min-width:270px!important; max-width:270px!important;
   transition:all 0.3s;
 }}
-
 section[data-testid="stSidebar"]>div{{padding:0!important;}}
 section[data-testid="stSidebar"] *{{color:{TEXT1}!important;}}
 
-/* PROFILE HEADER  */
 .profile-card{{
   background:{PROFILE_BG};padding:28px 20px 18px;text-align:center;
   position:relative;overflow:hidden;
@@ -280,7 +262,6 @@ section[data-testid="stSidebar"] *{{color:{TEXT1}!important;}}
 .profile-stat-val{{font-family:'Plus Jakarta Sans',sans-serif!important;font-size:16px;font-weight:800;color:#fff!important;}}
 .profile-stat-lbl{{font-size:9px;color:rgba(255,255,255,0.55)!important;margin-top:2px;text-transform:uppercase;letter-spacing:.5px;}}
 
-/* ── SIDEBAR INNER ── */
 .sidebar-inner{{padding:12px 14px;}}
 .sb-section-title{{
   font-size:10px;font-weight:700;color:{TEXT3}!important;
@@ -296,7 +277,6 @@ section[data-testid="stSidebar"] *{{color:{TEXT1}!important;}}
 .contact-label{{font-size:9px;color:{TEXT3}!important;text-transform:uppercase;letter-spacing:.5px;}}
 .contact-val{{font-size:12px;color:{TEXT1}!important;font-weight:500;margin-top:1px;word-break:break-all;}}
 
-/* ── SIGN OUT ── */
 .signout-wrap{{padding:8px 14px 16px;}}
 .signout-wrap .stButton>button{{
   background:rgba(239,68,68,0.08)!important;color:#ef4444!important;
@@ -306,7 +286,6 @@ section[data-testid="stSidebar"] *{{color:{TEXT1}!important;}}
 }}
 .signout-wrap .stButton>button:hover{{background:rgba(239,68,68,0.18)!important;}}
 
-/* ── THEME BTN SIDEBAR ── */
 .theme-sb .stButton>button{{
   background:{ACCENT_SOFT}!important;color:{ACCENT}!important;
   border:1.5px solid {ACCENT_BORDER}!important;
@@ -314,7 +293,6 @@ section[data-testid="stSidebar"] *{{color:{TEXT1}!important;}}
   box-shadow:none!important;border-radius:9px!important;
 }}
 
-/* ── TOP HEADER ── */
 .top-header{{
   background:{NAV_BG};border-bottom:1px solid {CARD_BORDER};
   padding:0 28px;display:flex;align-items:center;justify-content:space-between;
@@ -345,12 +323,6 @@ section[data-testid="stSidebar"] *{{color:{TEXT1}!important;}}
 }}
 .top-username{{font-size:13px;font-weight:600;color:{TEXT1}!important;}}
 
-/* ── NAV TABS ── */
-.nav-tabs-outer{{
-  background:{NAV_BG};border-bottom:1px solid {DIVIDER};padding:6px 20px;
-}}
-
-/* ── PAGE ── */
 .page-wrap{{padding:26px 28px 40px;max-width:1120px;margin:0 auto;}}
 .page-title{{
   font-family:'Plus Jakarta Sans',sans-serif!important;
@@ -359,7 +331,6 @@ section[data-testid="stSidebar"] *{{color:{TEXT1}!important;}}
 }}
 .page-sub{{font-size:14px;color:{TEXT2}!important;margin-bottom:22px;line-height:1.6;}}
 
-/* ── SECTION HEADING ── */
 .section-heading{{
   font-family:'Plus Jakarta Sans',sans-serif!important;
   font-size:13px;font-weight:700;color:{ACCENT}!important;
@@ -367,7 +338,6 @@ section[data-testid="stSidebar"] *{{color:{TEXT1}!important;}}
   display:flex;align-items:center;gap:6px;
 }}
 
-/* ── CARDS ── */
 .card{{
   background:{CARD_BG};border-radius:18px;
   border:1px solid {CARD_BORDER};padding:22px;
@@ -381,7 +351,6 @@ section[data-testid="stSidebar"] *{{color:{TEXT1}!important;}}
   padding-bottom:10px;border-bottom:1px solid {DIVIDER};
 }}
 
-/* ── METRIC CARDS ── */
 .metric-card{{
   background:{METRIC_BG};border:1px solid {CARD_BORDER};
   border-radius:14px;padding:16px 14px;
@@ -391,7 +360,6 @@ section[data-testid="stSidebar"] *{{color:{TEXT1}!important;}}
 .metric-value{{font-size:20px;font-weight:800;color:{TEXT1}!important;font-family:'Plus Jakarta Sans',sans-serif!important;}}
 .metric-sub{{font-size:11px;color:#10b981!important;font-weight:600;margin-top:4px;}}
 
-/* ── RESULT HERO ── */
 .result-hero{{
   background:{HERO_BG};border-radius:22px;
   padding:38px 32px;text-align:center;margin-bottom:22px;
@@ -412,7 +380,6 @@ section[data-testid="stSidebar"] *{{color:{TEXT1}!important;}}
 .result-hero-amount{{font-size:58px;font-weight:900;color:#fff!important;margin:10px 0;font-family:'Plus Jakarta Sans',sans-serif!important;position:relative;z-index:1;text-shadow:0 2px 20px rgba(0,0,0,0.2);}}
 .result-hero-sub{{font-size:13px;color:rgba(255,255,255,0.65)!important;position:relative;z-index:1;}}
 
-/* ── INSIGHT CARDS ── */
 .insight-card{{
   background:{CARD_BG};border-radius:14px;border:1px solid {CARD_BORDER};
   padding:16px 18px;margin-bottom:10px;display:flex;gap:14px;align-items:flex-start;
@@ -427,7 +394,6 @@ section[data-testid="stSidebar"] *{{color:{TEXT1}!important;}}
 .insight-title{{font-size:14px;font-weight:700;color:{TEXT1}!important;margin-bottom:4px;}}
 .insight-desc{{font-size:13px;color:{TEXT2}!important;line-height:1.6;}}
 
-/* ── ROADMAP ── */
 .roadmap-step{{display:flex;gap:14px;align-items:flex-start;padding:18px 0;border-bottom:1px solid {DIVIDER};}}
 .roadmap-step:last-child{{border-bottom:none;}}
 .step-dot{{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;margin-top:2px;}}
@@ -441,13 +407,11 @@ section[data-testid="stSidebar"] *{{color:{TEXT1}!important;}}
 .badge-done{{background:{'rgba(16,185,129,0.15)' if dm else '#dcfce7'};color:#10b981!important;}}
 .badge-future{{background:{'rgba(30,41,59,0.4)' if dm else '#f1f5f9'};color:{TEXT3}!important;}}
 
-/* ── COMPARE BARS ── */
 .compare-bar-wrap{{margin-bottom:14px;}}
 .compare-bar-label{{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;}}
 .compare-bar-track{{height:8px;background:{BAR_TRACK};border-radius:99px;overflow:hidden;}}
 .compare-bar-fill{{height:100%;border-radius:99px;}}
 
-/* ── LEADERBOARD ── */
 .lb-row{{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:14px;margin-bottom:8px;border:1px solid {CARD_BORDER};transition:all 0.2s;background:{CARD_BG};}}
 .lb-row:hover{{background:{ACCENT_SOFT};border-color:{ACCENT_BORDER};transform:translateX(3px);}}
 .lb-row.gold  {{background:{LB_GOLD};border-color:{'rgba(245,158,11,0.3)' if dm else '#fde68a'};}}
@@ -458,7 +422,6 @@ section[data-testid="stSidebar"] *{{color:{TEXT1}!important;}}
 .lb-role{{font-size:11px;color:{TEXT2}!important;margin-top:2px;}}
 .lb-salary{{font-size:16px;font-weight:800;color:{ACCENT}!important;font-family:'Plus Jakarta Sans',sans-serif!important;}}
 
-/* ── WHATSAPP CARD ── */
 .wa-card{{
   background:{WA_BG};border:1.5px solid {WA_BORDER};
   border-radius:16px;padding:20px;margin-top:18px;
@@ -474,7 +437,6 @@ section[data-testid="stSidebar"] *{{color:{TEXT1}!important;}}
 }}
 .wa-btn a:hover{{box-shadow:0 6px 24px rgba(37,211,102,0.45);transform:translateY(-1px);}}
 
-/* ── HOME CARDS ── */
 .feature-card{{
   background:{CARD_BG};border:1px solid {CARD_BORDER};
   padding:26px 20px;border-radius:20px;text-align:center;
@@ -485,7 +447,6 @@ section[data-testid="stSidebar"] *{{color:{TEXT1}!important;}}
 .feature-title{{font-family:'Plus Jakarta Sans',sans-serif!important;font-size:15px;font-weight:800;color:{TEXT1}!important;margin-bottom:6px;}}
 .feature-desc{{font-size:13px;color:{TEXT2}!important;line-height:1.5;}}
 
-/* ── STAT STRIP ── */
 .stat-strip{{
   background:{CARD_BG};border:1px solid {CARD_BORDER};border-radius:16px;
   display:flex;padding:20px 0;margin-bottom:24px;box-shadow:{GLOW};
@@ -495,7 +456,6 @@ section[data-testid="stSidebar"] *{{color:{TEXT1}!important;}}
 .stat-strip-val{{font-family:'Plus Jakarta Sans',sans-serif!important;font-size:24px;font-weight:900;background:linear-gradient(135deg,{ACCENT},{ACCENT2});-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}}
 .stat-strip-lbl{{font-size:11px;color:{TEXT2}!important;margin-top:3px;font-weight:500;}}
 
-/* ── LOGIN ── */
 .login-card{{
   background:{CARD_BG};border:1px solid {CARD_BORDER};
   padding:32px;border-radius:22px;box-shadow:{GLOW};
@@ -503,16 +463,13 @@ section[data-testid="stSidebar"] *{{color:{TEXT1}!important;}}
 .login-heading{{font-family:'Plus Jakarta Sans',sans-serif!important;font-size:26px;font-weight:900;color:{TEXT1}!important;margin-bottom:6px;}}
 .login-sub{{font-size:14px;color:{TEXT2}!important;margin-bottom:24px;}}
 
-/* ── FOOTER ── */
 .footer{{text-align:center;color:{TEXT3}!important;padding:24px;font-size:12px;border-top:1px solid {DIVIDER};margin-top:20px;}}
 
-/* ── MISC ── */
 .trend-up{{color:#10b981!important;font-weight:700;font-size:12px;}}
 .pill{{display:inline-block;background:{ACCENT_SOFT};color:{ACCENT}!important;border-radius:99px;padding:5px 14px;font-size:12px;font-weight:600;margin:3px;border:1px solid {ACCENT_BORDER};}}
 h1,h2,h3{{font-family:'Plus Jakarta Sans',sans-serif!important;color:{TEXT1}!important;}}
 p,li{{color:{TEXT2}!important;}}
 
-/* ── INPUTS ── */
 .stTextInput input,.stNumberInput input{{
   background:{INPUT_BG}!important;border:1.5px solid {CARD_BORDER}!important;
   border-radius:11px!important;color:#38BDF8!important;font-size:14px!important;padding:10px 14px!important;
@@ -525,7 +482,6 @@ p,li{{color:{TEXT2}!important;}}
 [data-baseweb="menu"] li,[role="option"]{{background:{OPT_BG}!important;color:{OPT_C}!important;font-size:14px!important;}}
 [data-baseweb="menu"] li:hover,[role="option"]:hover,[role="option"][aria-selected="true"]{{background:{OPT_H}!important;color:{OPT_CH}!important;}}
 
-/* ── BUTTONS ── */
 .stButton>button{{
   background:linear-gradient(135deg,{ACCENT},{ACCENT2})!important;
   display:flex!important;justify-content:center!important;align-items:center!important;
@@ -536,8 +492,15 @@ p,li{{color:{TEXT2}!important;}}
 }}
 .stButton>button:hover{{transform:translateY(-1px)!important;box-shadow:0 8px 24px rgba(99,102,241,0.45)!important;}}
 
-/* ── SLIDER ── */
 .stSlider>div>div>div>div{{background:linear-gradient(90deg,{ACCENT},{ACCENT2})!important;}}
+
+/* Public home Login button special style */
+.login-cta .stButton>button{{
+  background:linear-gradient(135deg,{ACCENT},{ACCENT2})!important;
+  font-size:16px!important;height:54px!important;
+  box-shadow:0 8px 24px rgba(99,102,241,0.4)!important;
+  border-radius:14px!important;
+}}
 </style>
 """, unsafe_allow_html=True)
 
@@ -633,7 +596,9 @@ def show_login():
             st.session_state.logged_in = True
             st.session_state.username  = u
             st.session_state.active_tab = "home"
-            st.success(f"Welcome {udata.get('name', u)} 🎉"); st.rerun()
+            st.session_state.show_public_home = False
+            st.success(f"Welcome {udata.get('name', u)} 🎉")
+            st.rerun()
         else:
             st.error("Invalid username or password")
     st.markdown('</div>', unsafe_allow_html=True)
@@ -660,7 +625,7 @@ def show_signup():
     st.markdown('</div>', unsafe_allow_html=True)
 
 # =========================
-# SIDEBAR
+# SIDEBAR (logged-in only)
 # =========================
 def show_sidebar():
     u     = st.session_state.username
@@ -715,12 +680,12 @@ def show_sidebar():
 
     elif sec == "edit":
         st.sidebar.markdown(f'<div class="sb-section-title">Edit Profile</div>', unsafe_allow_html=True)
-        nn = st.sidebar.text_input("Full Name",  value=name,  key="en")
-        ne = st.sidebar.text_input("Email",      value=email, key="ee")
-        np_ = st.sidebar.text_input("Phone",     value=phone, key="ep")
-        nc = st.sidebar.text_input("City",       value=city,  key="ec")
-        nl = st.sidebar.text_input("LinkedIn",   value=lnkd,  key="el")
-        nb = st.sidebar.text_area("Bio",         value=bio,   key="eb", height=70)
+        nn  = st.sidebar.text_input("Full Name",  value=name,  key="en")
+        ne  = st.sidebar.text_input("Email",      value=email, key="ee")
+        np_ = st.sidebar.text_input("Phone",      value=phone, key="ep")
+        nc  = st.sidebar.text_input("City",       value=city,  key="ec")
+        nl  = st.sidebar.text_input("LinkedIn",   value=lnkd,  key="el")
+        nb  = st.sidebar.text_area("Bio",         value=bio,   key="eb", height=70)
         if st.sidebar.button("💾 Save", key="save_p"):
             ud = get_user_data(u); ud.update({"name":nn,"email":ne,"phone":np_,"city":nc,"linkedin":nl,"bio":nb})
             st.session_state.users[u]=ud; save_users(st.session_state.users)
@@ -743,18 +708,20 @@ def show_sidebar():
     st.sidebar.markdown('</div>', unsafe_allow_html=True)
     st.sidebar.markdown(f'<div style="height:1px;background:{DIVIDER};margin:4px 0;"></div>', unsafe_allow_html=True)
 
-    # Theme toggle
     st.sidebar.markdown(f'<div style="padding:8px 14px 4px;"><div class="sb-section-title" style="margin:0 0 8px;">🎨 Appearance</div></div>', unsafe_allow_html=True)
     st.sidebar.markdown('<div class="theme-sb" style="padding:0 14px 8px;">', unsafe_allow_html=True)
     if st.sidebar.button(TOGGLE_LBL, key="theme_toggle"):
         st.session_state.dark_mode = not st.session_state.dark_mode; st.rerun()
     st.sidebar.markdown('</div>', unsafe_allow_html=True)
 
-    # Sign out
     st.sidebar.markdown(f'<div style="height:1px;background:{DIVIDER};margin:4px 0;"></div>', unsafe_allow_html=True)
     st.sidebar.markdown('<div class="signout-wrap">', unsafe_allow_html=True)
     if st.sidebar.button("🚪 Sign Out", key="signout"):
-        st.session_state.logged_in=False; st.session_state.last_prediction=None; st.session_state.last_inputs=None; st.rerun()
+        st.session_state.logged_in       = False
+        st.session_state.show_public_home = True
+        st.session_state.last_prediction  = None
+        st.session_state.last_inputs      = None
+        st.rerun()
     st.sidebar.markdown('</div>', unsafe_allow_html=True)
 
 # =========================
@@ -803,7 +770,6 @@ def show_topbar():
 def show_home():
     st.markdown('<div class="page-wrap">', unsafe_allow_html=True)
 
-    # Hero section
     st.markdown(f"""
     <div style="background:{HERO_BG};border-radius:24px;padding:48px 40px;margin-bottom:28px;
                 position:relative;overflow:hidden;box-shadow:0 16px 48px rgba(99,102,241,0.3);">
@@ -825,7 +791,6 @@ def show_home():
       </div>
     </div>""", unsafe_allow_html=True)
 
-    # Stats strip
     st.markdown(f"""
     <div class="stat-strip">
       <div class="stat-strip-item"><div class="stat-strip-val">50K+</div><div class="stat-strip-lbl">Predictions Made</div></div>
@@ -834,7 +799,6 @@ def show_home():
       <div class="stat-strip-item"><div class="stat-strip-val">10K+</div><div class="stat-strip-lbl">Active Users</div></div>
     </div>""", unsafe_allow_html=True)
 
-    # Feature cards
     f1,f2,f3,f4 = st.columns(4)
     cards = [("🎯","Accurate","KNN model trained on 250K+ real salary records across industries."),
              ("⚡","Instant","Get your salary prediction in under 1 second — no waiting."),
@@ -844,7 +808,6 @@ def show_home():
         with col:
             st.markdown(f'<div class="feature-card"><div class="feature-icon">{icon}</div><div class="feature-title">{title}</div><div class="feature-desc">{desc}</div></div>', unsafe_allow_html=True)
 
-    # How it works
     st.markdown(f'<br><div class="section-heading">🔄 How It Works</div>', unsafe_allow_html=True)
     h1,h2,h3,h4 = st.columns(4)
     steps = [("1️⃣","Fill Profile","Enter your experience, skills, education, and job details"),
@@ -939,10 +902,11 @@ def show_predict(model, scaler, columns):
 
         st.markdown(f'<div style="background:{SUCCESS_BG};border:1px solid {SUCCESS_B};border-radius:12px;padding:14px 18px;margin-top:12px;"><span style="font-size:14px;color:#10b981;font-weight:700;">✅ Prediction saved!</span><span style="font-size:13px;color:{TEXT2};"> Go to 💡 Insights to get tips and send to WhatsApp.</span></div>', unsafe_allow_html=True)
         st.balloons()
-     
+
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # =========================
-# INSIGHTS PAGE (with WhatsApp)
+# INSIGHTS PAGE
 # =========================
 def show_insights():
     st.markdown('<div class="page-wrap">', unsafe_allow_html=True)
@@ -956,7 +920,6 @@ def show_insights():
     cert=inp["certifications"]; edu=inp["education_level"]; ind=inp["industry"]
     icon_map={"blue":"insight-icon-blue","green":"insight-icon-green","amber":"insight-icon-amber","rose":"insight-icon-rose"}
 
-    # ── Boost Tips ──
     st.markdown(f'<div class="card"><div class="card-title">🚀 How to Boost Your Salary</div>', unsafe_allow_html=True)
     for icon,title,desc,color in salary_boost_tips(job,exp,sc,cert,edu):
         st.markdown(f'<div class="insight-card"><div class="insight-icon {icon_map[color]}">{icon}</div><div><div class="insight-title">{title}</div><div class="insight-desc">{desc}</div></div></div>', unsafe_allow_html=True)
@@ -975,7 +938,6 @@ def show_insights():
         trend = INDUSTRY_TRENDS.get(ind,INDUSTRY_TRENDS["Other"])
         st.markdown(f'<div class="card"><div class="card-title">📈 Industry Trends — {ind}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;"><div class="metric-card"><div class="metric-label">Growth</div><div class="metric-value">{trend["growth"]}</div><div class="metric-sub">↑ YoY</div></div><div class="metric-card"><div class="metric-label">Demand</div><div class="metric-value" style="font-size:15px;">{trend["demand"]}</div></div><div class="metric-card"><div class="metric-label">Top Pay</div><div class="metric-value" style="font-size:15px;">{trend["top_pay"]}</div></div><div class="metric-card"><div class="metric-label">Outlook</div><div class="metric-value" style="font-size:15px;">{trend["outlook"]}</div></div></div><div style="background:{ACCENT_SOFT};border-radius:12px;padding:12px 14px;border:1px solid {ACCENT_BORDER};"><div style="font-size:12px;color:{ACCENT};font-weight:700;margin-bottom:4px;">💡 Key Insight</div><div style="font-size:12px;color:{TEXT2};line-height:1.6;">Growing <strong style="color:{TEXT1};">{trend["growth"]}</strong>/yr. Top talent earns <strong style="color:{TEXT1};">{trend["top_pay"]}</strong>. Strong time to upskill and negotiate.</div></div></div>', unsafe_allow_html=True)
 
-    # ── What-If Simulator ──
     st.markdown(f'<div class="card"><div class="card-title">⚡ What-If Salary Simulator</div><p style="font-size:13px;color:{TEXT2};margin-bottom:16px;">Drag sliders to see the salary impact of each improvement.</p>', unsafe_allow_html=True)
     s1,s2,s3 = st.columns(3)
     with s1:
@@ -989,7 +951,6 @@ def show_insights():
         st.markdown(f'<div class="metric-card"><div class="metric-label">+{xc} certs</div><div class="metric-value">₹{sc_:,}</div><div class="metric-sub trend-up">+₹{sc_-salary:,}</div></div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # ── WhatsApp Feature ──
     st.markdown(f"""
     <div class="wa-card">
       <div class="wa-title">📱 Send Insights to WhatsApp</div>
@@ -1015,7 +976,7 @@ def show_insights():
                 msg     = build_whatsapp_message(inp, salary)
                 encoded = urllib.parse.quote(msg)
                 wa_url  = f"https://wa.me/{wa_number.strip()}?text={encoded}"
-                st.session_state["wa_link"] = wa_url
+                st.session_state["wa_link"]  = wa_url
                 st.session_state["wa_ready"] = True
 
     if st.session_state.get("wa_ready"):
@@ -1024,7 +985,7 @@ def show_insights():
         <div style="background:{SUCCESS_BG};border:1px solid {SUCCESS_B};border-radius:14px;padding:18px 20px;margin-top:12px;">
           <div style="font-size:14px;font-weight:700;color:#10b981;margin-bottom:8px;">✅ WhatsApp link ready!</div>
           <div style="font-size:13px;color:{TEXT2};margin-bottom:14px;line-height:1.6;">
-            Click the button below to open WhatsApp with your pre-filled career insights report. 
+            Click the button below to open WhatsApp with your pre-filled career insights report.
             It will open WhatsApp Web or the app on your device.
           </div>
           <div class="wa-btn"><a href="{wa_url}" target="_blank">📱 Open WhatsApp & Send Report</a></div>
@@ -1126,7 +1087,9 @@ def show_leaderboard():
     st.markdown('<div class="page-title">🏆 Leaderboard</div>', unsafe_allow_html=True)
     st.markdown(f'<div class="page-sub">Top predicted salaries across all SalaryIQ users.</div>', unsafe_allow_html=True)
     if st.session_state.last_prediction:
-        s=st.session_state.last_prediction; j=st.session_state.last_inputs.get("job_title","Professional") if st.session_state.last_inputs else "Professional"; e=st.session_state.last_inputs.get("experience_years",0) if st.session_state.last_inputs else 0
+        s=st.session_state.last_prediction
+        j=st.session_state.last_inputs.get("job_title","Professional") if st.session_state.last_inputs else "Professional"
+        e=st.session_state.last_inputs.get("experience_years",0) if st.session_state.last_inputs else 0
         st.markdown(f'<div style="background:{ACCENT_SOFT};border:1.5px solid {ACCENT_BORDER};border-radius:16px;padding:18px 22px;margin-bottom:22px;display:flex;align-items:center;justify-content:space-between;"><div><div style="font-size:10px;color:{ACCENT};font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Your Best Prediction</div><div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-size:20px;font-weight:800;color:{TEXT1};">{st.session_state.username} <span style="font-size:13px;color:{TEXT2};font-weight:400;">· {j} · {e} yrs</span></div></div><div style="text-align:right;"><div style="font-size:10px;color:{ACCENT};font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Predicted</div><div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-size:22px;font-weight:900;color:{ACCENT};">₹{s:,}</div></div></div>', unsafe_allow_html=True)
     lb=[{"name":"Rahul S.","job":"AI Engineer","exp":8,"salary":195000},
         {"name":"Priya M.","job":"Data Scientist","exp":6,"salary":175000},
@@ -1146,20 +1109,71 @@ def show_leaderboard():
 # =========================
 # ENTRY POINT
 # =========================
-if not st.session_state.logged_in:
-    # auth theme toggle
-    st.sidebar.markdown('<div class="theme-sb" style="padding:16px 14px 8px;">', unsafe_allow_html=True)
-    if st.sidebar.button(TOGGLE_LBL, key="auth_theme"):
-        st.session_state.dark_mode = not st.session_state.dark_mode; st.rerun()
-    st.sidebar.markdown('</div>', unsafe_allow_html=True)
 
-    # Top navbar for auth
+# CASE 1: Public Home Page — login se pehle sabse pehle yahi dikhega
+if not st.session_state.logged_in and st.session_state.show_public_home:
+
+    # Sidebar mein sirf theme toggle
+    st.sidebar.markdown(f'<div style="padding:20px 14px 8px;"><div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-size:18px;font-weight:900;color:{TEXT1};margin-bottom:4px;">💼 SalaryIQ</div><div style="font-size:12px;color:{TEXT2};">AI-Powered Career Intelligence</div></div>', unsafe_allow_html=True)
+    st.sidebar.markdown(f'<div style="height:1px;background:{DIVIDER};margin:8px 0 12px;"></div>', unsafe_allow_html=True)
+    st.sidebar.markdown('<div class="theme-sb" style="padding:0 14px 8px;">', unsafe_allow_html=True)
+    if st.sidebar.button(TOGGLE_LBL, key="pub_theme"):
+        st.session_state.dark_mode = not st.session_state.dark_mode
+        st.rerun()
+    st.sidebar.markdown('</div>', unsafe_allow_html=True)
+    st.sidebar.markdown(f'<div style="height:1px;background:{DIVIDER};margin:8px 0 12px;"></div>', unsafe_allow_html=True)
+    st.sidebar.markdown(f'<div style="padding:0 14px;font-size:12px;color:{TEXT2};line-height:1.8;">✅ 95% Accuracy<br>⚡ Instant Results<br>📱 WhatsApp Reports<br>🗺️ Career Roadmaps<br>📊 Industry Benchmarks</div>', unsafe_allow_html=True)
+
+    # Top banner
     st.markdown(f'<div style="background:{HERO_BG};padding:18px 28px;border-radius:16px;text-align:center;font-family:\'Plus Jakarta Sans\',sans-serif;font-size:26px;font-weight:900;color:#fff;margin-bottom:24px;box-shadow:0 8px 32px rgba(99,102,241,0.3);">💼 SalaryIQ — Know Your Worth</div>', unsafe_allow_html=True)
 
-    menu = st.sidebar.radio("", ["🔐 Login","📝 Sign Up"], label_visibility="collapsed")
-    if "Login" in menu: show_login()
-    else:               show_signup()
+    # Home page content
+    show_home()
 
+    # CTA login button at bottom
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown(f"""
+    <div style="background:{CARD_BG};border:1px solid {CARD_BORDER};border-radius:20px;padding:32px;text-align:center;margin-bottom:24px;box-shadow:{GLOW};">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:900;color:{TEXT1};margin-bottom:8px;">Ready to know your true salary? 🚀</div>
+      <div style="font-size:14px;color:{TEXT2};margin-bottom:24px;">Create a free account or log in to get your personalised salary prediction instantly.</div>
+    </div>""", unsafe_allow_html=True)
+
+    col1, col2, col3 = st.columns([1.5, 1, 1.5])
+    with col2:
+        st.markdown('<div class="login-cta">', unsafe_allow_html=True)
+        if st.button("🔐 Login / Sign Up", key="goto_login_btn"):
+            st.session_state.show_public_home = False
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+# CASE 2: Auth Page — Login ya Signup
+elif not st.session_state.logged_in and not st.session_state.show_public_home:
+
+    # Sidebar
+    st.sidebar.markdown('<div class="theme-sb" style="padding:16px 14px 8px;">', unsafe_allow_html=True)
+    if st.sidebar.button(TOGGLE_LBL, key="auth_theme"):
+        st.session_state.dark_mode = not st.session_state.dark_mode
+        st.rerun()
+    st.sidebar.markdown('</div>', unsafe_allow_html=True)
+    st.sidebar.markdown(f'<div style="height:1px;background:{DIVIDER};margin:8px 14px;"></div>', unsafe_allow_html=True)
+
+    # Back to home button
+    st.sidebar.markdown('<div style="padding:4px 14px 8px;">', unsafe_allow_html=True)
+    if st.sidebar.button("← Back to Home", key="back_home_btn"):
+        st.session_state.show_public_home = True
+        st.rerun()
+    st.sidebar.markdown('</div>', unsafe_allow_html=True)
+
+    # Top banner
+    st.markdown(f'<div style="background:{HERO_BG};padding:18px 28px;border-radius:16px;text-align:center;font-family:\'Plus Jakarta Sans\',sans-serif;font-size:26px;font-weight:900;color:#fff;margin-bottom:24px;box-shadow:0 8px 32px rgba(99,102,241,0.3);">💼 SalaryIQ — Know Your Worth</div>', unsafe_allow_html=True)
+
+    menu = st.sidebar.radio("", ["🔐 Login", "📝 Sign Up"], label_visibility="collapsed")
+    if "Login" in menu:
+        show_login()
+    else:
+        show_signup()
+
+# CASE 3: Logged In — Full Dashboard
 else:
     try:
         model, scaler, columns = load_model()
