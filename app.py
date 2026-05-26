@@ -101,7 +101,7 @@ INDUSTRY_TRENDS = {
 # SESSION STATE
 # =========================
 defaults = {
-    "logged_in": False, "username": "", "active_tab": "home",
+    "logged_in": False, "username": "", "active_tab": "predict",
     "last_prediction": None, "last_inputs": None,
     "dark_mode": True, "profile_section": "info", "edit_mode": False,
     "show_public_home": True,
@@ -208,9 +208,46 @@ st.markdown(f"""
 *,*::before,*::after{{box-sizing:border-box;margin:0;padding:0;}}
 html,body,[class*="css"]{{font-family:'Inter',sans-serif!important;}}
 #MainMenu,footer{{visibility:hidden!important;display:none!important;}}
-.block-container{{padding:0!important;max-width:100%!important;}}
 
+/* ── Streamlit root containers ── */
 .stApp{{background:{BG}!important;transition:all 0.4s ease;}}
+.stApp>div{{background:transparent!important;}}
+
+/* Remove ALL default block padding so our custom layout takes over */
+.block-container{{
+  padding:0!important;
+  max-width:100%!important;
+}}
+
+/* Streamlit v1.x main column wrapper — prevent it sitting under sticky nav */
+[data-testid="stAppViewContainer"]{{
+  padding-top:0!important;
+}}
+[data-testid="stAppViewBlockContainer"],
+[data-testid="stMainBlockContainer"]{{
+  padding-top:0!important;
+  padding-left:0!important;
+  padding-right:0!important;
+  max-width:100%!important;
+}}
+
+/* The actual scrollable content area: push it down by navbar height (60px) + a little breathing room */
+section.main > div.block-container,
+div[data-testid="stVerticalBlock"] > div:first-child{{
+  padding-top:0!important;
+}}
+
+/* Ensure the sticky header sits above everything */
+.top-header{{
+  position:sticky!important;
+  top:0!important;
+  z-index:999!important;
+}}
+
+/* Content wrapper offset — compensates for 60px sticky navbar */
+.page-wrap{{
+  padding-top:20px!important;
+}}
 
 div {{color:#38BDF8!important;font-size:16px;}}
 
@@ -296,7 +333,9 @@ section[data-testid="stSidebar"] *{{color:{TEXT1}!important;}}
 .top-header{{
   background:{NAV_BG};border-bottom:1px solid {CARD_BORDER};
   padding:0 28px;display:flex;align-items:center;justify-content:space-between;
-  height:60px;box-shadow:{GLOW};position:sticky;top:0;z-index:100;
+  height:60px;box-shadow:{GLOW};
+  position:sticky;top:0;z-index:999;
+  width:100%;box-sizing:border-box;
 }}
 .top-logo{{
   font-family:'Plus Jakarta Sans',sans-serif!important;
@@ -323,7 +362,20 @@ section[data-testid="stSidebar"] *{{color:{TEXT1}!important;}}
 }}
 .top-username{{font-size:13px;font-weight:600;color:{TEXT1}!important;}}
 
-.page-wrap{{padding:26px 28px 40px;max-width:1120px;margin:0 auto;}}
+.page-wrap{{
+  padding:24px 28px 40px;
+  max-width:1120px;
+  margin:0 auto;
+}}
+
+/* ── Responsive: mobile ── */
+@media(max-width:768px){{
+  .top-header{{padding:0 14px;height:54px;}}
+  .page-wrap{{padding:16px 14px 32px;}}
+  .result-hero-amount{{font-size:38px!important;}}
+  .stat-strip{{flex-wrap:wrap;}}
+  .stat-strip-item{{min-width:50%;border-bottom:1px solid {DIVIDER};}}
+}}
 .page-title{{
   font-family:'Plus Jakarta Sans',sans-serif!important;
   font-size:24px;font-weight:900;color:{TEXT1}!important;
@@ -593,9 +645,9 @@ def show_login():
         users = st.session_state.users
         udata = get_user_data(u) if u in users else None
         if udata and udata.get("password") == p:
-            st.session_state.logged_in = True
-            st.session_state.username  = u
-            st.session_state.active_tab = "home"
+            st.session_state.logged_in  = True
+            st.session_state.username   = u
+            st.session_state.active_tab = "predict"   # ← lands on Predict tab
             st.session_state.show_public_home = False
             st.success(f"Welcome {udata.get('name', u)} 🎉")
             st.rerun()
@@ -717,7 +769,7 @@ def show_sidebar():
     st.sidebar.markdown(f'<div style="height:1px;background:{DIVIDER};margin:4px 0;"></div>', unsafe_allow_html=True)
     st.sidebar.markdown('<div class="signout-wrap">', unsafe_allow_html=True)
     if st.sidebar.button("🚪 Sign Out", key="signout"):
-        st.session_state.logged_in       = False
+        st.session_state.logged_in        = False
         st.session_state.show_public_home = True
         st.session_state.last_prediction  = None
         st.session_state.last_inputs      = None
@@ -726,6 +778,7 @@ def show_sidebar():
 
 # =========================
 # TOP BAR + NAV TABS
+# ── "Home" tab removed from the logged-in nav ──
 # =========================
 def show_topbar():
     u = st.session_state.username
@@ -743,8 +796,9 @@ def show_topbar():
       </div>
     </div>""", unsafe_allow_html=True)
 
-    tabs   = ["home","predict","insights","roadmap","dashboard","compare","leaderboard"]
-    labels = ["🏠 Home","🔍 Predict","💡 Insights","🗺️ Roadmap","📊 Dashboard","⚖️ Compare","🏆 Leaderboard"]
+    # ── Home removed; starts directly at Predict ──
+    tabs   = ["predict","insights","roadmap","dashboard","compare","leaderboard"]
+    labels = ["🔍 Predict","💡 Insights","🗺️ Roadmap","📊 Dashboard","⚖️ Compare","🏆 Leaderboard"]
     active = st.session_state.active_tab
     cols   = st.columns(len(tabs))
     for i,(col,tab,label) in enumerate(zip(cols,tabs,labels)):
@@ -765,7 +819,7 @@ def show_topbar():
     st.markdown(f'<div style="height:1px;background:{DIVIDER};"></div>', unsafe_allow_html=True)
 
 # =========================
-# HOME PAGE
+# HOME PAGE  (public landing only)
 # =========================
 def show_home():
     st.markdown('<div class="page-wrap">', unsafe_allow_html=True)
@@ -1110,10 +1164,9 @@ def show_leaderboard():
 # ENTRY POINT
 # =========================
 
-# CASE 1: Public Home Page — login se pehle sabse pehle yahi dikhega
+# CASE 1: Public Home Page
 if not st.session_state.logged_in and st.session_state.show_public_home:
 
-    # Sidebar mein sirf theme toggle
     st.sidebar.markdown(f'<div style="padding:20px 14px 8px;"><div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-size:18px;font-weight:900;color:{TEXT1};margin-bottom:4px;">💼 SalaryIQ</div><div style="font-size:12px;color:{TEXT2};">AI-Powered Career Intelligence</div></div>', unsafe_allow_html=True)
     st.sidebar.markdown(f'<div style="height:1px;background:{DIVIDER};margin:8px 0 12px;"></div>', unsafe_allow_html=True)
     st.sidebar.markdown('<div class="theme-sb" style="padding:0 14px 8px;">', unsafe_allow_html=True)
@@ -1124,13 +1177,10 @@ if not st.session_state.logged_in and st.session_state.show_public_home:
     st.sidebar.markdown(f'<div style="height:1px;background:{DIVIDER};margin:8px 0 12px;"></div>', unsafe_allow_html=True)
     st.sidebar.markdown(f'<div style="padding:0 14px;font-size:12px;color:{TEXT2};line-height:1.8;">✅ 95% Accuracy<br>⚡ Instant Results<br>📱 WhatsApp Reports<br>🗺️ Career Roadmaps<br>📊 Industry Benchmarks</div>', unsafe_allow_html=True)
 
-    # Top banner
-    st.markdown(f'<div style="background:{HERO_BG};padding:18px 28px;border-radius:16px;text-align:center;font-family:\'Plus Jakarta Sans\',sans-serif;font-size:26px;font-weight:900;color:#fff;margin-bottom:24px;box-shadow:0 8px 32px rgba(99,102,241,0.3);">💼 SalaryIQ — Know Your Worth</div>', unsafe_allow_html=True)
+    st.markdown(f'<div style="background:{HERO_BG};padding:18px 28px;border-radius:16px;text-align:center;font-family:\'Plus Jakarta Sans\',sans-serif;font-size:26px;font-weight:900;color:#fff;margin-top:16px;margin-bottom:24px;box-shadow:0 8px 32px rgba(99,102,241,0.3);">💼 SalaryIQ — Know Your Worth</div>', unsafe_allow_html=True)
 
-    # Home page content
     show_home()
 
-    # CTA login button at bottom
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown(f"""
     <div style="background:{CARD_BG};border:1px solid {CARD_BORDER};border-radius:20px;padding:32px;text-align:center;margin-bottom:24px;box-shadow:{GLOW};">
@@ -1146,10 +1196,9 @@ if not st.session_state.logged_in and st.session_state.show_public_home:
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
-# CASE 2: Auth Page — Login ya Signup
+# CASE 2: Auth Page
 elif not st.session_state.logged_in and not st.session_state.show_public_home:
 
-    # Sidebar
     st.sidebar.markdown('<div class="theme-sb" style="padding:16px 14px 8px;">', unsafe_allow_html=True)
     if st.sidebar.button(TOGGLE_LBL, key="auth_theme"):
         st.session_state.dark_mode = not st.session_state.dark_mode
@@ -1157,15 +1206,13 @@ elif not st.session_state.logged_in and not st.session_state.show_public_home:
     st.sidebar.markdown('</div>', unsafe_allow_html=True)
     st.sidebar.markdown(f'<div style="height:1px;background:{DIVIDER};margin:8px 14px;"></div>', unsafe_allow_html=True)
 
-    # Back to home button
     st.sidebar.markdown('<div style="padding:4px 14px 8px;">', unsafe_allow_html=True)
     if st.sidebar.button("← Back to Home", key="back_home_btn"):
         st.session_state.show_public_home = True
         st.rerun()
     st.sidebar.markdown('</div>', unsafe_allow_html=True)
 
-    # Top banner
-    st.markdown(f'<div style="background:{HERO_BG};padding:18px 28px;border-radius:16px;text-align:center;font-family:\'Plus Jakarta Sans\',sans-serif;font-size:26px;font-weight:900;color:#fff;margin-bottom:24px;box-shadow:0 8px 32px rgba(99,102,241,0.3);">💼 SalaryIQ — Know Your Worth</div>', unsafe_allow_html=True)
+    st.markdown(f'<div style="background:{HERO_BG};padding:18px 28px;border-radius:16px;text-align:center;font-family:\'Plus Jakarta Sans\',sans-serif;font-size:26px;font-weight:900;color:#fff;margin-top:16px;margin-bottom:24px;box-shadow:0 8px 32px rgba(99,102,241,0.3);">💼 SalaryIQ — Know Your Worth</div>', unsafe_allow_html=True)
 
     menu = st.sidebar.radio("", ["🔐 Login", "📝 Sign Up"], label_visibility="collapsed")
     if "Login" in menu:
@@ -1173,7 +1220,7 @@ elif not st.session_state.logged_in and not st.session_state.show_public_home:
     else:
         show_signup()
 
-# CASE 3: Logged In — Full Dashboard
+# CASE 3: Logged In — Full Dashboard (no Home tab)
 else:
     try:
         model, scaler, columns = load_model()
@@ -1186,10 +1233,17 @@ else:
 
     show_sidebar()
     show_topbar()
+    st.markdown('<div style="height:8px;"></div>', unsafe_allow_html=True)
 
     tab = st.session_state.active_tab
-    if   tab == "home":        show_home()
-    elif tab == "predict":
+
+    # Guard: if somehow active_tab is still "home" from an old session, redirect to predict
+    if tab == "home":
+        st.session_state.active_tab = "predict"
+        tab = "predict"
+        st.rerun()
+
+    if   tab == "predict":
         if model_loaded: show_predict(model, scaler, columns)
         else: st.error("⚠️ Model files not found. Please add knn_model.pkl, scaler.pkl, columns.pkl.")
     elif tab == "insights":    show_insights()
