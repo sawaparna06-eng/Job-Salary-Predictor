@@ -104,7 +104,8 @@ defaults = {
     "logged_in": False, "username": "", "active_tab": "predict",
     "last_prediction": None, "last_inputs": None,
     "dark_mode": True, "profile_section": "info", "edit_mode": False,
-    "show_public_home": True,
+    "show_public_home": True, "sidebar_collapsed": False,
+    "auth_page": "signup",  # default: signup dikhega pehle
 }
 for k, v in defaults.items():
     if k not in st.session_state:
@@ -117,84 +118,84 @@ if "users" not in st.session_state:
 # =========================
 dm = st.session_state.dark_mode
 if dm:
-    BG            = "linear-gradient(135deg,#0a0f1e 0%,#0f172a 40%,#1a1040 100%)"
-    SIDEBAR_BG    = "#080d1a"
-    CARD_BG       = "rgba(15,23,42,0.95)"
-    CARD_BG2      = "rgba(20,30,55,0.9)"
-    CARD_BORDER   = "rgba(99,102,241,0.2)"
-    CARD_BORDER2  = "rgba(139,92,246,0.15)"
-    TEXT1         = "#f1f5f9"
-    TEXT2         = "#94a3b8"
-    TEXT3         = "#64748b"
-    ACCENT        = "#6366f1"
-    ACCENT2       = "#8b5cf6"
-    ACCENT3       = "#a78bfa"
-    ACCENT_SOFT   = "rgba(99,102,241,0.12)"
-    ACCENT_BORDER = "rgba(99,102,241,0.35)"
-    INPUT_BG      = "rgba(15,23,42,0.9)"
-    NAV_BG        = "rgba(8,13,26,0.98)"
-    DIVIDER       = "rgba(99,102,241,0.12)"
-    PROFILE_BG    = "linear-gradient(160deg,#312e81,#1e1b4b,#0f0a2e)"
-    HERO_BG       = "linear-gradient(135deg,#4338ca,#6d28d9,#7c3aed)"
-    BTN_INACTIVE  = "rgba(99,102,241,0.08)"
-    BTN_BORDER    = "rgba(99,102,241,0.25)"
-    OPT_BG        = "#0f172a"
-    OPT_H         = "rgba(99,102,241,0.2)"
-    OPT_C         = "#f1f5f9"
-    OPT_CH        = "#a78bfa"
-    METRIC_BG     = "rgba(10,15,30,0.9)"
-    BAR_TRACK     = "rgba(30,41,59,0.8)"
+    BG            = "linear-gradient(135deg,#020D12 0%,#041520 40%,#062030 100%)"
+    SIDEBAR_BG    = "#020D12"
+    CARD_BG       = "rgba(6,21,32,0.95)"
+    CARD_BG2      = "rgba(7,25,38,0.9)"
+    CARD_BORDER   = "rgba(34,211,238,0.2)"
+    CARD_BORDER2  = "rgba(14,165,201,0.15)"
+    TEXT1         = "#ECFEFF"
+    TEXT2         = "#67E8F9"
+    TEXT3         = "#0E7490"
+    ACCENT        = "#22D3EE"
+    ACCENT2       = "#0891B2"
+    ACCENT3       = "#67E8F9"
+    ACCENT_SOFT   = "rgba(34,211,238,0.1)"
+    ACCENT_BORDER = "rgba(34,211,238,0.35)"
+    INPUT_BG      = "rgba(6,21,32,0.9)"
+    NAV_BG        = "rgba(2,13,18,0.98)"
+    DIVIDER       = "rgba(34,211,238,0.12)"
+    PROFILE_BG    = "linear-gradient(160deg,#0C2B3A,#0E4563,#0C2B3A)"
+    HERO_BG       = "linear-gradient(135deg,#0C2B3A,#0E4563,#155E75)"
+    BTN_INACTIVE  = "rgba(34,211,238,0.08)"
+    BTN_BORDER    = "rgba(34,211,238,0.25)"
+    OPT_BG        = "#041520"
+    OPT_H         = "rgba(34,211,238,0.15)"
+    OPT_C         = "#ECFEFF"
+    OPT_CH        = "#22D3EE"
+    METRIC_BG     = "rgba(2,13,18,0.9)"
+    BAR_TRACK     = "rgba(7,25,38,0.8)"
     TOGGLE_LBL    = "☀️ Light Mode"
     SUCCESS_BG    = "rgba(16,185,129,0.1)"
     SUCCESS_B     = "rgba(16,185,129,0.3)"
     LB_GOLD       = "rgba(245,158,11,0.1)"
-    LB_SILVER     = "rgba(148,163,184,0.08)"
-    LB_BRONZE     = "rgba(180,83,9,0.1)"
-    STEP_NEXT_BG  = "rgba(15,23,42,0.6)"
-    STEP_NEXT_C   = "#475569"
-    STEP_NEXT_B   = "#1e293b"
-    GLOW          = "0 0 40px rgba(99,102,241,0.15)"
+    LB_SILVER     = "rgba(34,211,238,0.06)"
+    LB_BRONZE     = "rgba(14,116,144,0.1)"
+    STEP_NEXT_BG  = "rgba(6,21,32,0.6)"
+    STEP_NEXT_C   = "#0E7490"
+    STEP_NEXT_B   = "#0C2B3A"
+    GLOW          = "0 0 40px rgba(34,211,238,0.12)"
     WA_BG         = "rgba(37,211,102,0.12)"
     WA_BORDER     = "rgba(37,211,102,0.3)"
     WA_COLOR      = "#25D366"
 else:
-    BG            = "linear-gradient(135deg,#f0f4ff 0%,#faf5ff 50%,#f8f0ff 100%)"
-    SIDEBAR_BG    = "#fafbff"
-    CARD_BG       = "#ffffff"
-    CARD_BG2      = "#fafbff"
-    CARD_BORDER   = "#e0e7ff"
-    CARD_BORDER2  = "#ede9fe"
-    TEXT1         = "#1e1b4b"
-    TEXT2         = "#6b7280"
-    TEXT3         = "#9ca3af"
-    ACCENT        = "#4f46e5"
-    ACCENT2       = "#7c3aed"
-    ACCENT3       = "#6d28d9"
-    ACCENT_SOFT   = "#eef2ff"
-    ACCENT_BORDER = "#c7d2fe"
-    INPUT_BG      = "#f9fafb"
-    NAV_BG        = "#ffffff"
-    DIVIDER       = "#e0e7ff"
-    PROFILE_BG    = "linear-gradient(160deg,#4f46e5,#7c3aed,#6d28d9)"
-    HERO_BG       = "linear-gradient(135deg,#4338ca,#6d28d9,#7c3aed)"
-    BTN_INACTIVE  = "#f5f3ff"
-    BTN_BORDER    = "#c7d2fe"
-    OPT_BG        = "#ffffff"
-    OPT_H         = "#eef2ff"
-    OPT_C         = "#1e1b4b"
-    OPT_CH        = "#4f46e5"
-    METRIC_BG     = "#f8f9ff"
-    BAR_TRACK     = "#e5e7eb"
+    BG            = "linear-gradient(135deg,#ECFEFF 0%,#CFFAFE 50%,#E0F7FA 100%)"
+    SIDEBAR_BG    = "#F0FDFF"
+    CARD_BG       = "#FFFFFF"
+    CARD_BG2      = "#F0FDFF"
+    CARD_BORDER   = "#A5F3FC"
+    CARD_BORDER2  = "#CFFAFE"
+    TEXT1         = "#164E63"
+    TEXT2         = "#0E7490"
+    TEXT3         = "#67E8F9"
+    ACCENT        = "#0891B2"
+    ACCENT2       = "#0E7490"
+    ACCENT3       = "#155E75"
+    ACCENT_SOFT   = "#ECFEFF"
+    ACCENT_BORDER = "#A5F3FC"
+    INPUT_BG      = "#F0FDFF"
+    NAV_BG        = "#FFFFFF"
+    DIVIDER       = "#CFFAFE"
+    PROFILE_BG    = "linear-gradient(160deg,#164E63,#0E7490,#0891B2)"
+    HERO_BG       = "linear-gradient(135deg,#164E63,#155E75,#0E7490)"
+    BTN_INACTIVE  = "#ECFEFF"
+    BTN_BORDER    = "#A5F3FC"
+    OPT_BG        = "#FFFFFF"
+    OPT_H         = "#ECFEFF"
+    OPT_C         = "#164E63"
+    OPT_CH        = "#0891B2"
+    METRIC_BG     = "#F0FDFF"
+    BAR_TRACK     = "#CFFAFE"
     TOGGLE_LBL    = "🌙 Dark Mode"
-    SUCCESS_BG    = "#f0fdf4"
-    SUCCESS_B     = "#bbf7d0"
-    LB_GOLD       = "#fefce8"
-    LB_SILVER     = "#f8fafc"
-    LB_BRONZE     = "#fff7ed"
-    STEP_NEXT_BG  = "#f5f3ff"
-    STEP_NEXT_C   = "#9ca3af"
-    STEP_NEXT_B   = "#d1d5db"
-    GLOW          = "0 4px 24px rgba(79,70,229,0.1)"
+    SUCCESS_BG    = "#F0FDF4"
+    SUCCESS_B     = "#BBF7D0"
+    LB_GOLD       = "#FEFCE8"
+    LB_SILVER     = "#F0FDFF"
+    LB_BRONZE     = "#ECFEFF"
+    STEP_NEXT_BG  = "#ECFEFF"
+    STEP_NEXT_C   = "#67E8F9"
+    STEP_NEXT_B   = "#A5F3FC"
+    GLOW          = "0 4px 24px rgba(8,145,178,0.1)"
     WA_BG         = "rgba(37,211,102,0.08)"
     WA_BORDER     = "rgba(37,211,102,0.25)"
     WA_COLOR      = "#16a34a"
@@ -234,7 +235,13 @@ html,body,[class*="css"]{{font-family:'Inter',sans-serif!important;}}
 /* The actual scrollable content area: push it down by navbar height (60px) + a little breathing room */
 section.main > div.block-container,
 div[data-testid="stVerticalBlock"] > div:first-child{{
-  padding-top:0!important;
+  padding-top:20px!important;
+}}
+
+/* Remove default top margin from first element rendered in main area */
+[data-testid="stVerticalBlock"] > div:first-child > div:first-child{{
+  margin-top:0!important;
+  padding-top:20px!important;
 }}
 
 /* Ensure the sticky header sits above everything */
@@ -259,6 +266,9 @@ section[data-testid="stSidebar"]{{
 }}
 section[data-testid="stSidebar"]>div{{padding:0!important;}}
 section[data-testid="stSidebar"] *{{color:{TEXT1}!important;}}
+
+/* Collapsed sidebar narrow mode */
+{"section[data-testid='stSidebar']{min-width:80px!important;max-width:80px!important;}" if st.session_state.get("sidebar_collapsed") else ""}
 
 .profile-card{{
   background:{PROFILE_BG};padding:28px 20px 18px;text-align:center;
@@ -333,14 +343,15 @@ section[data-testid="stSidebar"] *{{color:{TEXT1}!important;}}
 .top-header{{
   background:{NAV_BG};border-bottom:1px solid {CARD_BORDER};
   padding:0 28px;display:flex;align-items:center;justify-content:space-between;
-  height:60px;box-shadow:{GLOW};
+  height:90px;box-shadow:{GLOW};
   position:sticky;top:0;z-index:999;
   width:100%;box-sizing:border-box;
 }}
 .top-logo{{
   font-family:'Plus Jakarta Sans',sans-serif!important;
   font-size:22px;font-weight:900;color:{TEXT1}!important;
-  display:flex;align-items:center;gap:10px;letter-spacing:-0.5px;
+  display:flex;align-items:center;gap:10px;letter-spacing:-0.5px;   position:relative;
+  top:6px; 
 }}
 .top-logo em{{
   background:linear-gradient(135deg,{ACCENT},{ACCENT2});
@@ -358,9 +369,11 @@ section[data-testid="stSidebar"] *{{color:{TEXT1}!important;}}
   background:linear-gradient(135deg,{ACCENT},{ACCENT2});
   display:flex;align-items:center;justify-content:center;
   font-size:13px;font-weight:700;color:#fff!important;
-  box-shadow:0 2px 8px rgba(99,102,241,0.35);
+  box-shadow:0 2px 8px rgba(99,102,241,0.35);  position:relative;
+  top:5px; 
 }}
-.top-username{{font-size:13px;font-weight:600;color:{TEXT1}!important;}}
+.top-username{{font-size:13px;font-weight:600;color:{TEXT1}!important; position:relative;
+  top:5px; }}
 
 .page-wrap{{
   padding:24px 28px 40px;
@@ -635,46 +648,63 @@ _Powered by SalaryIQ AI Platform_ 🤖"""
 # LOGIN PAGE
 # =========================
 def show_login():
-    st.markdown('<div class="login-card">', unsafe_allow_html=True)
-    st.markdown(f'<div class="login-heading">Welcome back 👋</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="login-sub">Sign in to your career intelligence dashboard</div>', unsafe_allow_html=True)
-    u = st.text_input("Username", placeholder="Enter your username", key="li_u")
-    p = st.text_input("Password", type="password", placeholder="Enter your password", key="li_p")
-    st.markdown("<div style='height:4px'></div>", unsafe_allow_html=True)
-    if st.button("Sign In →", key="li_btn"):
-        users = st.session_state.users
-        udata = get_user_data(u) if u in users else None
-        if udata and udata.get("password") == p:
-            st.session_state.logged_in  = True
-            st.session_state.username   = u
-            st.session_state.active_tab = "predict"   # ← lands on Predict tab
-            st.session_state.show_public_home = False
-            st.success(f"Welcome {udata.get('name', u)} 🎉")
+    _, col, _ = st.columns([1, 2, 1])
+    with col:
+        st.markdown(f'<div class="login-heading">Welcome back 👋</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="login-sub">Sign in to your career intelligence dashboard</div>', unsafe_allow_html=True)
+        st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+        u = st.text_input("Username", placeholder="Enter your username", key="li_u")
+        p = st.text_input("Password", type="password", placeholder="Enter your password", key="li_p")
+        st.markdown("<div style='height:4px'></div>", unsafe_allow_html=True)
+        if st.button("Sign In →", key="li_btn", use_container_width=True):
+            users = st.session_state.users
+            udata = get_user_data(u) if u in users else None
+            if udata and udata.get("password") == p:
+                st.session_state.logged_in  = True
+                st.session_state.username   = u
+                st.session_state.active_tab = "predict"
+                st.session_state.show_public_home = False
+                st.success(f"Welcome {udata.get('name', u)} 🎉")
+                st.rerun()
+            else:
+                st.error("Invalid username or password")
+        st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
+        st.markdown(f'<div style="text-align:center;font-size:13px;color:{TEXT2};">New here? <strong style="color:{ACCENT};">Create a free account</strong></div>', unsafe_allow_html=True)
+        if st.button("📝 Create Free Account", key="li_goto_signup", use_container_width=True):
+            st.session_state.auth_page = "signup"
             st.rerun()
-        else:
-            st.error("Invalid username or password")
-    st.markdown('</div>', unsafe_allow_html=True)
 
 def show_signup():
-    st.markdown('<div class="login-card">', unsafe_allow_html=True)
-    st.markdown(f'<div class="login-heading">Create account 🚀</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="login-sub">Join thousands discovering their true market value</div>', unsafe_allow_html=True)
-    name  = st.text_input("Full Name",        placeholder="John Doe",          key="su_name")
-    email = st.text_input("Email",            placeholder="you@example.com",   key="su_email")
-    u     = st.text_input("Username",         placeholder="Choose a username", key="su_u")
-    p     = st.text_input("Password",         type="password", placeholder="Min. 6 characters", key="su_p")
-    cp    = st.text_input("Confirm Password", type="password", placeholder="Repeat password",   key="su_cp")
-    if st.button("Create Account →", key="su_btn"):
-        if u in st.session_state.users: st.warning("Username already exists")
-        elif p != cp: st.warning("Passwords do not match")
-        elif len(p) < 6: st.warning("Password must be at least 6 characters")
-        elif not u: st.warning("Please fill all fields")
-        else:
-            st.session_state.users[u] = {"password":p,"name":name or u,"email":email,
-                "phone":"","city":"","linkedin":"","bio":"","joined":datetime.now().strftime("%d %b %Y")}
-            save_users(st.session_state.users)
-            st.success("Account created! Please login ✅")
-    st.markdown('</div>', unsafe_allow_html=True)
+    _, col, _ = st.columns([1, 2, 1])
+    with col:
+        st.markdown(f'<div class="login-heading">Create account 🚀</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="login-sub">Join thousands discovering their true market value</div>', unsafe_allow_html=True)
+        st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+        name  = st.text_input("Full Name",        placeholder="John Doe",          key="su_name")
+        email = st.text_input("Email",            placeholder="you@example.com",   key="su_email")
+        u     = st.text_input("Username",         placeholder="Choose a username", key="su_u")
+        p     = st.text_input("Password",         type="password", placeholder="Min. 6 characters", key="su_p")
+        cp    = st.text_input("Confirm Password", type="password", placeholder="Repeat password",   key="su_cp")
+        if st.button("Create Account →", key="su_btn", use_container_width=True):
+            if u in st.session_state.users:
+                st.warning("Username already exists! Please login instead.")
+                st.session_state.auth_page = "login"
+                st.rerun()
+            elif p != cp: st.warning("Passwords do not match")
+            elif len(p) < 6: st.warning("Password must be at least 6 characters")
+            elif not u: st.warning("Please fill all fields")
+            else:
+                st.session_state.users[u] = {"password":p,"name":name or u,"email":email,
+                    "phone":"","city":"","linkedin":"","bio":"","joined":datetime.now().strftime("%d %b %Y")}
+                save_users(st.session_state.users)
+                st.success("Account created! Redirecting to login... ✅")
+                st.session_state.auth_page = "login"
+                st.rerun()
+        st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
+        st.markdown(f'<div style="text-align:center;font-size:13px;color:{TEXT2};">Already have an account?</div>', unsafe_allow_html=True)
+        if st.button("🔐 Login to your account", key="su_goto_login", use_container_width=True):
+            st.session_state.auth_page = "login"
+            st.rerun()
 
 # =========================
 # SIDEBAR (logged-in only)
@@ -693,10 +723,41 @@ def show_sidebar():
     pred_count = 1 if st.session_state.last_prediction else 0
     best_salary = st.session_state.last_prediction or 0
     best_fmt = f"₹{best_salary//1000}K" if best_salary else "—"
+    pic_data = udata.get("profile_pic","")
+
+    # Collapse/Expand toggle button at the very top
+    collapsed = st.session_state.get("sidebar_collapsed", False)
+    toggle_arrow = "»" if collapsed else "«"
+    st.sidebar.markdown(f"""
+    <style>
+    .collapse-btn-wrap {{text-align:right;padding:8px 10px 0px;}}
+    .collapse-btn-wrap button {{background:transparent!important;border:1px solid {CARD_BORDER}!important;
+      color:{TEXT2}!important;border-radius:8px!important;font-size:16px!important;font-weight:700!important;
+      width:36px!important;height:36px!important;min-height:36px!important;padding:0!important;cursor:pointer;
+      box-shadow:none!important;}}
+    </style>
+    """, unsafe_allow_html=True)
+    if st.sidebar.button(toggle_arrow, key="sb_collapse_btn"):
+        st.session_state.sidebar_collapsed = not collapsed
+        st.rerun()
+
+    if collapsed:
+        # Minimized sidebar: show only avatar and expand arrow hint
+        if pic_data:
+            st.sidebar.markdown(f'<div style="text-align:center;padding:10px 0;"><img src="{pic_data}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,0.5);"/></div>', unsafe_allow_html=True)
+        else:
+            st.sidebar.markdown(f'<div style="text-align:center;padding:10px 0;"><div style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,0.2);margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;border:3px solid rgba(255,255,255,0.5);">{initials}</div></div>', unsafe_allow_html=True)
+        return  # Don't render rest of sidebar when collapsed
+
+    # Profile card with optional photo
+    if pic_data:
+        avatar_html = f'<img src="{pic_data}" style="width:76px;height:76px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,0.5);box-shadow:0 4px 20px rgba(0,0,0,0.3);position:relative;z-index:1;"/>'
+    else:
+        avatar_html = f'<div class="profile-avatar">{initials}</div>'
 
     st.sidebar.markdown(f"""
     <div class="profile-card">
-      <div class="profile-avatar">{initials}</div>
+      {avatar_html}
       <div class="profile-name">{name}</div>
       <div class="profile-email">{email or '—'}</div>
       <div class="profile-since">Member since {joined}</div>
@@ -732,6 +793,28 @@ def show_sidebar():
 
     elif sec == "edit":
         st.sidebar.markdown(f'<div class="sb-section-title">Edit Profile</div>', unsafe_allow_html=True)
+        # Profile picture upload
+        st.sidebar.markdown(f'<div style="font-size:11px;color:{TEXT2};font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Profile Picture</div>', unsafe_allow_html=True)
+        uploaded_pic = st.sidebar.file_uploader("Upload Photo", type=["png","jpg","jpeg","webp"], key="pic_upload", label_visibility="collapsed")
+        if uploaded_pic is not None:
+            import base64
+            pic_bytes = uploaded_pic.read()
+            pic_b64 = base64.b64encode(pic_bytes).decode()
+            mime = uploaded_pic.type
+            pic_data_url = f"data:{mime};base64,{pic_b64}"
+            ud = get_user_data(u)
+            ud["profile_pic"] = pic_data_url
+            st.session_state.users[u] = ud
+            save_users(st.session_state.users)
+            st.sidebar.success("Photo updated ✅")
+            st.rerun()
+        if pic_data:
+            if st.sidebar.button("🗑️ Remove Photo", key="rm_pic"):
+                ud = get_user_data(u)
+                ud["profile_pic"] = ""
+                st.session_state.users[u] = ud
+                save_users(st.session_state.users)
+                st.rerun()
         nn  = st.sidebar.text_input("Full Name",  value=name,  key="en")
         ne  = st.sidebar.text_input("Email",      value=email, key="ee")
         np_ = st.sidebar.text_input("Phone",      value=phone, key="ep")
@@ -879,7 +962,10 @@ def show_home():
 # =========================
 def show_predict(model, scaler, columns):
     jo = ["Other"]+get_options(columns,"job_title_")
-    eo = ["Other"]+get_options(columns,"education_level_")
+    eo_raw = get_options(columns,"education_level_")
+    if "Bachelor" not in eo_raw:
+        eo_raw.append("Bachelor")
+    eo = ["Other"] + sorted(eo_raw)
     lo = ["Other"]+get_options(columns,"location_")
     io = ["Other"]+get_options(columns,"industry_")
     co = ["Other"]+get_options(columns,"company_size_")
@@ -1128,10 +1214,32 @@ def show_compare():
             st.markdown(f'<div class="compare-bar-wrap" style="{yb}"><div class="compare-bar-label"><span style="font-size:13px;font-weight:{"700" if iy else "500"};color:{ACCENT if iy else TEXT1};">{label}</span><span style="font-size:13px;font-weight:700;color:{ACCENT if iy else TEXT1};">₹{val:,}</span></div><div class="compare-bar-track"><div class="compare-bar-fill" style="width:{pct}%;background:{color};"></div></div></div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
     with c2:
-        pr=min(95,max(25,int(30+(salary/top5)*65))); gap=max(0,top10-salary)
-        st.markdown(f'<div class="card" style="text-align:center;margin-bottom:14px;"><div class="card-title">🎯 Your Market Position</div><div style="font-size:52px;font-weight:900;background:linear-gradient(135deg,{ACCENT},{ACCENT2});-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-family:\'Plus Jakarta Sans\',sans-serif;">{pr}th</div><div style="font-size:13px;color:{TEXT2};margin-top:4px;">percentile in your field</div><div style="font-size:13px;color:{TEXT2};margin-top:12px;line-height:1.6;">You earn more than <strong style="color:{TEXT1};">{pr}%</strong> of similar professionals.{"" if pr>=90 else " Upskill to break into the top 10%!"}</div></div>', unsafe_allow_html=True)
-        st.markdown(f'<div class="card"><div class="card-title">💰 Gap to Top 10%</div><div style="font-size:22px;font-weight:800;color:{ACCENT};font-family:\'Plus Jakarta Sans\',sans-serif;">{"Already there! 🎉" if gap==0 else f"₹{gap:,}"}</div><div style="font-size:13px;color:{TEXT2};margin-top:8px;line-height:1.6;">{"You\'ve cracked the top 10% — exceptional!" if gap==0 else "Add 2–3 high-demand skills and apply for senior roles to close this gap in 1–2 years."}</div></div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+     pr = min(95, max(25, int(30 + (salary / top5) * 65)))
+     gap = max(0, top10 - salary)
+
+     upskill_msg = "" if pr >= 90 else " Upskill to break into the top 10%!"
+     st.markdown(
+        f'<div class="card" style="text-align:center;margin-bottom:14px;">'
+        f'<div class="card-title">🎯 Your Market Position</div>'
+        f'<div style="font-size:52px;font-weight:900;background:linear-gradient(135deg,{ACCENT},{ACCENT2});'
+        f'-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;'
+        f'font-family:\'Plus Jakarta Sans\',sans-serif;">{pr}th</div>'
+        f'<div style="font-size:13px;color:{TEXT2};margin-top:4px;">percentile in your field</div>'
+        f'<div style="font-size:13px;color:{TEXT2};margin-top:12px;line-height:1.6;">'
+        f'You earn more than <strong style="color:{TEXT1};">{pr}%</strong> of similar professionals.{upskill_msg}'
+        f'</div></div>',
+        unsafe_allow_html=True
+    )
+
+     gap_value = "Already there! 🎉" if gap == 0 else f"₹{gap:,}"
+     gap_msg = "You've cracked the top 10% — exceptional!" if gap == 0 else "Add 2–3 high-demand skills and apply for senior roles to close this gap in 1–2 years."
+     st.markdown(
+        f'<div class="card"><div class="card-title">💰 Gap to Top 10%</div>'
+        f'<div style="font-size:22px;font-weight:800;color:{ACCENT};font-family:\'Plus Jakarta Sans\',sans-serif;">{gap_value}</div>'
+        f'<div style="font-size:13px;color:{TEXT2};margin-top:8px;line-height:1.6;">{gap_msg}</div></div>',
+        unsafe_allow_html=True
+    )
+st.markdown('</div>', unsafe_allow_html=True)
 
 # =========================
 # LEADERBOARD PAGE
@@ -1212,10 +1320,35 @@ elif not st.session_state.logged_in and not st.session_state.show_public_home:
         st.rerun()
     st.sidebar.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown(f'<div style="background:{HERO_BG};padding:18px 28px;border-radius:16px;text-align:center;font-family:\'Plus Jakarta Sans\',sans-serif;font-size:26px;font-weight:900;color:#fff;margin-top:16px;margin-bottom:24px;box-shadow:0 8px 32px rgba(99,102,241,0.3);">💼 SalaryIQ — Know Your Worth</div>', unsafe_allow_html=True)
+    st.markdown(f'<div style="background:{HERO_BG};padding:18px 28px;border-radius:16px;text-align:center;font-family:\'Plus Jakarta Sans\',sans-serif;font-size:26px;font-weight:900;color:#fff;margin-top:0;margin-bottom:24px;box-shadow:0 8px 32px rgba(99,102,241,0.3);">💼 SalaryIQ — Know Your Worth</div>', unsafe_allow_html=True)
 
-    menu = st.sidebar.radio("", ["🔐 Login", "📝 Sign Up"], label_visibility="collapsed")
-    if "Login" in menu:
+    # Sidebar nav buttons (radio hata diya — wo session state override karta tha)
+    st.sidebar.markdown(f'<div style="padding:0 14px 8px;">', unsafe_allow_html=True)
+    cur = st.session_state.auth_page
+    login_style  = f"background:linear-gradient(135deg,{ACCENT},{ACCENT2})!important;color:#fff!important;" if cur=="login"  else ""
+    signup_style = f"background:linear-gradient(135deg,{ACCENT},{ACCENT2})!important;color:#fff!important;" if cur=="signup" else ""
+    st.sidebar.markdown(f"""
+    <style>
+    div[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] .sb-nav-login .stButton>button  {{ {login_style} }}
+    div[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] .sb-nav-signup .stButton>button {{ {signup_style} }}
+    </style>
+    """, unsafe_allow_html=True)
+    c1, c2 = st.sidebar.columns(2)
+    with c1:
+        st.markdown('<div class="sb-nav-login">', unsafe_allow_html=True)
+        if st.sidebar.button("🔐 Login", key="sb_nav_login"):
+            st.session_state.auth_page = "login"
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+    with c2:
+        st.markdown('<div class="sb-nav-signup">', unsafe_allow_html=True)
+        if st.sidebar.button("📝 Sign Up", key="sb_nav_signup"):
+            st.session_state.auth_page = "signup"
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+    st.sidebar.markdown('</div>', unsafe_allow_html=True)
+
+    if st.session_state.auth_page == "login":
         show_login()
     else:
         show_signup()
